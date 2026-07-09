@@ -1,0 +1,40 @@
+{
+  pkgs,
+  ...
+}: {
+  home.packages = with pkgs; [
+    tesseract
+    gimp
+    evtest
+    showmethekey
+    scrcpy
+    zip
+    xz
+    unzip
+    p7zip
+    file-roller
+    file
+    which
+    tree
+    gnused
+    gnutar
+    gawk
+    zstd
+    gnupg
+    mtr
+    iperf3
+    dnsutils
+    ldns
+    aria2
+    socat
+    nmap
+    ipcalc
+    iotop
+    iftop
+    sysstat
+    lm_sensors
+    ethtool
+    pciutils
+    usbutils
+  ];
+}
