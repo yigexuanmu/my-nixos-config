@@ -1,5 +1,6 @@
 {
   config,
+  pkgs,
   ...
 }: {
   hardware.graphics.enable = true;
@@ -10,4 +11,7 @@
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
+  environment.systemPackages = with pkgs; [
+    nvidia-vaapi-driver
+  ];
 }
