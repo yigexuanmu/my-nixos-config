@@ -461,11 +461,11 @@
         "nixpkgs": "nixpkgs_8"
       },
       "locked": {
-        "lastModified": 1783589470,
-        "narHash": "sha256-70alBvvVmBaB8N0WYjvlUbqmuu6tAmEJ9dmJ4RBYqn0=",
+        "lastModified": 1783590374,
+        "narHash": "sha256-IZR1QxZHhlvd7xMRaJnMNoe5bPyXPfs7HF68r41pS3g=",
         "owner": "yigexuanmu",
         "repo": "we-layerd-flake",
-        "rev": "21b650eb46a0f10a064e5412842842d405522954",
+        "rev": "98768c8b45c1f99511fd18bba57ea768f1b178ff",
         "type": "github"
       },
       "original": {
