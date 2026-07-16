@@ -13,6 +13,7 @@
 | daeuniverse | [daeuniverse/flake.nix](https://github.com/daeuniverse/flake.nix) | DAED 网络代理 |
 | noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia v5 Shell |
 | miyu | [yigexuanmu/Miyu](https://github.com/yigexuanmu/Miyu) | 终端 AI 助手（TUI Diff） |
+| niri/ | [shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) — Niri 平铺窗口管理器 |
 | we-layerd | [yigexuanmu/we-layerd-flake](https://github.com/yigexuanmu/we-layerd-flake) | Wallpaper Engine Wayland 运行时 + DXC |
 
 ## 目录结构
@@ -99,7 +100,6 @@
 | imv | 图片查看器 |
 | wl-clipboard | Wayland 剪贴板 |
 | nautilus | GNOME 文件管理器 |
-| niri/ | [shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) — Niri 平铺窗口管理器配置 |
 | thunar | XFCE 文件管理器 + tumbler 缩略图服务 |
 
 ### Develop
@@ -107,7 +107,7 @@
 | 工具 | 说明 |
 |------|------|
 | ripgrep / jq / yq-go | 搜索/JSON/YAML 处理 |
-| python313 + uv + pip + pipx | Python 开发 |
+| python314 + uv + pip + pipx | Python 开发 |
 | ffmpeg | 音视频处理 |
 | websocat | WebSocket 工具 |
 | android-tools | Android ADB |
