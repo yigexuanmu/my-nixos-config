@@ -61,7 +61,7 @@
 
 | 模块 | 说明 |
 |------|------|
-| desktop.nix | Niri（Wayland 平铺窗口管理器），Ly 显示管理器 |
+| desktop.nix | Niri（Wayland 平铺窗口管理器），Ly 显示管理器，Thunar 文件管理器，tumbler 缩略图服务 |
 | environment.nix | 系统软件包（VSCode、Vim、Git、Kitty、Fish、Wine、distrobox 等），图标主题（Adwaita/MoreWaita/Papirus），光标主题 |
 | programs.nix | Neovim（默认编辑器 + Python3 支持）、Virt-Manager、Firefox |
 
@@ -99,7 +99,8 @@
 | imv | 图片查看器 |
 | wl-clipboard | Wayland 剪贴板 |
 | nautilus | GNOME 文件管理器 |
-| niri/ | Niri 平铺窗口管理器配置 |
+| niri/ | [shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) — Niri 平铺窗口管理器配置 |
+| thunar | XFCE 文件管理器 + tumbler 缩略图服务 |
 
 ### Develop
 
