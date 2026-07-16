@@ -13,6 +13,7 @@
     };
     miyu.url = "github:yigexuanmu/Miyu";
     we-layerd.url = "github:yigexuanmu/we-layerd-flake";
+    shorin-niri.url = "github:yigexuanmu/shorin-niri-nix";
   };
 
   outputs = {
@@ -20,6 +21,7 @@
     nixpkgs,
     home-manager,
     lazyvim,
+    shorin-niri,
     ...
   } @ inputs: {
     nixosConfigurations.mioha-nix = nixpkgs.lib.nixosSystem {

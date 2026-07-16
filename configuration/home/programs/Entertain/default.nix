@@ -8,5 +8,6 @@
     kazumi
     mpv
     cowsay
+    wineWow64Packages.stagingFull
   ];
 }

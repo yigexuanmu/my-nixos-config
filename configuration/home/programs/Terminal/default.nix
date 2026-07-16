@@ -14,5 +14,6 @@
     tty-clock
     chafa
     inputs.miyu.packages.x86_64-linux.default
+    fish
   ];
 }

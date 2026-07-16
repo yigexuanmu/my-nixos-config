@@ -6,9 +6,9 @@
     ripgrep
     jq
     yq-go
-    python313
+    python314
     uv
-    python313Packages.pip
+    python314Packages.pip
     pipx
     ffmpeg
     websocat
@@ -19,5 +19,9 @@
     strace
     ltrace
     lsof
+    vscode
+    git
+    nh
+    opencode
   ];
 }

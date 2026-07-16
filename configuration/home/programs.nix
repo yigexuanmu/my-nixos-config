@@ -18,7 +18,6 @@
     ./programs/Terminal/fish
     ./programs/Terminal/kitty
     ./programs/Utility/default.nix
-    ./programs/Utility/obs-studio.nix
   ];
 
   programs.lazyvim.enable = true;

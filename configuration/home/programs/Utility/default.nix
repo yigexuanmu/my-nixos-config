@@ -5,6 +5,7 @@
   home.packages = with pkgs; [
     tesseract
     gimp
+    kdePackages.kdenlive
     evtest
     showmethekey
     scrcpy
@@ -36,5 +37,7 @@
     ethtool
     pciutils
     usbutils
+    wget
+    distrobox
   ];
 }

@@ -13,6 +13,7 @@
     ../system/desktop.nix
     ../system/programs.nix
     ../system/noctalia.nix
+    ../system/obs-studio.nix
     ../device/hardware/nvidia.nix
   ];
 }
