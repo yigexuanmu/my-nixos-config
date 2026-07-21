@@ -184,7 +184,8 @@
 - [SHORiN-KiWATA](https://github.com/SHORiN-KiWATA) — 配置文件参考
 - [brokenshine/nixos-configs](https://gitee.com/brokenshine/nixos-configs) — NixOS 配置参考
 - [NixOS-CN 安装教程](https://nixos-cn.org/tutorials/installation) — 安装教程参考
-- [opencode](https://github.com/anomalyco/opencode) — 开源 AI 编程助手
+- [OpenCode](https://github.com/anomalyco/opencode) — 开源 AI 编程助手
+- [Miyu](https://github.com/SHORiN-KiWATA/Miyu) - 好用的开源终端 AI 助手
 - [NixOS & Flakes Book](https://nixos-and-flakes.thiscute.world/zh) — NixOS 与 Flakes 中文教程
 
 ## 使用的AI
