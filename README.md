@@ -75,7 +75,7 @@
 |------|------|
 | desktop.nix | Niri（Wayland 平铺窗口管理器，使用 shorin-niri 定制构建），Ly 显示管理器，gvfs |
 | neovim.nix | Neovim（默认编辑器 + Python3 支持） |
-| firefox.nix | Firefox 浏览器 |
+| firefox.nix | Firefox 浏览器（备用） |
 | obs-studio.nix | OBS Studio（CUDA 加速 + 多插件：wlrobs、backgroundremoval、pipewire、vaapi、vkcapture 等） |
 
 ### 系统服务
@@ -107,7 +107,7 @@
 |------|------|
 | programs.nix | 用户 `mioha`，聚合所有 Home 模块，启用 LazyVim + Git |
 | nixpkgs.nix | 允许非自由包，pipx 覆盖，允许不安全包 |
-| session.nix | Flatpak 数据目录，终端设为 Kitty，EDITOR=nvim，BROWSER=firefox |
+| session.nix | Flatpak 数据目录，终端设为 Kitty，EDITOR=nvim，BROWSER=google-chrome |
 
 ### Desktop
 
