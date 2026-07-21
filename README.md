@@ -12,7 +12,7 @@
 | nix-cachyos-kernel | [xddxdd/nix-cachyos-kernel](https://github.com/xddxdd/nix-cachyos-kernel) | CachyOS BORE 内核 |
 | daeuniverse | [daeuniverse/flake.nix](https://github.com/daeuniverse/flake.nix) | DAED 网络代理 |
 | noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia v5 Shell (follows nixpkgs) |
-| miyu | [yigexuanmu/Miyu](https://github.com/yigexuanmu/Miyu) | 终端 AI 助手（TUI Diff） |
+| miyu | [yigexuanmu/Miyu](https://github.com/yigexuanmu/Miyu) | 终端 AI 助手 |
 | niri | [shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) | Niri 平铺窗口管理器 |
 | we-layerd | [yigexuanmu/we-layerd-flake](https://github.com/yigexuanmu/we-layerd-flake) | Wallpaper Engine Wayland 运行时 + DXC |
 | shorin-niri | [yigexuanmu/shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) | Niri 平铺窗口管理器定制构建 |
