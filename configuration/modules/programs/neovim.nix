@@ -8,6 +8,4 @@
     viAlias = true;
     vimAlias = true;
   };
-  programs.virt-manager.enable = true;
-  programs.firefox.enable = true;
 }

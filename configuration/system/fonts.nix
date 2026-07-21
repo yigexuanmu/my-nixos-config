@@ -1,9 +1,4 @@
-{
-  pkgs,
-  ...
-}: let
-  harmonyos-sans = pkgs.callPackage ./harmonyos-sans.nix {};
-in {
+{ pkgs, ... }: {
   fonts = {
     packages = with pkgs; [
       noto-fonts

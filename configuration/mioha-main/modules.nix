@@ -1,0 +1,18 @@
+{
+  imports = [
+    ../modules/programs/steam.nix
+    ../modules/programs/desktop.nix
+    ../modules/programs/neovim.nix
+    ../modules/programs/virt-manager.nix
+    ../modules/programs/firefox.nix
+    ../modules/programs/obs-studio.nix
+    ../modules/services/flatpak.nix
+    ../modules/services/polkit.nix
+    ../modules/services/daed.nix
+    ../modules/services/openssh.nix
+    ../modules/services/pipewire.nix
+    ../modules/virtualisation/libvirtd.nix
+    ../modules/virtualisation/podman.nix
+    ../modules/virtualisation/vmware-workstation.nix
+  ];
+}

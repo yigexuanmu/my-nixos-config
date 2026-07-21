@@ -12,6 +12,10 @@
     polkit_gnome
     dnsmasq
     libxkbcommon
+    wayland-protocols
+    libdecor
     xwayland-satellite
-   ];
+    distrobox
+    gamescope
+  ];
 }

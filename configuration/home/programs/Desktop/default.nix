@@ -23,19 +23,7 @@
     qt6Packages.qt6ct
     gtk3
     gtk4
-    # thunar相关
-    thunar
-    tumbler
-    ffmpegthumbnailer
-    poppler
-    file-roller
-    gvfs
-    thunar-archive-plugin
     gnome-keyring
-    thunar-volman
-    webp-pixbuf-loader
-    icoextract
-    python314Packages.pillow
     # 壁纸引擎
     inputs.we-layerd.packages.x86_64-linux.default
   ];

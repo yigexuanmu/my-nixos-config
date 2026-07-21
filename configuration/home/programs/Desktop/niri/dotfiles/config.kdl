@@ -329,7 +329,6 @@ window-rule {
 // （此示例规则前面加了 "/-" 注释掉了。）
 window-rule {
     geometry-corner-radius 12
-    opacity 0.85
     draw-border-with-background false
     clip-to-geometry true
     background-effect { blur true; xray false; }

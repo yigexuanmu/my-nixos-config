@@ -38,6 +38,5 @@
     pciutils
     usbutils
     wget
-    distrobox
   ];
 }
