@@ -146,7 +146,7 @@
 | eza / fzf | 增强 ls / 模糊搜索 |
 | tty-clock | 终端时钟 |
 | fish | Shell（默认） |
-| miyu | [Miyu](https://github.com/yigexuanmu/Miyu) — 基于 Rust 的终端 AI 助手，TUI Diff 显示 |
+| miyu | [Miyu](https://github.com/yigexuanmu/Miyu) — 基于 Rust 的终端 AI 助手 |
 
 ### Entertain
 
