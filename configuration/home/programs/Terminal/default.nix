@@ -6,7 +6,15 @@
   home.packages = with pkgs; [
     yazi
     kitty
-    btop
+    (pkgs.symlinkJoin {
+      name = "btop-wrapped";
+      paths = [ pkgs.btop ];
+      buildInputs = [ pkgs.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/btop \
+          --prefix LD_LIBRARY_PATH : /run/opengl-driver/lib
+      '';
+    })
     fastfetch
     starship
     eza

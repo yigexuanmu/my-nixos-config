@@ -11,8 +11,8 @@
 | lazyvim | [pfassina/lazyvim-nix](https://github.com/pfassina/lazyvim-nix) | LazyVim Neovim 配置 |
 | nix-cachyos-kernel | [xddxdd/nix-cachyos-kernel](https://github.com/xddxdd/nix-cachyos-kernel) | CachyOS BORE 内核 |
 | daeuniverse | [daeuniverse/flake.nix](https://github.com/daeuniverse/flake.nix) | DAED 网络代理 |
-| noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia v5 Shell |
-| miyu | [yigexuanmu/Miyu](https://github.com/yigexuanmu/Miyu) | 终端 AI 助手 |
+| noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia v5 Shell (follows nixpkgs) |
+| miyu | [yigexuanmu/Miyu](https://github.com/yigexuanmu/Miyu) | 终端 AI 助手（TUI Diff） |
 | niri | [shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) | Niri 平铺窗口管理器 |
 | we-layerd | [yigexuanmu/we-layerd-flake](https://github.com/yigexuanmu/we-layerd-flake) | Wallpaper Engine Wayland 运行时 + DXC |
 | shorin-niri | [yigexuanmu/shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) | Niri 平铺窗口管理器定制构建 |
@@ -49,7 +49,7 @@
 | 模块 | 说明 |
 |------|------|
 | hardware-configuration.nix | 自动生成，AMD CPU + NVMe，Btrfs（subvol=@ + @home），zstd 压缩 |
-| nvidia.nix | NVIDIA 开源 GPU 内核模块驱动（nvidia-open）new_feature分支 |
+| nvidia.nix | NVIDIA 开源 GPU 内核模块驱动（nvidia-open） |
 | boot.nix | GRUB 引导（EFI），CachyOS Bore v3 内核 |
 
 ### 系统基础
@@ -60,13 +60,14 @@
 | networking.nix | 主机名 `mioha-nix`，NetworkManager，关闭防火墙 |
 | user.nix | 用户 `mioha`，组：wheel、networkmanager、libvirtd、kvm、input、uinput |
 | i18n.nix | 时区上海，英文 locale + 中文支持，Fcitx5 输入法（中文 + 日语 Mozc + Mellow 主题） |
-| environment.nix | 系统软件包（VSCode、Vim、Git、Kitty、Fish、Wine、distrobox 等），图标主题（Papirus），光标主题（afterglow-cursors-recolored） |
+| environment.nix | 系统软件包（VSCode、Vim、Git、Kitty、Fish、Wine、distrobox 等），图标主题（Adwaita/MoreWaita/Papirus），光标主题 |
 
 ### 字体
 
 | 模块 | 说明 |
 |------|------|
 | fonts.nix | Noto 中日韩 + Color Emoji，JetBrains Mono，Fira Code Nerd Font，文泉驿微米黑，HarmonyOS Sans（自定义打包） |
+| harmonyos-sans.nix | 从 GitHub 拉取 HarmonyOS Sans 字体并安装 |
 
 ### 桌面环境
 
@@ -145,7 +146,7 @@
 | eza / fzf | 增强 ls / 模糊搜索 |
 | tty-clock | 终端时钟 |
 | fish | Shell（默认） |
-| miyu | [Miyu](https://github.com/yigexuanmu/Miyu) — 基于 Rust 的终端 AI 助手 |
+| miyu | [Miyu](https://github.com/yigexuanmu/Miyu) — 基于 Rust 的终端 AI 助手，TUI Diff 显示 |
 
 ### Entertain
 
@@ -184,11 +185,5 @@
 - [SHORiN-KiWATA](https://github.com/SHORiN-KiWATA) — 配置文件参考
 - [brokenshine/nixos-configs](https://gitee.com/brokenshine/nixos-configs) — NixOS 配置参考
 - [NixOS-CN 安装教程](https://nixos-cn.org/tutorials/installation) — 安装教程参考
-- [OpenCode](https://github.com/anomalyco/opencode) — 开源 AI 编程助手
-- [Miyu](https://github.com/SHORiN-KiWATA/Miyu) — 好用的开源终端 AI 助手
+- [opencode](https://github.com/anomalyco/opencode) — 开源 AI 编程助手
 - [NixOS & Flakes Book](https://nixos-and-flakes.thiscute.world/zh) — NixOS 与 Flakes 中文教程
-
-## 使用的AI
-
-- MiMo-V2.5-Free [(OpenCode Zen)](https://opencode.ai/zen)
-- DeepSeek-V4 [(DeepSeek Platform)](https://platform.deepseek.com)

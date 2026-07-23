@@ -4,7 +4,7 @@
   imports = [
     ./packages.nix
     ./device.nix
-    ../system/hardware-configuration.nix
+    ../modules/services/disko.nix
     ../system/boot.nix
     ../system/nix.nix
     ../system/networking.nix

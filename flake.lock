@@ -51,6 +51,26 @@
         "type": "github"
       }
     },
+    "disko": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1781152676,
+        "narHash": "sha256-RxWs5ND31KzTG7wvMM+PMfUjyNpmIEr999lqNARaM5o=",
+        "owner": "nix-community",
+        "repo": "disko",
+        "rev": "ff8702b4de27f72b4c78573dfb89ec74e36abdf1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "disko",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -416,6 +436,7 @@
     "root": {
       "inputs": {
         "daeuniverse": "daeuniverse",
+        "disko": "disko",
         "home-manager": "home-manager",
         "lazyvim": "lazyvim",
         "miyu": "miyu",
@@ -423,6 +444,7 @@
         "nixpkgs": "nixpkgs_6",
         "noctalia": "noctalia",
         "shorin-niri": "shorin-niri",
+        "waydroid-nvidia-nix": "waydroid-nvidia-nix",
         "we-layerd": "we-layerd"
       }
     },
@@ -512,6 +534,27 @@
         "type": "github"
       }
     },
+    "waydroid-nvidia-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "wnv-src": "wnv-src"
+      },
+      "locked": {
+        "lastModified": 1784767273,
+        "narHash": "sha256-Afg8GrDay/Qm3ftc7TlNF92NHcs4glzWhpIAMjW/RLY=",
+        "owner": "yigexuanmu",
+        "repo": "waydroid-nvidia-nix",
+        "rev": "2beca8fa11ca7f5af71d4056ab4eccbbfe530443",
+        "type": "github"
+      },
+      "original": {
+        "owner": "yigexuanmu",
+        "repo": "waydroid-nvidia-nix",
+        "type": "github"
+      }
+    },
     "we-layerd": {
       "inputs": {
         "nixpkgs": "nixpkgs_8"
@@ -520,13 +563,30 @@
         "lastModified": 1784044181,
         "narHash": "sha256-HHIA75cx8bxR/sMfUN1VemK+OnCGekkbc80c/8EXxTE=",
         "owner": "yigexuanmu",
-        "repo": "we-layerd-flake",
+        "repo": "we-layerd-nix",
         "rev": "9397b3898385e80714fa5ada63c7cf843c15265f",
         "type": "github"
       },
       "original": {
         "owner": "yigexuanmu",
-        "repo": "we-layerd-flake",
+        "repo": "we-layerd-nix",
+        "type": "github"
+      }
+    },
+    "wnv-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784756761,
+        "narHash": "sha256-idNA2hQyYOXGjdQkB/VXHUuT9VqHi0IUjM4WS5dR7KY=",
+        "owner": "Shiro836",
+        "repo": "waydroid-nvidia",
+        "rev": "4e8650251c3518d1fabc1498dcd4853b569b6863",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Shiro836",
+        "ref": "v0.1.1",
+        "repo": "waydroid-nvidia",
         "type": "github"
       }
     }

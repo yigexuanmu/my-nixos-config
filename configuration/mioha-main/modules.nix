@@ -9,6 +9,7 @@
     ../modules/services/flatpak.nix
     ../modules/services/polkit.nix
     ../modules/services/daed.nix
+    ../modules/services/waydroid-nvidia.nix
     ../modules/services/openssh.nix
     ../modules/services/pipewire.nix
     ../modules/virtualisation/libvirtd.nix
