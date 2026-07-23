@@ -16,6 +16,7 @@
 | niri | [shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) | Niri 平铺窗口管理器 |
 | we-layerd | [yigexuanmu/we-layerd-flake](https://github.com/yigexuanmu/we-layerd-flake) | Wallpaper Engine Wayland 运行时 + DXC |
 | shorin-niri | [yigexuanmu/shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) | Niri 平铺窗口管理器定制构建 |
+| disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
 
 ## 目录结构
 
@@ -48,7 +49,7 @@
 
 | 模块 | 说明 |
 |------|------|
-| hardware-configuration.nix | 自动生成，AMD CPU + NVMe，Btrfs（subvol=@ + @home），zstd 压缩 |
+| hardware-config.nix + disko.nix | 手动配置硬件（AMD CPU + NVMe 内核模块） + 声明式磁盘布局，by-id 引用 NVMe 磁盘，Btrfs（subvol=@ + @home），zstd 压缩 |
 | nvidia.nix | NVIDIA 开源 GPU 内核模块驱动（nvidia-open） |
 | boot.nix | GRUB 引导（EFI），CachyOS Bore v3 内核 |
 
