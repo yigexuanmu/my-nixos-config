@@ -11,12 +11,13 @@
 | lazyvim | [pfassina/lazyvim-nix](https://github.com/pfassina/lazyvim-nix) | LazyVim Neovim 配置 |
 | nix-cachyos-kernel | [xddxdd/nix-cachyos-kernel](https://github.com/xddxdd/nix-cachyos-kernel) | CachyOS BORE 内核 |
 | daeuniverse | [daeuniverse/flake.nix](https://github.com/daeuniverse/flake.nix) | DAED 网络代理 |
+| disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
 | noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia v5 Shell (follows nixpkgs) |
 | miyu | [yigexuanmu/Miyu](https://github.com/yigexuanmu/Miyu) | 终端 AI 助手（TUI Diff） |
+| waydroid-nvidia-nix | [yigexuanmu/waydroid-nvidia-nix](https://github.com/yigexuanmu/waydroid-nvidia-nix) | NVIDIA GPU Waydroid 加速 |
 | niri | [shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) | Niri 平铺窗口管理器 |
-| we-layerd | [yigexuanmu/we-layerd-flake](https://github.com/yigexuanmu/we-layerd-flake) | Wallpaper Engine Wayland 运行时 + DXC |
+| we-layerd | [yigexuanmu/we-layerd-nix](https://github.com/yigexuanmu/we-layerd-nix) | Wallpaper Engine Wayland 运行时 + DXC |
 | shorin-niri | [yigexuanmu/shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) | Niri 平铺窗口管理器定制构建 |
-| disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
 
 ## 目录结构
 
@@ -49,7 +50,8 @@
 
 | 模块 | 说明 |
 |------|------|
-| hardware-config.nix + disko.nix | 手动配置硬件（AMD CPU + NVMe 内核模块） + 声明式磁盘布局，by-id 引用 NVMe 磁盘，Btrfs（subvol=@ + @home），zstd 压缩 |
+| hardware-config.nix | 手动配置，AMD CPU + NVMe 内核模块，nixpkgs.hostPlatform，AMD CPU 微码 |
+| disko.nix | 声明式磁盘布局，by-id 引用 NVMe 磁盘，Btrfs（subvol=@ + @home，zstd 压缩）+ 5G EFI + 16G swap |
 | nvidia.nix | NVIDIA 开源 GPU 内核模块驱动（nvidia-open） |
 | boot.nix | GRUB 引导（EFI），CachyOS Bore v3 内核 |
 
@@ -78,6 +80,7 @@
 | neovim.nix | Neovim（默认编辑器 + Python3 支持） |
 | firefox.nix | Firefox 浏览器（备用） |
 | obs-studio.nix | OBS Studio（CUDA 加速 + 多插件：wlrobs、backgroundremoval、pipewire、vaapi、vkcapture 等） |
+| virt-manager.nix | Virtual Machine Manager 图形化管理前端 |
 
 ### 系统服务
 
@@ -88,6 +91,7 @@
 | flatpak.nix | Flatpak 包管理 + xdg-desktop-portal-gtk |
 | polkit.nix | Polkit 权限管理 + GNOME 认证代理 |
 | daed.nix | DAED 代理（daeuniverse），监听 127.0.0.1:2023，防火墙端口 12345 |
+| waydroid-nvidia.nix | Waydroid NVIDIA GPU 加速（使用外部 flake waydroid-nvidia-nix），165Hz 刷新率 |
 | libvirtd.nix | KVM/QEMU 虚拟机，swtpm + virtiofsd |
 | steam.nix | Steam + 远程游玩 + 专用服务器防火墙 |
 | podman.nix | Podman 容器引擎 + Docker 兼容层 |
