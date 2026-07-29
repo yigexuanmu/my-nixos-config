@@ -396,7 +396,7 @@ cursor {
     hide-after-inactive-ms 3000
 }
 
-include "noctalia.kdl"
+//include "noctalia.kdl"
 include "blur.kdl"
 include "pop-drop.kdl"
 include "binds.kdl"
