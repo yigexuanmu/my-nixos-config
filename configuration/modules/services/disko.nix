@@ -7,7 +7,7 @@
         content = {
           type = "gpt";
           partitions = {
-            boot = {
+            ESP = {
               size = "5G";
               type = "EF00";
               content = {
@@ -17,7 +17,7 @@
                 mountOptions = [ "fmask=0022" "dmask=0022" ];
               };
             };
-            root = {
+            zfs = {
               size = "100%";
               content = {
                 type = "zfs";
@@ -33,21 +33,26 @@
       rpool = {
         type = "zpool";
         mode = "single";
-        disk = [ "main" ];
         rootFsOptions = {
           compression = "zstd";
           atime = "off";
           xattr = "sa";
           acltype = "posix";
-          mountpoint = "none";
-          canmount = "off";
         };
         options.ashift = "12";
 
         datasets = {
-          "root" = {
+          "ROOT" = {
+            type = "zfs_fs";
+            options = {
+              canmount = "off";
+              mountpoint = "none";
+            };
+          };
+          "ROOT/default" = {
             type = "zfs_fs";
             mountpoint = "/";
+            options.canmount = "noauto";
           };
           "home" = {
             type = "zfs_fs";
@@ -61,6 +66,10 @@
             };
             options = {
               volblocksize = "4K";
+              sync = "standard";
+              logbias = "throughput";
+              primarycache = "none";
+              secondarycache = "none";
             };
           };
         };

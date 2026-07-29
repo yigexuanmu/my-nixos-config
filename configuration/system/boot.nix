@@ -20,11 +20,10 @@
 
   services.zfs = {
     autoScrub.enable = true;
-    autoScrub.interval = "weekly";
+    autoScrub.interval = "monthly";
   };
 
   boot.zfs.extraPools = [ "rpool" ];
-  environment.etc."modprobe.d/zfs.conf".text = ''
-    options zfs zfs_arc_max=${toString (16 * 1024 * 1024 * 1024)}
-  '';
+  boot.zfs.devNodes = "/dev/disk/by-id";
+  boot.zfs.requestEncryptionKey = false;
 }
