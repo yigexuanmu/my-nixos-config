@@ -32,6 +32,11 @@
       url = "github:yigexuanmu/waydroid-nvidia-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    folia-major = {
+      url = "github:yigexuanmu/folia-major";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {

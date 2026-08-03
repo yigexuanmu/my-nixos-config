@@ -25,5 +25,6 @@
 
   boot.zfs.extraPools = [ "rpool" ];
   boot.zfs.devNodes = "/dev/disk/by-id";
-  boot.zfs.requestEncryptionKey = false;
+  boot.zfs.requestEncryptionCredentials = false;
+  boot.zfs.forceImportRoot = false;
 }

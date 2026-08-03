@@ -9,6 +9,8 @@
 
   environment.systemPackages = with pkgs; [
     gcc
+    nh
+    git
     polkit_gnome
     dnsmasq
     libxkbcommon

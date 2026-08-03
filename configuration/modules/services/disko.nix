@@ -32,7 +32,7 @@
     zpool = {
       rpool = {
         type = "zpool";
-        mode = "single";
+        mode = "";
         rootFsOptions = {
           compression = "zstd";
           atime = "off";

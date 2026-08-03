@@ -26,5 +26,6 @@
     gnome-keyring
     # 壁纸引擎
     inputs.we-layerd.packages.x86_64-linux.default
+    inputs.folia-major.packages.${system}.default
   ];
 }
