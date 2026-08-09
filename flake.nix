@@ -24,12 +24,10 @@
 
     miyu.url = "github:yigexuanmu/Miyu";
 
-    we-layerd.url = "github:yigexuanmu/we-layerd-nix";
-
     shorin-niri.url = "github:yigexuanmu/shorin-niri-nix";
 
     waydroid-nvidia-nix = {
-      url = "github:yigexuanmu/waydroid-nvidia-nix";
+      url = "github:yigexuanmu/waydroid-nvidia-nix/Neo";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

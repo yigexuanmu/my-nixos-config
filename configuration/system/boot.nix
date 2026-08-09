@@ -23,8 +23,8 @@
     autoScrub.interval = "monthly";
   };
 
-  boot.zfs.extraPools = [ "rpool" ];
+#  boot.zfs.extraPools = [ "rpool" ];
   boot.zfs.devNodes = "/dev/disk/by-id";
   boot.zfs.requestEncryptionCredentials = false;
-  boot.zfs.forceImportRoot = false;
+  boot.zfs.forceImportRoot = true;
 }

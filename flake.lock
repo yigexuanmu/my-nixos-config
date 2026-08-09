@@ -78,11 +78,11 @@
         "nixpkgs-lib": "nixpkgs-lib_2"
       },
       "locked": {
-        "lastModified": 1782949081,
-        "narHash": "sha256-vp6Y/Grm98ESt6ceOkWiHWyZRDV3J1RID4w+6NWK9yA=",
+        "lastModified": 1785627969,
+        "narHash": "sha256-4dtXQk/NMePegK/nWp5NSeuZKLATItOq61lpEvmXqGw=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "17c9d6cdfc60c64f4ee8d306f9bc0b4ccb51481e",
+        "rev": "427bf4bd9435fdf21321c8cc628c24efc14c0f7a",
         "type": "github"
       },
       "original": {
@@ -153,11 +153,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784995271,
-        "narHash": "sha256-1bFgq67AL5767lMq1sVi6I3DP+mwtSyZELtVJsxO0zo=",
+        "lastModified": 1786092999,
+        "narHash": "sha256-Is/UyCe6iXRKvIuhC7IU4e8xGob03yuXm8mSEMugmaI=",
         "owner": "yigexuanmu",
         "repo": "folia-major",
-        "rev": "c19e96f6cf81cd7bebdf9adcab0c4eff8afe477c",
+        "rev": "3fb4e783dd9b5cccc851e83cc1d990cc33688913",
         "type": "github"
       },
       "original": {
@@ -171,11 +171,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1785531816,
-        "narHash": "sha256-vkMnV0JIyw+g/NmcfoajlGaAO+9a0ezia+FZohQJrik=",
+        "lastModified": 1786031233,
+        "narHash": "sha256-TIDlLTLI1/pB7IqgjzcKQjpODQsZE2oII4XGG9B6KjI=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "bf9ce9fec78f95f374e8dd3b503863a3ec128ebe",
+        "rev": "7834e82588860aaf780cec1366524456a70898d7",
         "type": "github"
       },
       "original": {
@@ -227,11 +227,11 @@
     "miyu-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1784974692,
-        "narHash": "sha256-CZpDGfXYtaO1TQNFsy3sHfhrSIVyC5Gg1bh8t04wkTU=",
+        "lastModified": 1786039081,
+        "narHash": "sha256-dw/0Twcyacf4BiqIprsL4yRTLL+FDjaqmiqe72Jg0gE=",
         "owner": "SHORiN-KiWATA",
         "repo": "Miyu",
-        "rev": "da1ff66c5f8539f7dd4e23fe2188c078d121c331",
+        "rev": "2270aac4884ba8a1bab820d2f76d42f6534e7e77",
         "type": "github"
       },
       "original": {
@@ -247,11 +247,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1785524300,
-        "narHash": "sha256-QeJMNuRgY5E7pAYTjgMO8Te9Rg0AEI5CgS8EYQpZzHw=",
+        "lastModified": 1785956845,
+        "narHash": "sha256-TsNjtAZpcOWiPV+qf1qO7kUoUQBrR2U/Trl2vAZtVKg=",
         "owner": "xddxdd",
         "repo": "nix-cachyos-kernel",
-        "rev": "4f3c8ca048091c5fbad5447c660133ac1a151ac7",
+        "rev": "c2034e4c5f878e038dece8c92afe8d1355edc1b9",
         "type": "github"
       },
       "original": {
@@ -293,11 +293,11 @@
     },
     "nixpkgs-lib_2": {
       "locked": {
-        "lastModified": 1782614948,
-        "narHash": "sha256-ePjCwr1sNm9NYUqywL7QfK3JnlS015msC+eBu2zKlp8=",
+        "lastModified": 1785031560,
+        "narHash": "sha256-OmshNvn2vupOFpYinLUu+1Dnpu4n7Q5N3ggGVNHpkUI=",
         "owner": "nix-community",
         "repo": "nixpkgs.lib",
-        "rev": "db3f255737b94216eb71cce308e2912cf6bc2d7c",
+        "rev": "0e79af5e3d4dcfcd676ab5ba3f95d2e3352e078c",
         "type": "github"
       },
       "original": {
@@ -356,11 +356,11 @@
     },
     "nixpkgs_5": {
       "locked": {
-        "lastModified": 1785501464,
-        "narHash": "sha256-TOU5zN4qZzi8Fd4FOPaO5liKYo+RHlleHDasnyI3S78=",
+        "lastModified": 1785925688,
+        "narHash": "sha256-taRLhiPA3s8J5+b6BLzUugC/0T4mQuyhkPiqr+fai2w=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "7e2391fc6abe0c200affe8e8a4efd2cc891fcffb",
+        "rev": "379e2fc6c7612f7341d941ae4d1ea38021c41d6e",
         "type": "github"
       },
       "original": {
@@ -372,11 +372,11 @@
     },
     "nixpkgs_6": {
       "locked": {
-        "lastModified": 1785454630,
-        "narHash": "sha256-LQy14TZp77TwbQf40gg1V3jo8FwJG0jGDkAH+zRHqg8=",
+        "lastModified": 1785967620,
+        "narHash": "sha256-IItrdb7Puk05RqOBWZYFC5X6Wl1sJmCfh5MWVHw5iMM=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "1559d3daa3ecc813a650b79375ea61b6741b8746",
+        "rev": "b7c2ada94fe99c15b0dbcf4d11fd7850b957a436",
         "type": "github"
       },
       "original": {
@@ -402,22 +402,6 @@
         "type": "github"
       }
     },
-    "nixpkgs_8": {
-      "locked": {
-        "lastModified": 1783776592,
-        "narHash": "sha256-UgCQzxeWI75XM8G+hPrPh+MKzEPjG3SpAj7dtqSbksA=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "noctalia": {
       "inputs": {
         "nixpkgs": [
@@ -425,11 +409,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785551550,
-        "narHash": "sha256-pcD3NIqrJak6elPOodgq2+j9jzepJwAZwPtza/+L2Jc=",
+        "lastModified": 1786061077,
+        "narHash": "sha256-a8KdcFi/gIo+75FRHgMvr2WErg51BGtfNl5Nz64wz1I=",
         "owner": "noctalia-dev",
         "repo": "noctalia",
-        "rev": "29f0a4130c6632c03acbe9715c31a3f948cc976f",
+        "rev": "0ad7d80225c15aa9b6cac99e820bb34cee1256b6",
         "type": "github"
       },
       "original": {
@@ -450,8 +434,7 @@
         "nixpkgs": "nixpkgs_6",
         "noctalia": "noctalia",
         "shorin-niri": "shorin-niri",
-        "waydroid-nvidia-nix": "waydroid-nvidia-nix",
-        "we-layerd": "we-layerd"
+        "waydroid-nvidia-nix": "waydroid-nvidia-nix"
       }
     },
     "rust-overlay": {
@@ -481,11 +464,11 @@
         "shorin-niri": "shorin-niri_2"
       },
       "locked": {
-        "lastModified": 1784193513,
-        "narHash": "sha256-san4XFAI3NxAQYlZOdY0HW8PCZYufI2oIWmLxnrv2ls=",
+        "lastModified": 1786103965,
+        "narHash": "sha256-TgZUGl7RgSi9sjxYgoL/jMjRtzSKGr6jatG2mcaHqWs=",
         "owner": "yigexuanmu",
         "repo": "shorin-niri-nix",
-        "rev": "d2e12f9acc9b92a8a2e1ca02efe9835b196d973b",
+        "rev": "c5690d0914c9f205f0e6b7e3397e41a543e2e0da",
         "type": "github"
       },
       "original": {
@@ -497,11 +480,11 @@
     "shorin-niri_2": {
       "flake": false,
       "locked": {
-        "lastModified": 1784023492,
-        "narHash": "sha256-UyBGEn/4LGepzfLqxtDerEXFbqp4VKFOTKwx0h/fWk0=",
+        "lastModified": 1785944079,
+        "narHash": "sha256-dSpmq69aUXpqdId53bR7Um5x9zDJCQd3Y1lHaLTDWWM=",
         "owner": "SHORiN-KiWATA",
         "repo": "niri",
-        "rev": "4048aa081b7f0b7fe73187e7e8bce39f8255634c",
+        "rev": "d733216fb940c1859931576d6d8c13837f2663f5",
         "type": "github"
       },
       "original": {
@@ -559,55 +542,20 @@
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
-        ],
-        "wnv-src": "wnv-src"
+        ]
       },
       "locked": {
-        "lastModified": 1784900959,
-        "narHash": "sha256-wh11g5RcmQR/vSPBG1q08wA9F9ZmS5IkJ97+OUVo9RU=",
+        "lastModified": 1786098917,
+        "narHash": "sha256-Sgv0c4FC+bAzVMtUichNakxtaYBxESqB68JVw3J0r7E=",
         "owner": "yigexuanmu",
         "repo": "waydroid-nvidia-nix",
-        "rev": "180697edb1ea2c53fed49d6a07d20a39af563083",
+        "rev": "96117306557d9bd1935831ec50fd6d4c2d38052f",
         "type": "github"
       },
       "original": {
         "owner": "yigexuanmu",
+        "ref": "Neo",
         "repo": "waydroid-nvidia-nix",
-        "type": "github"
-      }
-    },
-    "we-layerd": {
-      "inputs": {
-        "nixpkgs": "nixpkgs_8"
-      },
-      "locked": {
-        "lastModified": 1785578926,
-        "narHash": "sha256-Uqa34j9ovGjcEBF3KlRZrrCFSyVrQ4/+V6K32Vr04TE=",
-        "owner": "yigexuanmu",
-        "repo": "we-layerd-nix",
-        "rev": "58a81424ac5aece3fc6adc2152ebd55d48ebdfe8",
-        "type": "github"
-      },
-      "original": {
-        "owner": "yigexuanmu",
-        "repo": "we-layerd-nix",
-        "type": "github"
-      }
-    },
-    "wnv-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1784896711,
-        "narHash": "sha256-D1qG0+t9+6bdIEGZw6LaiIsU3yzASwY/VF0U2PM1Pcw=",
-        "owner": "Shiro836",
-        "repo": "waydroid-nvidia",
-        "rev": "4239f9055d9ecee765cf6890227cf4d1d9f7b13e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Shiro836",
-        "ref": "v0.1.2",
-        "repo": "waydroid-nvidia",
         "type": "github"
       }
     }

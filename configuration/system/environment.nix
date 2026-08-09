@@ -19,5 +19,6 @@
     xwayland-satellite
     distrobox
     gamescope
+    waydroid-helper
   ];
 }

@@ -392,7 +392,9 @@ window-rule {
 }
 
 
-cursor {
+cursor { 
+    xcursor-theme "Afterglow-Recolored-Dracula-Purple"
+    xcursor-size 24
     hide-after-inactive-ms 3000
 }
 
