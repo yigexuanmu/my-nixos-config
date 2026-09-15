@@ -1,6 +1,5 @@
 {
   pkgs,
-  inputs,
   ...
 }: {
   home.packages = with pkgs; [
@@ -24,7 +23,5 @@
     gtk3
     gtk4
     gnome-keyring
-    # 壁纸引擎
-    inputs.folia-major.packages.${system}.default
   ];
 }

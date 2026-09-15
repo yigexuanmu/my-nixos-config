@@ -1,30 +1,31 @@
-{ config, pkgs, ... }: {
+{ pkgs, ... }: {
   boot.loader = {
     grub = {
       enable = true;
       device = "nodev";
       efiSupport = true;
-      zfsSupport = true;
     };
     efi = {
       canTouchEfiVariables = true;
-      efiSysMountPoint = "/boot";
+      efiSysMountPoint = "/efi";
     };
   };
 
   boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-bore-x86_64-v3;
-  boot.supportedFilesystems.zfs = true;
-  boot.zfs.package = config.boot.kernelPackages.zfs_cachyos;
+  boot.supportedFilesystems.btrfs = true;
 
-  networking.hostId = "1ad3f23c";
+  # 开机必需的挂载点，initramfs 阶段即挂载
+  fileSystems."/boot".neededForBoot = true;
+  fileSystems."/etc".neededForBoot = true;
+  fileSystems."/nix".neededForBoot = true;
+  fileSystems."/nix/store".neededForBoot = true;
 
-  services.zfs = {
-    autoScrub.enable = true;
-    autoScrub.interval = "monthly";
-  };
+  # btrfs 上需重装后手动执行一次:
+  #   sudo btrfs filesystem mkswapfile --size 16G /swap/swapfile
+  swapDevices = [{ device = "/swap/swapfile"; }];
 
-#  boot.zfs.extraPools = [ "rpool" ];
-  boot.zfs.devNodes = "/dev/disk/by-id";
-  boot.zfs.requestEncryptionCredentials = false;
-  boot.zfs.forceImportRoot = true;
+  systemd.tmpfiles.rules = [
+    "d /var/tmp 1777 root root -"
+    "d /var/build 0755 root root -"
+  ];
 }
