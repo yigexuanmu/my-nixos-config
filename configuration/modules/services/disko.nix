@@ -3,7 +3,10 @@
 #
 # 分区:
 #   ESP  5G vfat -> /efi
-#   root 100% btrfs (label=pc-mioha)
+#   lvm  100% (PV -> VG vg-mioha)
+# LVM:
+#   VG vg-mioha -> LV root 100%FREE -> btrfs (label=pc-mioha)
+#   扩盘时: 新盘建 PV 加入 vg-mioha, lvextend root, btrfs resize
 #
 # 挂载:
 #   /            -> tmpfs
@@ -78,11 +81,26 @@
                 ];
               };
             };
-            root = {
+            lvm = {
               size = "100%";
               content = {
-                type = "btrfs";
-                extraArgs = [ "-f" "-L" "pc-mioha" ];
+                type = "lvm_pv";
+                vg = "vg-mioha";
+              };
+            };
+          };
+        };
+      };
+    };
+    lvm_vg = {
+      vg-mioha = {
+        type = "lvm_vg";
+        lvs = {
+          root = {
+            size = "100%FREE";
+            content = {
+              type = "btrfs";
+              extraArgs = [ "-f" "-L" "pc-mioha" ];
                 subvolumes = {
                   "@Config" = {
                     mountpoint = "/etc";
@@ -195,5 +213,4 @@
         };
       };
     };
-  };
 }
