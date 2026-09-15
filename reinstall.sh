@@ -93,7 +93,10 @@ log "复制本仓库到 $TARGET ..."
 mkdir -p "$TARGET"
 cp -a "$SRC_DIR/." "$TARGET/"
 rm -rf "$TARGET/.git"
+# 安装脚本只在 LiveCD 里用，不装进系统，避免 /etc/nixos 里留个格盘按钮
+rm -f "$TARGET/reinstall.sh"
 [ ! -e "$TARGET/.git" ] || die "$TARGET/.git 删除失败，手动检查"
+[ ! -e "$TARGET/reinstall.sh" ] || die "$TARGET/reinstall.sh 排除失败，手动检查"
 [ -f "$TARGET/flake.nix" ] || die "$TARGET/flake.nix 不存在，配置复制失败"
 log "配置就绪: $TARGET（已去掉 .git）"
 
