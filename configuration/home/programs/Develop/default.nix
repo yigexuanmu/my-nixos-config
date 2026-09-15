@@ -2,6 +2,7 @@
   pkgs,
   ...
 }: {
+  # vscode 移除：建议 Windows 侧装 VSCode + Remote-WSL，通过 SSH 连本发行版
   home.packages = with pkgs; [
     ripgrep
     jq
@@ -19,7 +20,6 @@
     strace
     ltrace
     lsof
-    vscode
     git
     nh
     opencode

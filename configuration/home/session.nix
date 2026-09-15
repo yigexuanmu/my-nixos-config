@@ -1,34 +1,8 @@
 {
-  config,
   ...
 }: {
-  targets.genericLinux.enable = true;
-  xdg.systemDirs.data = [
-    "/var/lib/flatpak/exports/share"
-    "${config.home.homeDirectory}/.local/share/flatpak/exports/share"
-  ];
-  xdg.terminal-exec = {
-    enable = true;
-    settings = {
-      default = ["kitty.desktop"];
-    };
-  };
-  xdg.mimeApps = {
-    enable = true;
-    defaultApplications = {
-      "inode/directory" = ["org.gnome.Nautilus.desktop"];
-      "inode/mount-point" = ["org.gnome.Nautilus.desktop"];
-      "text/html" = ["google-chrome.desktop"];
-      "x-scheme-handler/http" = ["google-chrome.desktop"];
-      "x-scheme-handler/https" = ["google-chrome.desktop"];
-      "x-scheme-handler/about" = ["google-chrome.desktop"];
-      "x-scheme-handler/unknown" = ["google-chrome.desktop"];
-    };
-  };
-  xdg.configFile."mimeapps.list".force = true;
+  # 桌面相关的 XDG (mimeApps/terminal-exec/flatpak 目录/genericLinux) 已随桌面环境一并移除
   home.sessionVariables = {
     EDITOR = "nvim";
-    TERMINAL = "kitty";
-    BROWSER = "google-chrome";
   };
 }

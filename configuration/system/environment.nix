@@ -2,23 +2,12 @@
   pkgs,
   ...
 }: {
-  nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.permittedInsecurePackages = [
-    "pnpm-9.15.9"
-  ];
-
+  # 移除了 wayland/x11 相关 (xwayland-satellite、polkit_gnome 等)、gamescope、waydroid-helper
   environment.systemPackages = with pkgs; [
     gcc
     nh
     git
-    polkit_gnome
     dnsmasq
-    libxkbcommon
-    wayland-protocols
-    libdecor
-    xwayland-satellite
     distrobox
-    gamescope
-    waydroid-helper
   ];
 }
