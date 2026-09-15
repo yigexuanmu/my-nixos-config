@@ -1,10 +1,20 @@
 {
   inputs,
+  pkgs,
   ...
 }: {
   nixpkgs.overlays = [
     inputs.nix-cachyos-kernel.overlays.pinned
+    (final: prev: {
+      inherit (prev.lixPackageSets.latest)
+        nixpkgs-review
+        nix-direnv
+        nix-eval-jobs
+        nix-fast-build
+        colmena;
+    })
   ];
+  nix.package = pkgs.lixPackageSets.latest.lix;
   nix.settings.substituters = [
     "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
     "https://mirrors.ustc.edu.cn/nix-channels/store"
