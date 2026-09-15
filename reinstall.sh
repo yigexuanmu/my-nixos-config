@@ -88,12 +88,14 @@ swapon --show=NAME | grep -q "^/mnt/swap/swapfile$" || swapon /mnt/swap/swapfile
 log "swap 已启用: $(swapon --show=NAME,SIZE | grep swapfile || true)"
 
 # ---------------- 4. 复制 NixOS 配置 ----------------
+[ "$SRC_DIR" != "$TARGET" ] || die "脚本不能放在 $TARGET 里运行，否则会删掉自己的 .git，请换个目录 clone 后再跑"
 log "复制本仓库到 $TARGET ..."
 mkdir -p "$TARGET"
 cp -a "$SRC_DIR/." "$TARGET/"
 rm -rf "$TARGET/.git"
+[ ! -e "$TARGET/.git" ] || die "$TARGET/.git 删除失败，手动检查"
 [ -f "$TARGET/flake.nix" ] || die "$TARGET/flake.nix 不存在，配置复制失败"
-log "配置就绪: $TARGET"
+log "配置就绪: $TARGET（已去掉 .git）"
 
 # ---------------- 5. nixos-install ----------------
 log "nixos-install --flake $TARGET#$FLAKE_ATTR ..."
