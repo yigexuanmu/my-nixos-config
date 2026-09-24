@@ -3,18 +3,8 @@
   pkgs,
   ...
 }: {
-  nixpkgs.overlays = [
-    inputs.nix-cachyos-kernel.overlays.pinned
-    (final: prev: {
-      inherit (prev.lixPackageSets.latest)
-        nixpkgs-review
-        nix-direnv
-        nix-eval-jobs
-        nix-fast-build
-        colmena;
-    })
-  ];
   nix.package = pkgs.lixPackageSets.latest.lix;
+  nixpkgs.config.allowUnfree = true;
   nix.settings.substituters = [
     "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
     "https://mirrors.ustc.edu.cn/nix-channels/store"
@@ -22,6 +12,7 @@
   ];
   nix.settings.trusted-public-keys = [ "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc=" ];
   nix.settings.experimental-features = ["nix-command" "flakes"];
+  # 仅系统作用域: pnpm-9 由系统级依赖引入（与 Home 的 pnpm-10 版本不同，勿合并）
   nixpkgs.config.permittedInsecurePackages = [
     "pnpm-9.15.9"
   ];

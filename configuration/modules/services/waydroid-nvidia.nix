@@ -1,4 +1,5 @@
 {
+  pkgs,
   inputs,
   ...
 }: {
@@ -6,6 +7,7 @@
     inputs.waydroid-nvidia-nix.nixosModules.waydroid-nvidia
   ];
 
+  environment.systemPackages = with pkgs; [waydroid-helper];
   services.waydroid-nvidia.enable = true;
   services.waydroid-nvidia.refreshRate = 165;
   services.waydroid-nvidia.package = inputs.waydroid-nvidia-nix.packages.x86_64-linux.waydroid-nvidia-full;

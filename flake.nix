@@ -59,9 +59,7 @@
 
         inputs.disko.nixosModules.disko
 
-        inputs.daeuniverse.nixosModules.daed
-
-      	inputs.nur.modules.nixos.default
+     	inputs.nur.modules.nixos.default
 
         ./configuration/mioha-main/system.nix
         ./configuration/mioha-main/modules.nix

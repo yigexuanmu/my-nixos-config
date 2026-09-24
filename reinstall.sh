@@ -16,7 +16,7 @@ FLAKE_ATTR="mioha-nix"                             # flake.nix 里 nixosConfigur
 SWAP_SIZE="16G"
 TARGET="/mnt/etc/nixos"
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DISKO_NIX="$SRC_DIR/configuration/modules/services/disko.nix"
+DISKO_NIX="$SRC_DIR/configuration/device/disko.nix"
 
 # 期望挂载点（/mnt 下），必须和 disko.nix 一致
 WANT_MOUNTS=(

@@ -8,5 +8,6 @@
     osu-lazer-bin
     prismlauncher
     mangohud
+    gamescope
   ];
 }

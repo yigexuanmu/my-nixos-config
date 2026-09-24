@@ -28,18 +28,21 @@
 ├── flake.nix                     # Flake 入口
 ├── reinstall.sh                  # LiveCD 一键重装脚本（UEFI + disko LVM/btrfs + swapfile）
 ├── configuration/
-│   ├── mioha-main/               # 主机配置入口
+│   ├── mioha-main/               # 主机配置入口（仅 imports 聚合）
 │   │   ├── system.nix            # 聚合系统模块
-│   │   ├── modules.nix           # 聚合 programs/services/virtualisation 模块
+│   │   ├── modules.nix           # 聚合 programs/services/virtualisation/security 模块
 │   │   ├── home.nix              # 聚合 Home Manager 模块
 │   │   ├── device.nix            # 导入硬件配置
 │   │   └── packages.nix          # 导入自定义包
-│   ├── system/                   # 纯系统级配置
-│   ├── device/hardware/          # 硬件特定配置
+│   ├── system/                   # 纯系统级配置（单主题单文件）
+│   ├── device/                   # 磁盘与硬件
+│   │   ├── disko.nix             # 磁盘布局
+│   │   └── hardware/             # 硬件配置（hardware-config/nvidia/bluetooth）
 │   ├── modules/                  # 所有 NixOS 模块
 │   │   ├── programs/             # 系统级程序模块
 │   │   ├── services/             # 系统服务模块
 │   │   ├── virtualisation/       # 虚拟化模块
+│   │   ├── security/             # security wrappers
 │   │   └── packages/             # 系统级包模块
 │   ├── pkgs/                     # 自定义包定义
 │   │   ├── data/fonts/           # 字体打包
@@ -54,33 +57,34 @@
 
 | 模块 | 说明 |
 |------|------|
-| hardware-config.nix | 手动配置，AMD CPU + NVMe 内核模块，nixpkgs.hostPlatform，AMD CPU 微码 |
-| disko.nix | GPT 5G EFI + LVM (vg-mioha) + Btrfs（卷标 pc-mioha），按功能划分 subvol：@Config→/etc、@Data→/var/lib、@Home→/home、@Library→/library、@Sandbox→/sandbox、@Snapshot→/.snapshots、System/@Boot→/boot、@Nix→/nix、@Store→/nix/store、@Guix→/gnu、@Guix-Store→/gnu/store、@Log、@Swap、@Tmp 等；swap 用 swapfile（16G，重装后手动创建） |
-| nvidia.nix | NVIDIA 开源 GPU 内核模块驱动（nvidia-open） |
-| boot.nix | GRUB（EFI，挂载点 /efi），CachyOS Bore x86_64-v3 内核，initrd LVM，/nix、/gnu 等 neededForBoot |
+| device/hardware/hardware-config.nix | 手动配置，AMD CPU + NVMe 内核模块，nixpkgs.hostPlatform，AMD CPU 微码 |
+| device/disko.nix | GPT 5G EFI + LVM (vg-mioha) + Btrfs（卷标 pc-mioha），按功能划分 subvol：@Config→/etc、@Data→/var/lib、@Home→/home、@Library→/library、@Sandbox→/sandbox、@Snapshot→/.snapshots、System/@Boot→/boot、@Nix→/nix、@Store→/nix/store、@Guix→/gnu、@Guix-Store→/gnu/store、@Log、@Swap、@Tmp 等；swapDevices（swapfile 16G，重装后手动创建）声明于此 |
+| device/hardware/nvidia.nix | NVIDIA 开源 GPU 内核模块驱动（nvidia-open） |
+| device/hardware/bluetooth.nix | 蓝牙硬件 + blueman（自 networking.nix 拆出） |
+| boot.nix | GRUB（EFI，挂载点 /efi），CachyOS Bore x86_64-v3 内核，initrd LVM，transparent_hugepage=never，/boot、/etc、/nix neededForBoot |
 
 ### 系统基础
 
 | 模块 | 说明 |
 |------|------|
-| nix.nix | Lix (latest)，Flakes + nix-command，清华/中科大/蓝脸 attic 镜像源，cachyos-kernel overlay，stateVersion 26.05 |
-| networking.nix | 主机名 `mioha-nix`，NetworkManager，防火墙关闭 |
+| nix.nix | Lix (latest)，Flakes + nix-command，allowUnfree，清华/中科大/蓝脸 attic 镜像源，stateVersion 26.05 |
+| overlays.nix | nixpkgs overlays（cachyos-kernel + lix 工具链，自 nix.nix 拆出） |
+| networking.nix | 主机名 `mioha-nix`，NetworkManager，防火墙关闭，dnsmasq |
 | user.nix | 用户 `mioha`，组：wheel、networkmanager、libvirtd、kvm、input、audio、uinput、podman |
-| i18n.nix | 时区上海，英文 locale + 中文支持，Fcitx5 输入法（含日语 Mozc） |
-| environment.nix | 系统软件包（gcc、nh、git、distrobox、gamescope、waydroid-helper、xwayland-satellite 等），allowUnfree |
+| i18n.nix | 时区上海，英文 locale + 中文支持 |
+| input-method.nix | Fcitx5 输入法（rime + 中文插件 + 日语 Mozc + Mellow 主题） |
+| environment.nix | 系统软件包（gcc、nh、git、distrobox） |
+| tmpfiles.nix | /var/tmp、/var/build 目录规则（自 boot.nix 拆出） |
 | fonts.nix | Noto 中日韩 + Color Emoji，JetBrains Mono / Fira Code Nerd Font 等 |
-| noctalia.nix | 安装 Noctalia Shell（inputs.noctalia） |
 
 ### 桌面环境
 
 | 模块 | 说明 |
 |------|------|
-| desktop.nix | Niri（Wayland 平铺窗口管理器，niri-glass 定制构建），Ly 显示管理器，gvfs |
+| desktop.nix | Niri（Wayland 平铺窗口管理器，niri-glass 定制构建），Ly 显示管理器，gvfs，Noctalia，Firefox，OBS Studio（CUDA + wlrobs/backgroundremoval/pipewire/vaapi/gstreamer/vkcapture 插件），xwayland-satellite、xdg-desktop-portal-wlr |
 | neovim.nix | Neovim（默认编辑器 + Python3 支持） |
-| firefox.nix | Firefox 浏览器（备用） |
-| obs-studio.nix | OBS Studio（CUDA 加速 + 多插件：wlrobs、backgroundremoval、pipewire、vaapi、vkcapture 等） |
 | virt-manager.nix | Virtual Machine Manager 图形化管理前端 |
-| steam.nix | Steam + 远程游玩 + 专用服务器防火墙 |
+| steam.nix | Steam（全局防火墙关闭，openFirewall 不设） |
 
 ### 系统服务
 
@@ -89,11 +93,10 @@
 | pipewire.nix | 音频服务 + PulseAudio 兼容 |
 | openssh.nix | SSH 服务，允许密码登录，禁止 root 密码登录 |
 | flatpak.nix | Flatpak 包管理 + xdg-desktop-portal-gtk |
-| polkit.nix | Polkit 权限管理 + GNOME 认证代理 |
-| daed.nix | DAED 代理（daeuniverse），监听 127.0.0.1:2023，防火墙端口 12345 |
-| waydroid-nvidia.nix | Waydroid NVIDIA GPU 加速（flake waydroid-nvidia-nix），165Hz 刷新率 |
+| waydroid-nvidia.nix | Waydroid NVIDIA GPU 加速（flake waydroid-nvidia-nix），165Hz，waydroid-helper |
 | guix.nix | Guix 包管理服务，SJTU/CERNET 镜像，周度 GC（保留 1 个月、≥10G 空闲、去重） |
-| services.nix | 杂项服务（linyaps） |
+| linyaps.nix | Linyaps 应用商店服务 |
+| polkit.nix | Polkit 权限管理 + GNOME 认证代理（含 polkit_gnome 包） |
 | libvirtd.nix | KVM/QEMU 虚拟机，swtpm + virtiofsd |
 | podman.nix | Podman 容器引擎 + Docker 兼容层 |
 | vmware-workstation.nix | VMware Workstation + USB Arbitrator |
@@ -102,7 +105,8 @@
 
 | 包 | 说明 |
 |----|------|
-| clash-party.nix | Clash Party（自定义打包，pkgs/tools/networking/ 与 modules/packages/ 引用） |
+| clash-party.nix | Clash Party（自定义打包，pkgs/tools/networking/；包安装于 modules/packages/） |
+| security/wrappers.nix | mihomo-party capability wrapper（自 clash-party.nix 拆出） |
 | harmonyos-sans.nix | HarmonyOS Sans 字体（自定义打包，pkgs/data/fonts/） |
 
 ## Home Manager
@@ -111,10 +115,9 @@
 
 | 模块 | 说明 |
 |------|------|
-| programs.nix | 用户 `mioha`，聚合所有 Home 模块，启用 LazyVim + Git，stateVersion 26.05 |
+| programs.nix | 用户 `mioha`，聚合所有 Home 模块，启用 LazyVim + Git + mpris-proxy，stateVersion 26.05 |
 | nixpkgs.nix | 允许非自由包，pipx 覆盖，不安全包白名单 |
 | session.nix | Flatpak 数据目录，MIME 默认应用（目录→Nautilus、浏览器→Chrome），EDITOR=nvim、TERMINAL=kitty、BROWSER=google-chrome |
-| services.nix | mpris-proxy（蓝牙媒体控制） |
 
 ### Desktop
 
@@ -180,6 +183,7 @@
 | osu-lazer-bin | osu! |
 | prismlauncher | Minecraft 启动器 |
 | mangohud | 游戏性能监控 |
+| gamescope | 游戏会话（自系统 environment.nix 移入） |
 
 ### Utility
 

@@ -29,13 +29,13 @@
 # Swapfile 说明 (btrfs 上 disko 不直接建 swapfile, 重装后手动执行一次):
 #   sudo btrfs filesystem mkswapfile --size 16G /swap/swapfile
 #   sudo swapon /swap/swapfile
-# 并在系统配置里加: swapDevices = [{ device = "/swap/swapfile"; }];
+# swapDevices 已在本文件底部声明;
 #
 # 使用方式（需要 root）：
-#   sudo nix run github:nix-community/disko -- --mode disko /etc/nixos/configuration/modules/services/disko.nix
+#   sudo nix run github:nix-community/disko -- --mode disko /etc/nixos/configuration/device/disko.nix
 #
 # 从 live cd 安装时：
-#   sudo nix run github:nix-community/disko -- --mode disko /mnt/etc/nixos/configuration/modules/services/disko.nix
+#   sudo nix run github:nix-community/disko -- --mode disko /mnt/etc/nixos/configuration/device/disko.nix
 #   sudo nixos-install --flake /mnt/etc/nixos#mioha-nix
 {
   disko.devices = {
@@ -228,5 +228,7 @@
           };
         };
       };
-    };
+  };
+  #   sudo btrfs filesystem mkswapfile --size 16G /swap/swapfile
+  swapDevices = [{ device = "/swap/swapfile"; }];
 }

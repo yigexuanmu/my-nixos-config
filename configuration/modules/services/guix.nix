@@ -4,6 +4,10 @@
   lib,
   ...
 }:{
+  # Guix store 需在引导早期可用
+  fileSystems."/gnu".neededForBoot = true;
+  fileSystems."/gnu/store".neededForBoot = true;
+
   services.guix = {
     enable = true;
     package = pkgs.guix;

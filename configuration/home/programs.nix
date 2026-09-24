@@ -26,5 +26,7 @@
 
   programs.home-manager.enable = true;
 
+  services.mpris-proxy.enable = true;
+
   home.stateVersion = "26.05";
 }
