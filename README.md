@@ -67,7 +67,7 @@
 
 | 模块 | 说明 |
 |------|------|
-| nix.nix | Lix (latest)，Flakes + nix-command，allowUnfree，清华/中科大/蓝脸 attic 镜像源，stateVersion 26.05 |
+| nix.nix | Lix (latest)，Flakes + nix-command，allowUnfree，清华/中科大/蓝脸 attic 镜像源，周度 GC（删 14 天前），stateVersion 26.05 |
 | overlays.nix | nixpkgs overlays（cachyos-kernel + lix 工具链，自 nix.nix 拆出） |
 | networking.nix | 主机名 `mioha-nix`，NetworkManager，防火墙关闭，dnsmasq |
 | user.nix | 用户 `mioha`，组：wheel、networkmanager、libvirtd、kvm、input、audio、uinput、podman |
