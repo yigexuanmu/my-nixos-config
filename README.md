@@ -3,7 +3,7 @@
 > [!WARNING]
 > 此配置并非完全可复现，仅作为个人环境的大致参考。硬件配置、秘密信息、部分外部 flake 版本等需要手动适配。
 
-基于 Flake 的 NixOS 系统配置，模块化分层管理。
+基于 Flake 的 NixOS 系统配置，模块化分层管理，本仓库已 Git 版本控制。
 
 ## Flake Inputs
 
@@ -15,17 +15,18 @@
 | nix-cachyos-kernel | [xddxdd/nix-cachyos-kernel](https://github.com/xddxdd/nix-cachyos-kernel) | CachyOS BORE 内核 |
 | daeuniverse | [daeuniverse/flake.nix](https://github.com/daeuniverse/flake.nix) | DAED 网络代理 |
 | disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
-| noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia v5 Shell (follows nixpkgs) |
-| miyu | [yigexuanmu/Miyu](https://github.com/yigexuanmu/Miyu) | 终端 AI 助手（TUI Diff） |
-| waydroid-nvidia-nix | [yigexuanmu/waydroid-nvidia-nix](https://github.com/yigexuanmu/waydroid-nvidia-nix) | NVIDIA GPU Waydroid 加速 |
-| niri | [shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) | Niri 平铺窗口管理器 |
-| we-layerd | [yigexuanmu/we-layerd-nix](https://github.com/yigexuanmu/we-layerd-nix) | Wallpaper Engine Wayland 运行时 + DXC |
-| shorin-niri | [yigexuanmu/shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) | Niri 平铺窗口管理器定制构建 |
+| noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia Shell（系统包安装） |
+| miyu-agent-nix | [yigexuanmu/miyu-agent-nix](https://github.com/yigexuanmu/miyu-agent-nix) | 终端 AI 助手 Miyu |
+| niri-glass | [yigexuanmu/Niri-glass](https://github.com/yigexuanmu/Niri-glass) | Niri 平铺窗口管理器定制构建（beta 分支） |
+| nur | [nix-community/NUR](https://github.com/nix-community/NUR) | Nix 用户仓库（zcode、workbuddy 等） |
+| waydroid-nvidia-nix | [yigexuanmu/waydroid-nvidia-nix](https://github.com/yigexuanmu/waydroid-nvidia-nix) | NVIDIA GPU Waydroid 加速（Neo 分支） |
+| folia-major | [yigexuanmu/folia-major](https://github.com/yigexuanmu/folia-major) | Folia (Minecraft) 相关包 |
 
 ## 目录结构
 
 ```
 ├── flake.nix                     # Flake 入口
+├── reinstall.sh                  # LiveCD 一键重装脚本（UEFI + disko LVM/btrfs + swapfile）
 ├── configuration/
 │   ├── mioha-main/               # 主机配置入口
 │   │   ├── system.nix            # 聚合系统模块
@@ -54,36 +55,32 @@
 | 模块 | 说明 |
 |------|------|
 | hardware-config.nix | 手动配置，AMD CPU + NVMe 内核模块，nixpkgs.hostPlatform，AMD CPU 微码 |
-| disko.nix | 声明式磁盘布局，by-id 引用 NVMe 磁盘，Btrfs（subvol=@ + @home，zstd 压缩）+ 5G EFI + 16G swap |
+| disko.nix | GPT 5G EFI + LVM (vg-mioha) + Btrfs（卷标 pc-mioha），按功能划分 subvol：@Config→/etc、@Data→/var/lib、@Home→/home、@Library→/library、@Sandbox→/sandbox、@Snapshot→/.snapshots、System/@Boot→/boot、@Nix→/nix、@Store→/nix/store、@Guix→/gnu、@Guix-Store→/gnu/store、@Log、@Swap、@Tmp 等；swap 用 swapfile（16G，重装后手动创建） |
 | nvidia.nix | NVIDIA 开源 GPU 内核模块驱动（nvidia-open） |
-| boot.nix | GRUB 引导（EFI），CachyOS Bore v3 内核 |
+| boot.nix | GRUB（EFI，挂载点 /efi），CachyOS Bore x86_64-v3 内核，initrd LVM，/nix、/gnu 等 neededForBoot |
 
 ### 系统基础
 
 | 模块 | 说明 |
 |------|------|
-| nix.nix | 开启 Flakes，清华/中科大镜像源，自动优化，垃圾回收，stateVersion 25.05 |
-| networking.nix | 主机名 `mioha-nix`，NetworkManager，关闭防火墙 |
-| user.nix | 用户 `mioha`，组：wheel、networkmanager、libvirtd、kvm、input、uinput |
-| i18n.nix | 时区上海，英文 locale + 中文支持，Fcitx5 输入法（中文 + 日语 Mozc + Mellow 主题） |
-| environment.nix | 系统软件包（VSCode、Vim、Git、Kitty、Fish、Wine、distrobox 等），图标主题（Adwaita/MoreWaita/Papirus），光标主题 |
-
-### 字体
-
-| 模块 | 说明 |
-|------|------|
-| fonts.nix | Noto 中日韩 + Color Emoji，JetBrains Mono，Fira Code Nerd Font，文泉驿微米黑，HarmonyOS Sans（自定义打包） |
-| harmonyos-sans.nix | 从 GitHub 拉取 HarmonyOS Sans 字体并安装 |
+| nix.nix | Lix (latest)，Flakes + nix-command，清华/中科大/蓝脸 attic 镜像源，cachyos-kernel overlay，stateVersion 26.05 |
+| networking.nix | 主机名 `mioha-nix`，NetworkManager，防火墙关闭 |
+| user.nix | 用户 `mioha`，组：wheel、networkmanager、libvirtd、kvm、input、audio、uinput、podman |
+| i18n.nix | 时区上海，英文 locale + 中文支持，Fcitx5 输入法（含日语 Mozc） |
+| environment.nix | 系统软件包（gcc、nh、git、distrobox、gamescope、waydroid-helper、xwayland-satellite 等），allowUnfree |
+| fonts.nix | Noto 中日韩 + Color Emoji，JetBrains Mono / Fira Code Nerd Font 等 |
+| noctalia.nix | 安装 Noctalia Shell（inputs.noctalia） |
 
 ### 桌面环境
 
 | 模块 | 说明 |
 |------|------|
-| desktop.nix | Niri（Wayland 平铺窗口管理器，使用 shorin-niri 定制构建），Ly 显示管理器，gvfs |
+| desktop.nix | Niri（Wayland 平铺窗口管理器，niri-glass 定制构建），Ly 显示管理器，gvfs |
 | neovim.nix | Neovim（默认编辑器 + Python3 支持） |
 | firefox.nix | Firefox 浏览器（备用） |
 | obs-studio.nix | OBS Studio（CUDA 加速 + 多插件：wlrobs、backgroundremoval、pipewire、vaapi、vkcapture 等） |
 | virt-manager.nix | Virtual Machine Manager 图形化管理前端 |
+| steam.nix | Steam + 远程游玩 + 专用服务器防火墙 |
 
 ### 系统服务
 
@@ -94,17 +91,18 @@
 | flatpak.nix | Flatpak 包管理 + xdg-desktop-portal-gtk |
 | polkit.nix | Polkit 权限管理 + GNOME 认证代理 |
 | daed.nix | DAED 代理（daeuniverse），监听 127.0.0.1:2023，防火墙端口 12345 |
-| waydroid-nvidia.nix | Waydroid NVIDIA GPU 加速（使用外部 flake waydroid-nvidia-nix），165Hz 刷新率 |
+| waydroid-nvidia.nix | Waydroid NVIDIA GPU 加速（flake waydroid-nvidia-nix），165Hz 刷新率 |
+| guix.nix | Guix 包管理服务，SJTU/CERNET 镜像，周度 GC（保留 1 个月、≥10G 空闲、去重） |
+| services.nix | 杂项服务（linyaps） |
 | libvirtd.nix | KVM/QEMU 虚拟机，swtpm + virtiofsd |
-| steam.nix | Steam + 远程游玩 + 专用服务器防火墙 |
 | podman.nix | Podman 容器引擎 + Docker 兼容层 |
-| vmware-workstation.nix | VMware Workstation 支持 |
+| vmware-workstation.nix | VMware Workstation + USB Arbitrator |
 
 ### 自定义包
 
 | 包 | 说明 |
 |----|------|
-| clash-party.nix | Clash Party（自定义打包，pkgs/tools/networking/） |
+| clash-party.nix | Clash Party（自定义打包，pkgs/tools/networking/ 与 modules/packages/ 引用） |
 | harmonyos-sans.nix | HarmonyOS Sans 字体（自定义打包，pkgs/data/fonts/） |
 
 ## Home Manager
@@ -113,9 +111,10 @@
 
 | 模块 | 说明 |
 |------|------|
-| programs.nix | 用户 `mioha`，聚合所有 Home 模块，启用 LazyVim + Git |
-| nixpkgs.nix | 允许非自由包，pipx 覆盖，允许不安全包 |
-| session.nix | Flatpak 数据目录，终端设为 Kitty，EDITOR=nvim，BROWSER=google-chrome |
+| programs.nix | 用户 `mioha`，聚合所有 Home 模块，启用 LazyVim + Git，stateVersion 26.05 |
+| nixpkgs.nix | 允许非自由包，pipx 覆盖，不安全包白名单 |
+| session.nix | Flatpak 数据目录，MIME 默认应用（目录→Nautilus、浏览器→Chrome），EDITOR=nvim、TERMINAL=kitty、BROWSER=google-chrome |
+| services.nix | mpris-proxy（蓝牙媒体控制） |
 
 ### Desktop
 
@@ -125,9 +124,10 @@
 | wf-recorder / slurp / grim | Wayland 录屏/截图 |
 | imv | 图片查看器 |
 | wl-clipboard | Wayland 剪贴板 |
-| niri/ | [shorin-niri-nix](https://github.com/yigexuanmu/shorin-niri-nix) — Niri 平铺窗口管理器配置 |
-| thunar | XFCE 文件管理器 + tumbler 缩略图服务 |
-| swww | Wayland 动态壁纸 |
+| nautilus | GNOME 文件管理器 |
+| pywalfox-native | Firefox 壁纸取色联动 |
+| 主题套件 | papirus-icon-theme、papirus-folders、adw-gtk3、afterglow-cursors、qt5ct/qt6ct、gnome-keyring |
+| niri/ | Niri 窗口管理器 dotfiles（binds/blur/config/pop-drop.kdl） |
 
 ### Develop
 
@@ -135,12 +135,16 @@
 |------|------|
 | ripgrep / jq / yq-go | 搜索/JSON/YAML 处理 |
 | python314 + uv + pip + pipx | Python 开发 |
+| nodejs | Node.js 运行时 |
 | ffmpeg | 音视频处理 |
-| websocat | WebSocket 工具 |
+| websocat / socat | WebSocket / 网络工具 |
 | android-tools | Android ADB |
 | hugo + glow | 静态站点 + Markdown 渲染 |
-| nix-output-monitor | Nix 构建输出监控 |
+| nix-output-monitor / nh | Nix 构建输出监控 / NixOS 系统管理 |
 | strace / ltrace / lsof | 调试工具 |
+| vscode / git | 编辑器与版本控制 |
+| opencode / pi-coding-agent | AI 编程助手 |
+| zcode / workbuddy | NUR 包（Sittymin.zcode、MCSeekeri.workbuddy） |
 
 ### Terminal
 
@@ -148,23 +152,24 @@
 |------|------|
 | yazi | 终端文件管理器 |
 | kitty | 终端模拟器 |
-| btop | 系统监控 |
+| btop | 系统监控（包装 LD_LIBRARY_PATH→/run/opengl-driver） |
 | fastfetch | 系统信息 |
 | starship | Shell 提示符 |
-| eza / fzf | 增强 ls / 模糊搜索 |
+| eza / fzf / chafa | 增强 ls / 模糊搜索 / 终端图像 |
 | tty-clock | 终端时钟 |
 | fish | Shell（默认） |
-| miyu | [Miyu](https://github.com/yigexuanmu/Miyu) — 基于 Rust 的终端 AI 助手，TUI Diff 显示 |
+| miyu | [miyu-agent-nix](https://github.com/yigexuanmu/miyu-agent-nix) — 终端 AI 助手 |
 
 ### Entertain
 
 | 工具 | 说明 |
 |------|------|
-| splayer | 播放器 |
-| cava | 音频可视化 |
+| folia-major | Folia (Minecraft) 相关包（flake） |
+| qq | QQ 聊天 |
+| playerctl / cava | 媒体控制 / 音频可视化 |
 | kazumi | 漫画阅读器 |
-| mpv | 媒体播放器 |
-| cowsay | 说话的牛 |
+| mpv / google-chrome | 媒体播放器 / 浏览器 |
+| cowsay / wine | 说话的牛 / Wine (stagingFull) |
 
 ### Games
 
@@ -180,13 +185,24 @@
 
 | 工具 | 说明 |
 |------|------|
-| obs-studio | 录屏推流 |
+| gimp / kdenlive | 图像编辑 / 视频剪辑 |
 | scrcpy | Android 投屏 |
 | tesseract | OCR |
-| showmethekey | 按键显示 |
-| aria2 | 下载工具 |
-| nmap / iperf3 / dnsutils / mtr | 网络工具 |
-| pciutils / usbutils / lm_sensors | 硬件监控 |
+| showmethekey / evtest | 按键显示 / 输入设备测试 |
+| 归档工具 | zip、xz、unzip、p7zip、file-roller、zstd |
+| 常用工具 | file、which、tree、gnused、gnutar、gawk、gnupg、wget |
+| 网络工具 | aria2、nmap、iperf3、dnsutils、mtr、ldns、ipcalc、ethtool、socat |
+| 硬件监控 | pciutils、usbutils、lm_sensors、iotop、iftop、sysstat |
+
+## 重装
+
+LiveCD 下一键重装（disko LVM/btrfs + swapfile + nixos-install）：
+
+```bash
+git clone https://github.com/yigexuanmu/my-nixos-config.git
+cd my-nixos-config
+sudo ./reinstall.sh [--yes]   # --yes 跳过目标盘二次确认
+```
 
 ## 致谢
 
