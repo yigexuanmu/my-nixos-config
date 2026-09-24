@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# 一键重装脚本 (UEFI + disko LVM/btrfs + swapfile)
-# 流程: disko 分区 -> 检查挂载 -> mkswapfile -> 复制配置 -> nixos-install
-# LiveCD 下用法:
+# One-click reinstall script (UEFI + disko LVM/btrfs + swapfile)
+# Flow: disko partition -> verify mounts -> mkswapfile -> copy config -> nixos-install
+# Usage on LiveCD:
 #   git clone https://github.com/yigexuanmu/my-nixos-config.git
 #   cd my-nixos-config
-#   sudo ./reinstall.sh [--yes] [nixos-install 额外参数...]
-#   --yes  跳过 destructive 确认（默认会让你二次确认目标盘）
+#   sudo ./reinstall.sh [--yes] [extra nixos-install args...]
+#   --yes  skip the destructive confirmation (double-checks target disk by default)
 set -euo pipefail
 
-# ---------------- 配置（按需改） ----------------
-DISK_BY_ID="nvme-HYV512X3_XT__2024092900130"      # disko.nix 里 disk.main.device 对应的盘
-VG="vg-mioha"                                      # disko.nix 里 lvm_vg 名
-FS_LABEL="pc-mioha"                                # btrfs 卷标
-FLAKE_ATTR="mioha-nix"                             # flake.nix 里 nixosConfigurations.<attr>
+# ---------------- Config (edit as needed) ----------------
+DISK_BY_ID="nvme-HYV512X3_XT__2024092900130"      # disk.main.device in disko.nix
+VG="vg-mioha"                                      # lvm_vg name in disko.nix
+FS_LABEL="pc-mioha"                                # btrfs filesystem label
+FLAKE_ATTR="mioha-nix"                             # nixosConfigurations.<attr> in flake.nix
 SWAP_SIZE="16G"
 TARGET="/mnt/etc/nixos"
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DISKO_NIX="$SRC_DIR/configuration/device/disko.nix"
 
-# 期望挂载点（/mnt 下），必须和 disko.nix 一致
+# Expected mount points (under /mnt), must match disko.nix
 WANT_MOUNTS=(
   "/"
   "/efi"
@@ -40,65 +40,66 @@ for arg in "${@:1:$#}"; do
     *) break ;;
   esac
 done
-# 剩下的参数透传给 nixos-install（比如 --no-root-passwd --option ...）
+# Remaining args are passed through to nixos-install (e.g. --no-root-passwd --option ...)
 # shellcheck disable=SC2124
 EXTRA_ARGS="$@"
 
 log() { echo "==> $*"; }
 die() { echo "!! $*" >&2; exit 1; }
 
-# ---------------- 0. 前置检查 ----------------
-[ "$EUID" -eq 0 ] || die "请用 root 运行: sudo $0"
-[ -d /sys/firmware/efi ] || die "没检测到 UEFI（/sys/firmware/efi 不存在），本配置只支持 UEFI+GRUB"
-[ -f "$DISKO_NIX" ] || die "找不到 disko 配置: $DISKO_NIX"
-[ -e "/dev/disk/by-id/$DISK_BY_ID" ] || die "找不到目标盘 /dev/disk/by-id/$DISK_BY_ID，先确认硬件"
+# ---------------- 0. Preflight checks ----------------
+[ "$EUID" -eq 0 ] || die "Run as root: sudo $0"
+[ -d /sys/firmware/efi ] || die "UEFI not detected (/sys/firmware/efi missing); this config only supports UEFI+GRUB"
+[ -f "$DISKO_NIX" ] || die "disko config not found: $DISKO_NIX"
+[ -e "/dev/disk/by-id/$DISK_BY_ID" ] || die "Target disk /dev/disk/by-id/$DISK_BY_ID not found, check hardware first"
 
 if [ "$YES" -ne 1 ]; then
-  echo "即将用 disko 格式化以下磁盘（数据全毁）:"
+  echo "About to format this disk with disko (ALL DATA WILL BE DESTROYED):"
   echo "  /dev/disk/by-id/$DISK_BY_ID"
   lsblk "/dev/disk/by-id/$DISK_BY_ID" || true
-  read -rp "输入 YES 继续: " ans
-  [ "$ans" = "YES" ] || die "已取消"
+  read -rp "Type YES to continue: " ans
+  [ "$ans" = "YES" ] || die "Aborted"
 fi
 
-# ---------------- 1. disko 分区 ----------------
-log "disko 分区中..."
+# ---------------- 1. disko partitioning ----------------
+log "Partitioning with disko..."
 nix --extra-experimental-features "nix-command flakes" \
   run github:nix-community/disko -- --mode disko "$DISKO_NIX"
 
-# ---------------- 2. 检查 disko 是否完成 ----------------
-log "检查 LVM + 挂载..."
-vgs "$VG" >/dev/null || die "VG $VG 不存在，disko 可能没成功"
-lvs "$VG/root" >/dev/null || die "LV $VG/root 不存在，disko 可能没成功"
-blkid -L "$FS_LABEL" >/dev/null || die "找不到 btrfs 卷标 $FS_LABEL"
+# ---------------- 2. Verify disko finished ----------------
+log "Checking LVM + mounts..."
+vgs "$VG" >/dev/null || die "VG $VG missing, disko may have failed"
+lvs "$VG/root" >/dev/null || die "LV $VG/root missing, disko may have failed"
+blkid -L "$FS_LABEL" >/dev/null || die "btrfs label $FS_LABEL not found"
 
 for mp in "${WANT_MOUNTS[@]}"; do
-  findmnt "/mnt$mp" >/dev/null || die "/mnt$mp 没挂上，disko 可能没完成"
+  findmnt "/mnt$mp" >/dev/null || die "/mnt$mp not mounted, disko may be incomplete"
 done
-log "LVM + 挂载检查通过"
+log "LVM + mount checks passed"
 
 # ---------------- 3. mkswapfile ----------------
 if [ -f /mnt/swap/swapfile ]; then
-  log "/mnt/swap/swapfile 已存在，跳过创建"
+  log "/mnt/swap/swapfile already exists, skipping creation"
 else
-  log "创建 swapfile ($SWAP_SIZE)..."
+  log "Creating swapfile ($SWAP_SIZE)..."
   btrfs filesystem mkswapfile --size "$SWAP_SIZE" /mnt/swap/swapfile
 fi
 swapon --show=NAME | grep -q "^/mnt/swap/swapfile$" || swapon /mnt/swap/swapfile
-log "swap 已启用: $(swapon --show=NAME,SIZE | grep swapfile || true)"
+log "swap enabled: $(swapon --show=NAME,SIZE | grep swapfile || true)"
 
-# ---------------- 4. 复制 NixOS 配置 ----------------
-[ "$SRC_DIR" != "$TARGET" ] || die "脚本不能放在 $TARGET 里运行，否则会删掉自己的 .git，请换个目录 clone 后再跑"
-log "复制本仓库到 $TARGET ..."
+# ---------------- 4. Copy NixOS configuration ----------------
+[ "$SRC_DIR" != "$TARGET" ] || die "Do not run the script from $TARGET, it would delete its own .git; clone elsewhere first"
+log "Copying this repo to $TARGET ..."
 mkdir -p "$TARGET"
 cp -a "$SRC_DIR/." "$TARGET/"
 rm -rf "$TARGET/.git"
-# 安装脚本只在 LiveCD 里用，不装进系统，避免 /etc/nixos 里留个格盘按钮
+# Install script is only used on LiveCD, never installed into the system,
+# so /etc/nixos does not keep a disk-wiping button around
 rm -f "$TARGET/reinstall.sh"
-[ ! -e "$TARGET/.git" ] || die "$TARGET/.git 删除失败，手动检查"
-[ ! -e "$TARGET/reinstall.sh" ] || die "$TARGET/reinstall.sh 排除失败，手动检查"
-[ -f "$TARGET/flake.nix" ] || die "$TARGET/flake.nix 不存在，配置复制失败"
-log "配置就绪: $TARGET（已去掉 .git）"
+[ ! -e "$TARGET/.git" ] || die "Failed to remove $TARGET/.git, check manually"
+[ ! -e "$TARGET/reinstall.sh" ] || die "Failed to exclude $TARGET/reinstall.sh, check manually"
+[ -f "$TARGET/flake.nix" ] || die "$TARGET/flake.nix missing, config copy failed"
+log "Config ready: $TARGET (.git removed)"
 
 # ---------------- 5. nixos-install ----------------
 log "nixos-install --flake $TARGET#$FLAKE_ATTR ..."
@@ -107,4 +108,4 @@ nixos-install --flake "$TARGET#$FLAKE_ATTR" \
   --option extra-substituters "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://mirrors.ustc.edu.cn/nix-channels/store https://cache.nixos.org" \
   $EXTRA_ARGS
 
-log "安装完成，重启前记得拔掉安装介质"
+log "Install finished; remember to remove the install media before reboot"
