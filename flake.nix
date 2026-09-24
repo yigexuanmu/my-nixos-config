@@ -10,7 +10,6 @@
 
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel";
 
-    daeuniverse.url = "github:daeuniverse/flake.nix";
 
     disko = {
       url = "github:nix-community/disko";
