@@ -8,9 +8,15 @@
   nix.settings.substituters = [
     "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
     "https://mirrors.ustc.edu.cn/nix-channels/store"
+    "https://nix-community.cachix.org"
     "https://attic.xuyh0120.win/lantian"
+    "https://cache.xinux.uz"
   ];
-  nix.settings.trusted-public-keys = [ "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc=" ];
+  nix.settings.trusted-public-keys = [
+    "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
+    "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    "cache.xinux.uz:BXCrtqejFjWzWEB9YuGB7X2MV4ttBur1N8BkwQRdH+0="
+  ];
   nix.settings.experimental-features = ["nix-command" "flakes"];
   nix.gc = {
     automatic = true;
