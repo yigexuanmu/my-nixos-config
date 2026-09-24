@@ -7,5 +7,6 @@
     nh
     git
     distrobox
+    xkbcommon
   ];
 }
