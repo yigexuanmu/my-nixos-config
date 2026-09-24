@@ -13,9 +13,9 @@
 | home-manager | [nix-community/home-manager](https://github.com/nix-community/home-manager) | 用户级包管理与配置 |
 | lazyvim | [pfassina/lazyvim-nix](https://github.com/pfassina/lazyvim-nix) | LazyVim Neovim 配置 |
 | nix-cachyos-kernel | [xddxdd/nix-cachyos-kernel](https://github.com/xddxdd/nix-cachyos-kernel) | CachyOS BORE 内核 |
-| daeuniverse | [daeuniverse/flake.nix](https://github.com/daeuniverse/flake.nix) | DAED 网络代理 |
+| daeuniverse | [daeuniverse/flake.nix](https://github.com/daeuniverse/flake.nix) | DAED 网络代理（daed.nix 已归档，input 保留暂未使用） |
 | disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
-| noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia Shell（系统包安装） |
+| noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia Shell（desktop.nix 安装） |
 | miyu-agent-nix | [yigexuanmu/miyu-agent-nix](https://github.com/yigexuanmu/miyu-agent-nix) | 终端 AI 助手 Miyu |
 | niri-glass | [yigexuanmu/Niri-glass](https://github.com/yigexuanmu/Niri-glass) | Niri 平铺窗口管理器定制构建（beta 分支） |
 | nur | [nix-community/NUR](https://github.com/nix-community/NUR) | Nix 用户仓库（zcode、workbuddy 等） |
@@ -42,7 +42,7 @@
 │   │   ├── programs/             # 系统级程序模块
 │   │   ├── services/             # 系统服务模块
 │   │   ├── virtualisation/       # 虚拟化模块
-│   │   ├── security/             # security wrappers
+│   │   ├── security/             # 安全模块（sudo-rs、wrappers）
 │   │   └── packages/             # 系统级包模块
 │   ├── pkgs/                     # 自定义包定义
 │   │   ├── data/fonts/           # 字体打包
@@ -97,6 +97,11 @@
 | guix.nix | Guix 包管理服务，SJTU/CERNET 镜像，周度 GC（保留 1 个月、≥10G 空闲、去重） |
 | linyaps.nix | Linyaps 应用商店服务 |
 | polkit.nix | Polkit 权限管理 + GNOME 认证代理（含 polkit_gnome 包） |
+
+### 虚拟化
+
+| 模块 | 说明 |
+|------|------|
 | libvirtd.nix | KVM/QEMU 虚拟机，swtpm + virtiofsd |
 | podman.nix | Podman 容器引擎 + Docker 兼容层 |
 | vmware-workstation.nix | VMware Workstation + USB Arbitrator |
@@ -106,9 +111,14 @@
 | 包 | 说明 |
 |----|------|
 | clash-party.nix | Clash Party（自定义打包，pkgs/tools/networking/；包安装于 modules/packages/） |
+| harmonyos-sans.nix | HarmonyOS Sans 字体（自定义打包，pkgs/data/fonts/） |
+
+### 安全
+
+| 模块 | 说明 |
+|------|------|
 | security/wrappers.nix | mihomo-party capability wrapper（自 clash-party.nix 拆出） |
 | security/sudo-rs.nix | sudo-rs 替代传统 sudo（security.sudo-rs.enable，security.sudo 关闭） |
-| harmonyos-sans.nix | HarmonyOS Sans 字体（自定义打包，pkgs/data/fonts/） |
 
 ## Home Manager
 
