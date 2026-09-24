@@ -4,7 +4,7 @@
   ...
 }: {
   home.packages = with pkgs; [
-    inputs.folia-major.packages.${system}.default
+    inputs.folia-major.packages.${pkgs.stdenv.hostPlatform.system}.default
     qq
     playerctl
     cava
