@@ -7,6 +7,6 @@
     nh
     git
     distrobox
-    xkbcommon
+    libxkbcommon
   ];
 }
