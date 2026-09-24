@@ -11,6 +11,7 @@
     ../modules/services/pipewire.nix
     ../modules/services/guix.nix
     ../modules/services/linyaps.nix
+    ../modules/security/sudo-rs.nix
     ../modules/security/wrappers.nix
     ../modules/virtualisation/libvirtd.nix
     ../modules/virtualisation/podman.nix
