@@ -3,6 +3,7 @@
   inputs,
   ...
 }: {
+  # 保留 xserver: 仅为其 XKB 键盘配置供 ly/niri/XWayland 使用，不启图形 X 会话
   services.xserver.enable = true;
   services.displayManager.ly.enable = true;
   services.gvfs.enable = true;
