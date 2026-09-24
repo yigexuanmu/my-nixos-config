@@ -107,6 +107,7 @@
 |----|------|
 | clash-party.nix | Clash Party（自定义打包，pkgs/tools/networking/；包安装于 modules/packages/） |
 | security/wrappers.nix | mihomo-party capability wrapper（自 clash-party.nix 拆出） |
+| security/sudo-rs.nix | sudo-rs 替代传统 sudo（security.sudo-rs.enable，security.sudo 关闭） |
 | harmonyos-sans.nix | HarmonyOS Sans 字体（自定义打包，pkgs/data/fonts/） |
 
 ## Home Manager
