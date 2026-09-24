@@ -1,0 +1,2 @@
+# 强制 LF：shell 脚本在 NixOS 上执行，CRLF 会导致 bad interpreter
+reinstall.sh text eol=lf

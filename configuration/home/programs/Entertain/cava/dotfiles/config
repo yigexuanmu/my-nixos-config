@@ -1,0 +1,231 @@
+## CAVA 配置文件
+# 去掉 ; 以修改参数
+
+
+[general]
+
+# 配置文件修改后自动重载。1 = 开，0 = 关
+live-config = 1
+
+# 仅接受非负值
+framerate = 165
+
+# 手动灵敏度（百分比）。200 = 双倍高度。
+sensitivity = 150
+
+# 柱状图数量（0-512）。0 = 自动填满终端。
+bars = 0
+bar_width = 1
+bar_spacing = 0
+
+# 终端中柱状图的最大高度，以终端高度的百分比计
+max_height = 100
+
+# 截止频率范围：20Hz-20000Hz 覆盖人耳全频段
+lower_cutoff_freq = 20
+higher_cutoff_freq = 20000
+
+# 无输入后休眠秒数。0 = 禁用（始终保持活跃）
+sleep_timer = 0
+
+
+[input]
+
+# 音频捕获方法。可选：'fifo'、'portaudio'、'pipewire'、'alsa'、'pulse'、'sndio'、'oss'、'jack' 或 'shmem'
+# 默认依次为 'oss'、'pipewire'、'sndio'、'jack'、'pulse'、'alsa'、'portaudio' 或 'fifo'，取决于编译时支持情况。
+# Mac 上默认为 'portaudio' 或 'fifo'
+# Windows 上自动选择，无需配置输入。
+#
+# 所有输入方法使用相同的配置变量 'source'
+# 来定义从哪里获取音频。
+#
+# 对于 pulseaudio 和 pipewire，'source' 是音频源。默认：'auto'，使用默认输出设备的监听源
+# （所有 pulseaudio 输出设备都有关联的 '监听' 输入源）。
+#
+# 对于 pipewire，'source' 是设备的对象名称或 object.serial。
+# 支持输入和输出设备。要捕获输出节点的监听源，在对象名称后追加 '.monitor'。
+#
+# 对于 alsa，'source' 是捕获设备。
+# 对于 fifo，'source' 是 fifo 文件路径。
+# 对于 shmem，'source' 是 /squeezelite-AA:BB:CC:DD:EE:FF，其中 'AA:BB:CC:DD:EE:FF' 是 squeezelite 的 MAC 地址
+#
+# 对于 sndio，'source' 是原始录音音频描述符或监听子设备，例如 'rsnd/2' 或 'snd/1'。默认：'default'。
+# README.md 包含更多 sndio 配置信息。
+#
+# 对于 oss，'source' 是音频设备路径，例如 '/dev/dsp2'。默认：'/dev/dsp'（即默认音频设备）。
+# README.md 包含更多 FreeBSD 上 OSS 配置信息。
+#
+# 对于 jack，'source' 是要连接的 JACK 服务器名称，例如 'foobar'。默认：'default'。
+# README.md 包含更多 JACK 配置信息。
+#
+method = pipewire
+source = auto
+
+# 高精度采样设置
+sample_rate = 192000
+sample_bits = 16
+channels = 2
+active = 1
+remix = 1
+virtual = 0
+
+
+[output]
+
+# 输出方法。可选 'ncurses'、'noncurses'、'raw'、'noritake'、'sdl' 或 'sdl_glsl'。
+# 'noncurses'（默认）使用缓冲区和光标移动，仅在终端中打印帧与帧之间的变化。
+# 比 'ncurses' 资源占用更少，更不容易出现撕裂（垂直同步问题）。
+#
+# 'raw' 是 8 位或 16 位（通过 'bit_format' 选项配置）的柱状图高度数据流，
+# 可用于发送到其他应用程序。
+# 'raw' 默认为 1024 柱立体声（512 柱单声道），可通过上方 'bars' 选项调整。
+#
+# 'noritake' 以 Noritake VFD 显示屏图形模式期望的位图格式输出。
+# 目前仅支持 3000 系列图形 VFD。
+#
+# 'sdl' 使用 Simple DirectMedia Layer 在图形上下文中渲染。
+# 'sdl_glsl' 使用 SDL 创建 OpenGL 上下文。可编写自定义着色器或使用预定义着色器。
+; method = noncurses
+
+# 可视化方向。可选 'bottom'（底部）、'top'（顶部）、'left'（左侧）、'right'（右侧）或
+# 'horizontal'（水平）。默认为 'bottom'。'left' 和 'right' 仅在 sdl 和 ncurses 输出下支持。
+# 'horizontal'（柱状图从中心向上下延伸）仅在 noncurses 输出下支持。
+# 注意：许多字体对非 'bottom' 方向使用的字符有奇怪或缺失的字形，可能导致显示异常。
+; orientation = bottom
+
+# 可视化通道。mono = 单声道，从左到右显示从低到高的频率。
+channels = mono
+; mono_option = average
+; reverse = 0
+
+# 仅在 orientation 设为 'horizontal' 时有效。
+# 设置 'horizontal_stereo' 为 1 使左通道柱在顶部，右通道在底部。
+# 设置 'left_bottom' 为 0 使右通道在顶部，左通道在底部。
+; horizontal_stereo = 0
+; left_bottom = 1
+
+# 原始输出目标。
+# Linux 上，如果目标不存在会创建一个 fifo。
+# Windows 上，如果目标不存在会创建一个命名管道。
+; raw_target = /dev/stdout
+
+# 原始数据格式。可选 'binary'（二进制）或 'ascii'（ASCII）。
+; data_format = binary
+
+# 二进制位格式，可选 '8bit'（0-255）或 '16bit'（0-65530）。
+; bit_format = 16bit
+
+# ASCII 最大值。在 'ascii' 模式下范围为 0 到此处指定的值。
+; ascii_max_range = 1000
+
+# ASCII 分隔符。在 ascii 格式中，每个柱和每帧用分隔符分隔。
+# 使用 ASCII 表中的十进制值（即 59 = ';'，10 = '\n' 换行符）。
+; bar_delimiter = 59
+; frame_delimiter = 10
+
+# SDL 窗口大小和位置。-1,-1 为居中。
+; sdl_width = 1024
+; sdl_height = 512
+; sdl_x = -1
+; sdl_y= -1
+; sdl_full_screen = 0
+
+# 在 x 轴上设置柱状图标签。可选 'frequency'（频率）或 'none'（无）。默认：'none'
+# 'frequency' 在柱状图上方显示其低频截止值。
+# 仅在 ncurses 和 noncurses 输出下支持。
+; xaxis = none
+
+# 启用同步渲染。1 = 开，0 = 关
+# 消除 alacritty 终端模拟器中的闪烁。
+# 默认关闭，因为在其他终端模拟器中的行为未知
+; synchronized_sync = 0
+
+# sdl_glsl 着色器，位于 $HOME/.config/cava/shaders
+; vertex_shader = pass_through.vert
+; fragment_shader = bar_spectrum.frag
+
+# glsl 输出模式下，无音频时继续渲染
+; continuous_rendering = 0
+
+# 在 TTY 中禁用控制台黑屏（屏幕保护程序）
+# （FreeBSD 不支持）
+; disable_blanking = 0
+
+# 空闲时在屏幕底部显示扁平柱状图，1 = 开，0 = 关
+; show_idle_bar_heads = 1
+
+# 显示波形而非频谱，1 = 开，0 = 关
+; waveform = 0
+
+[color]
+theme = "noctalia"
+
+# 颜色可以是七种预定义颜色之一：black、blue、cyan、green、magenta、red、white、yellow。
+# 或用十六进制代码 '#xxxxxx'（十六进制代码必须在 '' 内）。自定义颜色需要
+# 支持更改颜色定义的终端，如 Gnome-terminal 或 rxvt。
+# 默认为保持当前终端颜色
+; background = default
+; foreground = default
+
+# SDL 和 sdl_glsl 仅支持十六进制颜色，以下为默认值：
+; background = '#111111'
+; foreground = '#33ffff'
+
+
+# 渐变模式，仅支持十六进制定义的颜色，
+# 背景也必须以十六进制定义或保持注释。1 = 开，0 = 关。
+# 可定义最多 8 种不同颜色。从屏幕底部到顶部排列。
+; gradient = 0
+; gradient_color_1 = '#59cc33'
+; gradient_color_2 = '#80cc33'
+; gradient_color_3 = '#a6cc33'
+; gradient_color_4 = '#cccc33'
+; gradient_color_5 = '#cca633'
+; gradient_color_6 = '#cc8033'
+; gradient_color_7 = '#cc5933'
+; gradient_color_8 = '#cc3333'
+
+
+# 水平渐变仅在 noncurses 输出下支持。
+# 每个柱只计算一种颜色。
+; horizontal_gradient = 0
+; horizontal_gradient_color_1 = '#c45161'
+; horizontal_gradient_color_2 = '#e094a0'
+; horizontal_gradient_color_3 = '#f2b6c0'
+; horizontal_gradient_color_4 = '#f2dde1'
+; horizontal_gradient_color_5 = '#cbc7d8'
+; horizontal_gradient_color_6 = '#8db7d2'
+; horizontal_gradient_color_7 = '#5e62a9'
+; horizontal_gradient_color_8 = '#434279'
+
+
+# 如果同时启用垂直和水平渐变，垂直渐变将在此方向上混合。
+# 可选 'up'、'down'、'left' 或 'right'。'up' 表示垂直渐变从底部到顶部混合。
+# 即底部仅显示水平渐变颜色，顶部仅显示垂直渐变颜色。
+; blend_direction = 'up'
+
+# 使用主题文件而非在此文件中定义颜色
+# 主题位于 $HOME/.config/cava/themes
+; theme = 'none'
+
+
+[smoothing]
+
+# 平滑设置：全部禁用以获得最高精度
+integral = 0
+monstercat = 0
+waves = 0
+gravity = 0
+ignore = 0
+noise_reduction = 0
+
+
+[eq]
+
+# 均衡器：全部设为 1.0 以获得平坦响应（无频率染色）
+# 键越多 = 精度越高
+1 = 1
+2 = 1
+3 = 1
+4 = 1
+5 = 1

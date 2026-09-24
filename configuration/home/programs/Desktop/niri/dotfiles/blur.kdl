@@ -1,0 +1,72 @@
+// --- NIRI BLUR START ---
+// 顶层的blur配置，细节调整blur的效果
+blur {
+  passes 3
+  offset 3
+  noise 0.02
+  saturation 1.5
+}
+// 全局窗口规则。让所有普通窗口以xray的形式显示blur。xray仅渲染一次模糊版本的背景，然后将其以类似"壁纸"的形式显示在窗口后面，不是实时渲染模糊，所以完全没有性能消耗。
+window-rule {
+    match app-id=".*"
+    background-effect {
+        xray false
+        blur true
+        liquid-glass {
+            refraction-strength 3.0
+            power-factor 10
+            refraction-power 1.0
+            glow-weight 0.0001
+            edge-lighting 0.2
+            saturation 0.9
+            vibrancy 0.2
+            adaptive-dim 0.2
+            adaptive-boost 0.2
+            physical-refraction 0
+            lens-distortion 0
+            fringing 0
+        }
+    }
+}
+// 浮动窗口禁用xray可以实时渲染模糊效果但是性能消耗高，开启xray会穿过浮动窗口底下的窗口直接透视到桌面。看个人喜好选择禁用与否吧。
+window-rule {
+    match app-id=".*"
+    match is-floating=true
+    background-effect {
+       xray false
+       blur true
+       liquid-glass {
+            refraction-strength 3.0
+            power-factor 10
+            refraction-power 1.0
+            glow-weight 0.0001
+            edge-lighting 0.2
+            saturation 0.9
+            vibrancy 0.2
+            adaptive-dim 0.2
+            adaptive-boost 0.2
+            physical-refraction 0
+            lens-distortion 0
+            fringing 0
+        }
+    }
+}
+
+cursor-effect {
+    enabled true                    // 总开关（默认 true）
+    scale 1.5                       // 特效缩放（默认 1.5）
+    opacity 1.0                     // 整体不透明度（默认 1.0）
+    color "45,175,255"              // 左键爆裂颜色，R,G,B 或 #rrggbb（默认 "45,175,255"）
+    effect-speed 1.0                // 动画速度基准（默认 1.0）
+    use-linked-animation-speed true // 拖尾/点击共用 effect-speed（默认 true）
+    trail-speed 1.0                 // 拖尾速度（use-linked 时被忽略）
+    click-speed 1.0                 // 点击速度（use-linked 时被忽略）
+    trail-refresh-rate 40           // 拖尾采样频率 Hz（默认 40）
+    enable-always-trail false       // 不按键也常显拖尾（默认 false）
+    apply-curve-draw false          // 拖尾曲线平滑（默认 false）
+    click-trigger "both"            // 哪些按键触发爆裂：left / right / both（默认 left）
+    enable-middle-click-trigger true // 中键是否触发（默认 true）
+    hide-in-fullscreen true         // 全屏时隐藏特效（默认 true）
+    show-on-desktop true            // 桌面上显示特效（默认 true）
+    touch-mode false                // 触摸屏模式（默认 false）
+}
