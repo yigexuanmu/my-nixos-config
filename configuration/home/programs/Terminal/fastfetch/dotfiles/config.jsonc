@@ -61,12 +61,7 @@
         },
         {
             "type": "terminal",
-            "key": "├",
-            "keyColor": "blue"
-        },
-        {
-            "type": "wallpaper",
-            "key": "└󰸉",
+            "key": "└",
             "keyColor": "blue"
         },
 
