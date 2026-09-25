@@ -19,7 +19,7 @@
 | niri-glass | [yigexuanmu/Niri-glass](https://github.com/yigexuanmu/Niri-glass) | Niri 平铺窗口管理器定制构建（beta 分支） |
 | nur | [nix-community/NUR](https://github.com/nix-community/NUR) | Nix 用户仓库（zcode、workbuddy 等） |
 | waydroid-nvidia-nix | [yigexuanmu/waydroid-nvidia-nix](https://github.com/yigexuanmu/waydroid-nvidia-nix) | NVIDIA GPU Waydroid 加速（Neo 分支） |
-| folia-major | [yigexuanmu/folia-major](https://github.com/yigexuanmu/folia-major) | Folia (Minecraft) 相关包 |
+| folia-major | [yigexuanmu/folia-major](https://github.com/yigexuanmu/folia-major) | Folia 相关包 |
 
 ## 目录结构
 
