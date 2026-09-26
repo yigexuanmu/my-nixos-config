@@ -500,11 +500,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790420800,
-        "narHash": "sha256-xfqZM4vl2v1kCH9l9t5iuL4ZOkE6KgEFh9p+iz/NPOU=",
+        "lastModified": 1790424500,
+        "narHash": "sha256-lqnWbaO9j7zrqrzLjIDkhWiC8COmN6z/8+gLfvcbXJA=",
         "owner": "yigexuanmu",
         "repo": "waydroid-nvidia-nix",
-        "rev": "459896babcb75d6a1d7ad21a9b9b3c9a78bb7660",
+        "rev": "e55baf97751b98454743c3f80a218bdd013ebea3",
         "type": "github"
       },
       "original": {
