@@ -12,11 +12,19 @@
       default = ["kitty.desktop"];
     };
   };
+  xdg.configFile."xfce4/helpers.rc" = {
+    force = true;
+    text = ''
+      # Managed by Home Manager
+      TerminalEmulator=kitty
+      TextEditor=kitty -e nvim
+    '';
+  };
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      "inode/directory" = ["org.gnome.Nautilus.desktop"];
-      "inode/mount-point" = ["org.gnome.Nautilus.desktop"];
+      "inode/directory" = ["thunar.desktop"];
+      "inode/mount-point" = ["thunar.desktop"];
       "text/html" = ["google-chrome.desktop"];
       "x-scheme-handler/http" = ["google-chrome.desktop"];
       "x-scheme-handler/https" = ["google-chrome.desktop"];
@@ -26,7 +34,7 @@
   };
   xdg.configFile."mimeapps.list".force = true;
   home.sessionVariables = {
-    EDITOR = "nvim";
+    EDITOR = "kitty -e nvim";
     TERMINAL = "kitty";
     BROWSER = "google-chrome";
   };

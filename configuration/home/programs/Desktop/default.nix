@@ -11,7 +11,6 @@
     wl-clipboard
     pywalfox-native
     libnotify
-    nautilus
     # 主题相关
     papirus-icon-theme
     papirus-folders

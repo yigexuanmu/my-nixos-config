@@ -127,7 +127,7 @@
 |------|------|
 | programs.nix | 用户 `mioha`，聚合所有 Home 模块，启用 LazyVim + Git + mpris-proxy，stateVersion 26.05 |
 | nixpkgs.nix | 允许非自由包，pipx 覆盖，不安全包白名单 |
-| session.nix | Flatpak 数据目录，MIME 默认应用（目录→Nautilus、浏览器→Chrome），EDITOR=nvim、TERMINAL=kitty、BROWSER=google-chrome |
+| session.nix | Flatpak 数据目录，MIME 默认应用（目录→Thunar、浏览器→Chrome），EDITOR=nvim、TERMINAL=kitty、BROWSER=google-chrome |
 
 ### Desktop
 
@@ -137,7 +137,7 @@
 | wf-recorder / slurp / grim | Wayland 录屏/截图 |
 | imv | 图片查看器 |
 | wl-clipboard | Wayland 剪贴板 |
-| nautilus | GNOME 文件管理器 |
+| thunar | XFCE 文件管理器 |
 | pywalfox-native | Firefox 壁纸取色联动 |
 | 主题套件 | papirus-icon-theme、papirus-folders、adw-gtk3、afterglow-cursors、qt5ct/qt6ct、gnome-keyring |
 | niri/ | Niri 窗口管理器 dotfiles（binds/blur/config/pop-drop.kdl） |
