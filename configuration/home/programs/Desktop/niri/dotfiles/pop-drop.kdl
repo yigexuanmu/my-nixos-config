@@ -3,11 +3,11 @@ animations {
     slowdown 0.98114514
 
     workspace-switch {
-      linear
+      spring damping-ratio=0.82 stiffness=400 epsilon=0.0001
     }
 
     horizontal-view-movement {
-      linear
+      spring damping-ratio=0.84 stiffness=400 epsilon=0.0001
     }
 
     window-open {

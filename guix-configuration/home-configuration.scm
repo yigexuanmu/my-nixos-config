@@ -15,4 +15,4 @@
         "fd")))
 
   (services
-    (append (list) %base-home-services)))
+    (list)))
