@@ -180,7 +180,7 @@
 | folia-major | Folia (Minecraft) 相关包（flake） |
 | qq | QQ 聊天 |
 | playerctl / cava | 媒体控制 / 音频可视化 |
-| kazumi | 漫画阅读器 |
+| kazumi | 看番软件 |
 | mpv / google-chrome | 媒体播放器 / 浏览器 |
 | cowsay / wine | 说话的牛 / Wine (stagingFull) |
 

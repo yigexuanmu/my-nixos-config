@@ -58,7 +58,7 @@
 
         inputs.disko.nixosModules.disko
 
-     	inputs.nur.modules.nixos.default
+      	inputs.nur.modules.nixos.default
 
         ./configuration/mioha-main/system.nix
         ./configuration/mioha-main/modules.nix
@@ -69,6 +69,7 @@
       extraSpecialArgs = {inherit inputs;};
       modules = [
       	 inputs.nur.modules.homeManager.default
+
         ./configuration/mioha-main/home.nix
       ];
     };
