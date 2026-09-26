@@ -5,6 +5,7 @@
     ../modules/programs/thunar.nix
     ../modules/programs/neovim.nix
     ../modules/programs/virt-manager.nix
+    ../modules/programs/nix-ld.nix
     ../modules/services/flatpak.nix
     ../modules/services/polkit.nix
     ../modules/services/waydroid-nvidia.nix
