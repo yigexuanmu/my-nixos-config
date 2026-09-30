@@ -229,11 +229,11 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1789562581,
-        "narHash": "sha256-Zm5RPkbgQg4xRdTtidWlWHOioC9vSCF9FNcC9pG6k28=",
+        "lastModified": 1790501193,
+        "narHash": "sha256-Gvw4TawWiZzbsL05CxBmLXLLBB3I7V2zMnYgUdIXQ14=",
         "owner": "yigexuanmu",
         "repo": "Niri-glass",
-        "rev": "b5682cedc4cf8b90724d4dc784a8eba9bf446f04",
+        "rev": "415dca21115bf2a9af321620245dc1cf2073ebc0",
         "type": "github"
       },
       "original": {
