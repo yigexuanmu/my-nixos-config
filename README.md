@@ -60,7 +60,7 @@
 | device/disko.nix | GPT 5G EFI + LVM (vg-mioha) + Btrfs（卷标 pc-mioha），按功能划分 subvol：@Config→/etc、@Data→/var/lib、@Home→/home、@Library→/library、@Sandbox→/sandbox、@Snapshot→/.snapshots、System/@Boot→/boot、@Nix→/nix、@Store→/nix/store、@Guix→/gnu、@Guix-Store→/gnu/store、@Log、@Swap、@Tmp 等；swapDevices（swapfile 16G，重装后手动创建）声明于此 |
 | device/hardware/nvidia.nix | NVIDIA 开源 GPU 内核模块驱动（nvidia-open） |
 | device/hardware/bluetooth.nix | 蓝牙硬件 + blueman（自 networking.nix 拆出） |
-| boot.nix | GRUB（EFI，挂载点 /efi），CachyOS Bore x86_64-v3 内核，initrd LVM，transparent_hugepage=never，/boot、/etc、/nix neededForBoot |
+| boot.nix | Limine（EFI，挂载点 /efi），CachyOS Bore x86_64-v3 内核，initrd LVM，transparent_hugepage=never，/boot、/etc、/nix neededForBoot |
 
 ### 系统基础
 
