@@ -137,11 +137,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790252392,
-        "narHash": "sha256-YPwk5Ge9Djn+4Z+NA4KT9RTxyCYjmajQB2KVYMI1bNs=",
+        "lastModified": 1790853727,
+        "narHash": "sha256-jMIMm8MogJ/i1n3A4JYCe2LmeIgTv7xyeCMpZq/lBBU=",
         "owner": "yigexuanmu",
         "repo": "folia-major",
-        "rev": "9382e3c195a22bbdb8801421bb28ed7dfc7577b7",
+        "rev": "2eb7cbba97477dfd17d891d2f88b7821e31e0ca7",
         "type": "github"
       },
       "original": {
@@ -229,11 +229,11 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1790501193,
-        "narHash": "sha256-Gvw4TawWiZzbsL05CxBmLXLLBB3I7V2zMnYgUdIXQ14=",
+        "lastModified": 1790859592,
+        "narHash": "sha256-/OxOPCO4PYd+SOes6qdWl9d5Sw1Iv5IhGM0y3ANXQ5o=",
         "owner": "yigexuanmu",
         "repo": "Niri-glass",
-        "rev": "415dca21115bf2a9af321620245dc1cf2073ebc0",
+        "rev": "2d2af7f444be45ffd745510f9b5f2e445da07e23",
         "type": "github"
       },
       "original": {

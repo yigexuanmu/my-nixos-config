@@ -154,7 +154,7 @@
 | android-tools | Android ADB |
 | hugo + glow | 静态站点 + Markdown 渲染 |
 | nix-output-monitor / nh | Nix 构建输出监控 / NixOS 系统管理 |
-| strace / ltrace / lsof | 调试工具 |
+| strace / lsof | 调试工具 |
 | vscode / git | 编辑器与版本控制 |
 | opencode / pi-coding-agent | AI 编程助手 |
 | zcode / workbuddy | NUR 包（Sittymin.zcode、MCSeekeri.workbuddy） |
