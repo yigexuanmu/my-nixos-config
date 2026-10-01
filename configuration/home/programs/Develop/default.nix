@@ -17,7 +17,6 @@
     hugo
     glow
     strace
-    ltrace
     lsof
     vscode
     git
