@@ -39,7 +39,10 @@
       url = "github:yigexuanmu/folia-major";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    linuxqq-wayland-fix.url = "github:yigexuanmu/linuxqq-wayland-fix-nix";
   };
+
 
   outputs = {
     self,
@@ -47,6 +50,7 @@
     home-manager,
     lazyvim,
     niri-glass,
+    linuxqq-wayland-fix,
     ...
   } @ inputs: {
     overlays.default = final: prev: import ./configuration/pkgs { pkgs = final; };
@@ -62,6 +66,12 @@
 
         ./configuration/mioha-main/system.nix
         ./configuration/mioha-main/modules.nix
+
+        linuxqq-wayland-fix.nixosModules.default
+        {
+          nixpkgs.config.allowUnfree = true; # pkgs.qq 是 unfree
+          programs.linuxqq-wayland-fix.enable = true;
+        }
       ];
     };
     homeConfigurations.mioha = home-manager.lib.homeManagerConfiguration {

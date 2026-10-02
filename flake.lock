@@ -187,11 +187,29 @@
         "type": "github"
       }
     },
+    "linuxqq-wayland-fix": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_3"
+      },
+      "locked": {
+        "lastModified": 1790955936,
+        "narHash": "sha256-BFsuzYdSfV+jS76Qa8oAPUdpzmyF+S9FPixbWPjYZAY=",
+        "owner": "yigexuanmu",
+        "repo": "linuxqq-wayland-fix-nix",
+        "rev": "d6887b4fff93b86efe1f37df20033e156ac3d4ed",
+        "type": "github"
+      },
+      "original": {
+        "owner": "yigexuanmu",
+        "repo": "linuxqq-wayland-fix-nix",
+        "type": "github"
+      }
+    },
     "miyu-agent-nix": {
       "inputs": {
         "flake-utils": "flake-utils_3",
         "miyu-src": "miyu-src",
-        "nixpkgs": "nixpkgs_3",
+        "nixpkgs": "nixpkgs_4",
         "rust-overlay": "rust-overlay"
       },
       "locked": {
@@ -226,7 +244,7 @@
     },
     "niri-glass": {
       "inputs": {
-        "nixpkgs": "nixpkgs_4"
+        "nixpkgs": "nixpkgs_5"
       },
       "locked": {
         "lastModified": 1790859592,
@@ -247,7 +265,7 @@
       "inputs": {
         "flake-compat": "flake-compat",
         "flake-parts": "flake-parts",
-        "nixpkgs": "nixpkgs_5"
+        "nixpkgs": "nixpkgs_6"
       },
       "locked": {
         "lastModified": 1790804125,
@@ -309,6 +327,22 @@
     },
     "nixpkgs_3": {
       "locked": {
+        "lastModified": 1790822859,
+        "narHash": "sha256-69xHQhAeMAD2wDXO7T2pcOZIF9Sga2W+JkmY2a11Ops=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "c59305bab2065cfecc4944690d9eedbb56f3a9fa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_4": {
+      "locked": {
         "lastModified": 1784356753,
         "narHash": "sha256-12KrbMiWLcf8m7pCvAtZh1ZrgF85ZXDXvfR/fWTKy84=",
         "owner": "NixOS",
@@ -323,7 +357,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_4": {
+    "nixpkgs_5": {
       "locked": {
         "lastModified": 1785110946,
         "narHash": "sha256-WWuWxmXKzGZWryswWlijP3Mjp6aGy4Ngmeil5nGMMjk=",
@@ -339,7 +373,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_5": {
+    "nixpkgs_6": {
       "locked": {
         "lastModified": 1790795014,
         "narHash": "sha256-k/loC4JkvkjkPoqVnB24TziDBJym0lZ3uhoNxOx0sjs=",
@@ -355,7 +389,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_6": {
+    "nixpkgs_7": {
       "locked": {
         "lastModified": 1790689126,
         "narHash": "sha256-ilerN1WLSvF+HMjziC/Wv99J5y02maDH+6hZPwsORKg=",
@@ -418,10 +452,11 @@
         "folia-major": "folia-major",
         "home-manager": "home-manager",
         "lazyvim": "lazyvim",
+        "linuxqq-wayland-fix": "linuxqq-wayland-fix",
         "miyu-agent-nix": "miyu-agent-nix",
         "niri-glass": "niri-glass",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
-        "nixpkgs": "nixpkgs_6",
+        "nixpkgs": "nixpkgs_7",
         "noctalia": "noctalia",
         "nur": "nur",
         "waydroid-nvidia-nix": "waydroid-nvidia-nix"
