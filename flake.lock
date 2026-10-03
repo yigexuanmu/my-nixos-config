@@ -192,11 +192,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1790955936,
-        "narHash": "sha256-BFsuzYdSfV+jS76Qa8oAPUdpzmyF+S9FPixbWPjYZAY=",
+        "lastModified": 1791016571,
+        "narHash": "sha256-gSAIzq8Nl+69ZvMwFBhu4XkZK/9l18dTdpXKsuvUhf8=",
         "owner": "yigexuanmu",
         "repo": "linuxqq-wayland-fix-nix",
-        "rev": "d6887b4fff93b86efe1f37df20033e156ac3d4ed",
+        "rev": "0779a724ff3d23783d780e509858bd2f7a97fd6a",
         "type": "github"
       },
       "original": {
