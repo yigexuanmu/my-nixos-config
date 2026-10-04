@@ -40,7 +40,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    linuxqq-wayland-fix.url = "github:yigexuanmu/linuxqq-wayland-fix-nix";
+    linuxqq-wayland-fix.url = "github:SHORIN-KIWATA/linuxqq-wayland-fix";
+    #linuxqq-wayland-fix.url = "github:yigexuanmu/linuxqq-wayland-fix-nix";
   };
 
 
