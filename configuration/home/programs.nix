@@ -8,7 +8,9 @@
   imports = [
     inputs.lazyvim.homeManagerModules.default
     ./programs/Desktop/default.nix
+    ./programs/Desktop/fuzzel
     ./programs/Desktop/niri
+    ./programs/Desktop/waybar
     ./programs/Develop/default.nix
     ./programs/Entertain/default.nix
     ./programs/Entertain/cava

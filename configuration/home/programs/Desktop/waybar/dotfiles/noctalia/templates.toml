@@ -1,0 +1,4 @@
+[theme.templates.user.waybar]
+input_path = "$XDG_CONFIG_HOME/noctalia/templates/waybar-colors.css"
+output_path = "$XDG_CONFIG_HOME/waybar/colors-noctalia.css"
+post_hook = "bash $HOME/.config/waybar/scripts/reload-waybar.sh || true"

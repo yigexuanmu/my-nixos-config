@@ -22,5 +22,26 @@
     gtk3
     gtk4
     gnome-keyring
+    waybar
+    fuzzel
+    satty
+    swappy
+    hyprpicker
+    ddcutil
+    cliphist
+    waypaper
+    matugen
+    wlsunset
+    swayosd
+    swaynotificationcenter
+    hyprlock
+    gnome-clocks
+    gnome-calendar
+    wl-screenrec
+    wlr-randr
+    xdg-user-dirs
+    adwaita-fonts
+    lxgw-wenkai-screen
+    font-awesome_7
   ];
 }

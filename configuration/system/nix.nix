@@ -3,7 +3,7 @@
   pkgs,
   ...
 }: {
-  nix.package = pkgs.lixPackageSets.latest.lix;
+  nix.package = pkgs.lixPackageSets.lix_2_96.lix;
   nixpkgs.config.allowUnfree = true;
   nix.settings.substituters = [
     "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"

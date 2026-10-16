@@ -255,6 +255,7 @@ layout {
 // 此行启动 waybar，一个 Wayland 合成器常用状态栏。
 
 spawn-at-startup "noctalia"
+spawn-at-startup "waybar"
 spawn-at-startup "fcitx5"
 environment {
     LANG "zh_CN.UTF-8"

@@ -38,5 +38,10 @@
     pciutils
     usbutils
     wget
+    imagemagick
+    snapper
+    bluetui
+    bluetuith
+    impala
   ];
 }

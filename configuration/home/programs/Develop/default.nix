@@ -22,8 +22,6 @@
     git
     nh
     opencode
-    nur.repos.Sittymin.zcode
-    nur.repos.MCSeekeri.workbuddy
     pi-coding-agent
     nodejs
   ];
