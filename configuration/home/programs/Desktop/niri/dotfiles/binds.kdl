@@ -63,9 +63,9 @@ binds {
 
     // shorin-niri 独有功能
     Mod+P repeat=false { toggle-grid-overview; }
-    Mod+M { toggle-magnifier; }
-    Mod+Alt+WheelScrollUp { adjust-magnifier-zoom +0.2; }
-    Mod+Alt+WheelScrollDown { adjust-magnifier-zoom -0.2; }
+    Mod+Alt+MouseLeft { toggle-magnifier; }
+    Mod+Alt+WheelScrollUp { adjust-magnifier-zoom +0.5; }
+    Mod+Alt+WheelScrollDown { adjust-magnifier-zoom -0.5; }
     // 下面的快捷键看着很多很复杂，其实并不难记。
     // 记住三组方向键，wasd、hjkl和上下左右箭头
     // 总的来说
