@@ -238,8 +238,10 @@ sudo ./reinstall.sh [--yes]   # --yes 跳过目标盘二次确认
 
 ## 致谢
 
-- [SHORiN-KiWATA](https://github.com/SHORiN-KiWATA) — 配置文件参考
-- [brokenshine/nixos-configs](https://gitee.com/brokenshine/nixos-configs) — NixOS 配置参考
+- [SHORiN-KiWATA](https://github.com/SHORiN-KiWATA) — 配置文件参考（Miyu很好用）
+- [Zer05ky](https://github.com/sky1234762/ZEK-niri) — waybar及脚本参考（我的桌面环境和这个差不多）
+- [brokenshine/nixos-configs](https://gitee.com/brokenshine/nixos-configs) — NixOS 配置文件拆分参考
 - [NixOS-CN 安装教程](https://nixos-cn.org/tutorials/installation) — 安装教程参考
-- [opencode](https://github.com/anomalyco/opencode) — 开源 AI 编程助手
+- [opencode](https://github.com/anomalyco/opencode) — 开源 AI 编程助手（虽然我现在不用了XD）
 - [NixOS & Flakes Book](https://nixos-and-flakes.thiscute.world/zh) — NixOS 与 Flakes 中文教程
+- [DeepSeek](https://www.deepseek.com/) — 帮我拆Nix文件，大规模重写，打一些包（NixOS是VibeOS，有没有懂的XD）
