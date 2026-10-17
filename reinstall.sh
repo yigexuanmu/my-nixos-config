@@ -18,19 +18,19 @@ TARGET="/mnt/etc/nixos"
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DISKO_NIX="$SRC_DIR/configuration/device/disko.nix"
 
-# Expected mount points (under /mnt), must match disko.nix
-WANT_MOUNTS=(
-  "/"
-  "/efi"
-  "/boot"
-  "/etc"
-  "/nix"
-  "/nix/store"
-  "/home"
-  "/swap"
-  "/var/lib"
-  "/var/log"
-  "/var/tmp"
+# Mount points are read from disko.nix at run time so this script cannot
+# drift from the disk layout again (nodev mounts included).
+mapfile -t WANT_MOUNTS < <(
+  nix-instantiate --eval --strict --raw --expr "
+    let
+      d = (import $DISKO_NIX).disko.devices;
+      walk = v:
+        if builtins.isAttrs v then
+          (if v ? mountpoint then [ v.mountpoint ] else [ ])
+          ++ (if v ? nodev then builtins.attrNames v.nodev else [ ])
+          ++ builtins.concatLists (map walk (builtins.attrValues v))
+        else [ ];
+    in builtins.concatStringsSep \"\n\" (builtins.sort builtins.lessThan (walk d))"
 )
 
 YES=0
@@ -46,6 +46,8 @@ EXTRA_ARGS="$@"
 
 log() { echo "==> $*"; }
 die() { echo "!! $*" >&2; exit 1; }
+
+[ "${#WANT_MOUNTS[@]}" -ge 2 ] || die "Could not read mount points from $DISKO_NIX"
 
 # ---------------- 0. Preflight checks ----------------
 [ "$EUID" -eq 0 ] || die "Run as root: sudo $0"
