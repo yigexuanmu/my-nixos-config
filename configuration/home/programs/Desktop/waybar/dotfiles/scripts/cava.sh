@@ -23,6 +23,7 @@ idle_output=$(printf "%0.s$idle_char" $(seq 1 $BARS))
     while kill -0 "$1" 2>/dev/null; do sleep 2; done
     pkill -9 -f "^cava -p $2" 2>/dev/null || true
 ' _ "$$" "$CONF") &
+disown 2>/dev/null || true
 
 for _p in $(pgrep -f "^cava -p $CONF$" 2>/dev/null || true); do
     _pp=$(ps -o ppid= -p "$_p" 2>/dev/null | tr -d ' ')
@@ -109,7 +110,6 @@ while true; do
     else
         if pgrep -P $$ -x cava >/dev/null; then
             pkill -9 -P $$ -x cava 2>/dev/null
-            wait 2>/dev/null
             echo "$idle_output"
         fi
         sleep "${CAVA_IDLE_INTERVAL:-2}"
