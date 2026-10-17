@@ -29,7 +29,6 @@
     hyprpicker
     ddcutil
     cliphist
-    waypaper
     matugen
     wlsunset
     swayosd
