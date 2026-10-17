@@ -6,6 +6,7 @@ BARS=12
 FPS=60
 SENS=150
 CONF="/tmp/waybar_cava_config"
+CAVA_KILL_AFTER="${CAVA_KILL_AFTER:-5}"
 WAYBAR_PROC="${WAYBAR_PROC:-waybar|\\.waybar-wrapped}"
 
 trap '' PIPE
@@ -44,7 +45,7 @@ higher_cutoff_freq = 20000
 [input]
 method = ${CAVA_METHOD:-pipewire}
 source = auto
-sample_rate = 192000
+sample_rate = 48000
 sample_bits = 16
 channels = 2
 active = 1
@@ -89,6 +90,7 @@ is_audio_active() {
 }
 
 # 初始状态
+idle_hits=0
 echo "$idle_output"
 
 while true; do
@@ -97,6 +99,7 @@ while true; do
 
     # 如果存在未静音的音频
     if is_audio_active; then
+        idle_hits=0
         if ! pgrep -P $$ -x cava >/dev/null; then
             # 这里的 sed 字典是根据你的 CHARS 动态生成的
             sed_dict="s/^(([^;]*;){$BARS}).*/\1/;s/;//g;"
@@ -108,10 +111,12 @@ while true; do
         # 正在播放时，稍微降低检查频率减少 CPU 占用
         sleep 1
     else
-        if pgrep -P $$ -x cava >/dev/null; then
+        idle_hits=$(( idle_hits + 1 ))
+        if (( idle_hits >= CAVA_KILL_AFTER )) && pgrep -P $$ -x cava >/dev/null; then
             pkill -9 -P $$ -x cava 2>/dev/null
+            idle_hits=0
             echo "$idle_output"
         fi
-        sleep "${CAVA_IDLE_INTERVAL:-2}"
+        sleep "${CAVA_IDLE_INTERVAL:-1}"
     fi
 done
