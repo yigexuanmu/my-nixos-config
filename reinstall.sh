@@ -16,7 +16,7 @@ DISK_BY_ID="nvme-HYV512X3_XT__2024092900130"      # disk.main.device in disko.ni
 VG="vg-mioha"                                      # lvm_vg name in disko.nix
 FS_LABEL="pc-mioha"                                # btrfs filesystem label
 FLAKE_ATTR="mioha-nix"                             # nixosConfigurations.<attr> in flake.nix
-SWAP_SIZE="16G"
+SWAP_SIZE="4G"
 TARGET="/mnt/etc/nixos"
 SCRIPT_PATH="$(readlink -f -- "${BASH_SOURCE[0]:-}" 2>/dev/null || true)"
 [ -n "$SCRIPT_PATH" ] && [ -f "$SCRIPT_PATH" ] \

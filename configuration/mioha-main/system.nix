@@ -15,5 +15,6 @@
     ../system/fonts.nix
     ../system/environment.nix
     ../system/tmpfiles.nix
+    ../system/journald.nix
   ];
 }

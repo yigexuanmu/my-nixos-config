@@ -27,7 +27,7 @@
 #   /.snapshots  -> @Snapshot
 #
 # Swapfile 说明 (btrfs 上 disko 不直接建 swapfile, 重装后手动执行一次):
-#   sudo btrfs filesystem mkswapfile --size 16G /swap/swapfile
+#   sudo btrfs filesystem mkswapfile --size 4G /swap/swapfile
 #   sudo swapon /swap/swapfile
 # swapDevices 已在本文件底部声明;
 #
@@ -229,6 +229,6 @@
         };
       };
   };
-  #   sudo btrfs filesystem mkswapfile --size 16G /swap/swapfile
+  #   sudo btrfs filesystem mkswapfile --size 4G /swap/swapfile
   swapDevices = [{ device = "/swap/swapfile"; }];
 }
