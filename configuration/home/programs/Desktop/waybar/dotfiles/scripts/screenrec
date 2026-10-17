@@ -712,7 +712,9 @@ start_rec() {
       fi
 
       if [[ "$CODEC_WF" == *"_vaapi" ]]; then args+=( -F "scale_vaapi=format=nv12:out_range=full:out_color_primaries=bt709" )
-      else args+=( -F "format=yuv420p" ); fi
+      elif [[ "$CODEC_WF" != *"_nvenc" ]]; then args+=( -F "format=yuv420p" ); fi
+      # nvenc 不加 format=yuv420p：ffmpeg 自动协商同样的 yuv420p 输出，但省掉一次
+      # 显式 swscale（实测 1280x800：98% -> 8% 单核）
       ;;
   esac
 
