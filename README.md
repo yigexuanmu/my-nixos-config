@@ -95,7 +95,6 @@
 | flatpak.nix | Flatpak 包管理 + xdg-desktop-portal-gtk |
 | waydroid-nvidia.nix | Waydroid NVIDIA GPU 加速（flake waydroid-nvidia-nix），165Hz，waydroid-helper |
 | guix.nix | Guix 包管理服务，SJTU/CERNET 镜像，周度 GC（保留 1 个月、≥10G 空闲、去重） |
-| linyaps.nix | Linyaps 应用商店服务 |
 | polkit.nix | Polkit 权限管理 + GNOME 认证代理（含 polkit_gnome 包） |
 
 ### 虚拟化
