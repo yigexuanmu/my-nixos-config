@@ -16,7 +16,15 @@ FORCE_UPDATE=0
 mkdir -p "$CACHE_DIR"
 trap 'FORCE_UPDATE=1' SIGUSR1
 
-json_str() { jq -Rn --arg s "$1" '$s'; }
+json_str() {
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    s="${s//$'\n'/\\n}"
+    s="${s//$'\t'/\\t}"
+    s="${s//$'\r'/\\r}"
+    printf '"%s"' "$s"
+}
 
 format_age() {
   local s="$1"

@@ -140,6 +140,7 @@
   "custom/wfrec": {
     "exec": "~/.config/waybar/scripts/screenrec status-json",
     "return-type": "json",
+    "escape": true,
     //"interval": 1,                 // 每秒刷新一次
     "signal": 9, // 与脚本里的 WAYBAR_SIG 对应
     "tooltip": true,
@@ -376,12 +377,13 @@
 "custom/updates": {
     "format": "{}{icon}",
     "return-type": "json",
+    "escape": true,
     "format-icons": {
       "has-updates": "",
       "updated": ""
     },
     "exec": "~/.config/waybar/scripts/check-updates.sh",
-    "restart-interval": 0,
+    "restart-interval": 60,
     "on-click": "kitty -e sudo nixos-rebuild switch --flake /etc/nixos --upgrade",
     "on-click-middle": "pkill -SIGUSR1 -f ~/.config/waybar/scripts/check-updates.sh",
     "on-click-right": "kitty --class floating-term  -e ~/.config/waybar/scripts/check-updates.sh --once" 
