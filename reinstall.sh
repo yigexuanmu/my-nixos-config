@@ -8,6 +8,9 @@
 #   --yes  skip the destructive confirmation (double-checks target disk by default)
 set -euo pipefail
 
+log() { echo "==> $*"; }
+die() { echo "!! $*" >&2; exit 1; }
+
 # ---------------- Config (edit as needed) ----------------
 DISK_BY_ID="nvme-HYV512X3_XT__2024092900130"      # disk.main.device in disko.nix
 VG="vg-mioha"                                      # lvm_vg name in disko.nix
@@ -15,23 +18,13 @@ FS_LABEL="pc-mioha"                                # btrfs filesystem label
 FLAKE_ATTR="mioha-nix"                             # nixosConfigurations.<attr> in flake.nix
 SWAP_SIZE="16G"
 TARGET="/mnt/etc/nixos"
-SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_PATH="$(readlink -f -- "${BASH_SOURCE[0]:-}" 2>/dev/null || true)"
+[ -n "$SCRIPT_PATH" ] && [ -f "$SCRIPT_PATH" ] \
+  || die "Cannot locate this script (piped input?); run it as a file: sudo bash path/to/reinstall.sh"
+SRC_DIR="$(dirname -- "$SCRIPT_PATH")"
 DISKO_NIX="$SRC_DIR/configuration/device/disko.nix"
-
-# Mount points are read from disko.nix at run time so this script cannot
-# drift from the disk layout again (nodev mounts included).
-mapfile -t WANT_MOUNTS < <(
-  nix-instantiate --eval --strict --raw --expr "
-    let
-      d = (import $DISKO_NIX).disko.devices;
-      walk = v:
-        if builtins.isAttrs v then
-          (if v ? mountpoint then [ v.mountpoint ] else [ ])
-          ++ (if v ? nodev then builtins.attrNames v.nodev else [ ])
-          ++ builtins.concatLists (map walk (builtins.attrValues v))
-        else [ ];
-    in builtins.concatStringsSep \"\n\" (builtins.sort builtins.lessThan (walk d))"
-)
+NIX_INSTANTIATE="$(command -v nix-instantiate || true)"
+[ -n "$NIX_INSTANTIATE" ] || NIX_INSTANTIATE="/run/current-system/sw/bin/nix-instantiate"
 
 YES=0
 for arg in "${@:1:$#}"; do
@@ -44,16 +37,32 @@ done
 # shellcheck disable=SC2124
 EXTRA_ARGS="$@"
 
-log() { echo "==> $*"; }
-die() { echo "!! $*" >&2; exit 1; }
-
-[ "${#WANT_MOUNTS[@]}" -ge 2 ] || die "Could not read mount points from $DISKO_NIX"
-
 # ---------------- 0. Preflight checks ----------------
 [ "$EUID" -eq 0 ] || die "Run as root: sudo $0"
 [ -d /sys/firmware/efi ] || die "UEFI not detected (/sys/firmware/efi missing); this config only supports UEFI+GRUB"
 [ -f "$DISKO_NIX" ] || die "disko config not found: $DISKO_NIX"
 [ -e "/dev/disk/by-id/$DISK_BY_ID" ] || die "Target disk /dev/disk/by-id/$DISK_BY_ID not found, check hardware first"
+
+# Mount points are read from disko.nix so the script cannot drift from the
+# layout; this must succeed before disko touches the disk.
+log "Reading mount points from $DISKO_NIX"
+[ -x "$NIX_INSTANTIATE" ] || die "nix-instantiate not found; run on the NixOS LiveCD with nix available"
+mapfile -t WANT_MOUNTS < <(
+  # Path is passed via the environment: nix-instantiate --expr does not apply
+  # --argstr to the expression, and interpolating the path would break on spaces.
+  DISKO_NIX="$DISKO_NIX" "$NIX_INSTANTIATE" --eval --strict --raw --expr '
+    let
+      d = (import (builtins.getEnv "DISKO_NIX")).disko.devices;
+      walk = v:
+        if builtins.isAttrs v then
+          (if v ? mountpoint then [ v.mountpoint ] else [ ])
+          ++ (if v ? nodev then builtins.attrNames v.nodev else [ ])
+          ++ builtins.concatLists (map walk (builtins.attrValues v))
+        else [ ];
+    in builtins.concatStringsSep "\n" (builtins.sort builtins.lessThan (walk d))'
+)
+[ "${#WANT_MOUNTS[@]}" -ge 2 ] \
+  || die "Could not read mount points from $DISKO_NIX (nix-instantiate eval failed)"
 
 if [ "$YES" -ne 1 ]; then
   echo "About to format this disk with disko (ALL DATA WILL BE DESTROYED):"
