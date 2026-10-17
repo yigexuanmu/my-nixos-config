@@ -395,8 +395,8 @@ window-rule {
 
 
 cursor { 
-    xcursor-theme "Afterglow-Recolored-Dracula-Purple"
-    xcursor-size 24
+    xcursor-theme "Windows-Cursor"
+    xcursor-size 48
     hide-after-inactive-ms 3000
 }
 

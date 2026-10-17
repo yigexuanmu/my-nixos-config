@@ -44,6 +44,7 @@
 │   │   ├── security/             # 安全模块（sudo-rs、wrappers）
 │   │   └── packages/             # 系统级包模块
 │   ├── pkgs/                     # 自定义包定义
+│   │   ├── data/cursors/         # Windows 光标方案 → Xcursor 主题（转换器 + source.zip）
 │   │   ├── data/fonts/           # 字体打包
 │   │   └── tools/networking/     # 网络工具打包
 │   └── home/                     # Home Manager 配置
@@ -110,6 +111,7 @@
 | 包 | 说明 |
 |----|------|
 | clash-party.nix | Clash Party（自定义打包，pkgs/tools/networking/；包安装于 modules/packages/） |
+| windows-cursor.nix | Windows 光标方案（.ani/.cur）转 Xcursor 主题（pkgs/data/cursors/，含 Python 转换器；动画 + 多尺寸） |
 | harmonyos-sans.nix | HarmonyOS Sans 字体（自定义打包，pkgs/data/fonts/） |
 
 ### 安全
@@ -140,7 +142,23 @@
 | thunar | XFCE 文件管理器 |
 | pywalfox-native | Firefox 壁纸取色联动 |
 | 主题套件 | papirus-icon-theme、papirus-folders、adw-gtk3、afterglow-cursors、qt5ct/qt6ct、gnome-keyring |
+| cursor.nix | 光标主题 `Windows-Cursor`：48px，niri / XCURSOR / GTK / dconf / systemd 用户环境同步 |
 | niri/ | Niri 窗口管理器 dotfiles（binds/blur/config/pop-drop.kdl） |
+
+### 光标主题
+
+Windows 光标方案由 `pkgs/data/cursors/windows-cursor.nix` 构建成 Xcursor 主题，`Desktop/cursor.nix` 应用到 niri、Xwayland 与 GTK。
+
+| 项 | 值/说明 |
+|----|---------|
+| 主题名 | `Windows-Cursor`（固定名） |
+| 尺寸 | 48（`cursor.nix` 与 niri `xcursor-size` 手动保持一致） |
+| 生成档位 | 24/30/32/36/42/48/60/64/72/96 |
+| 动画 | 读取 ANI 帧与 rate 延时（jiffy = 1/60 s）；静止 `.cur` 单帧 |
+| 转换器 | `pkgs/data/cursors/tool/win2xcursor.py`（Pillow + xcursorgen），本地 venv 在 `~/tools/cursor-convert` |
+| 角色映射 | `.inf` 的 `[Wreg]`（Arrow/Hand/SizeNS…）优先，无 `.inf` 时按文件名回退 |
+
+更换方案：替换 `pkgs/data/cursors/source.zip` 后 `nh home switch /etc/nixos`。已运行的 X11/GTK 进程需重启才会重新读取 `XCURSOR_*`。
 
 ### Develop
 

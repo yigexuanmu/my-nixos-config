@@ -2,6 +2,10 @@
   pkgs,
   ...
 }: {
+  imports = [
+    ./cursor.nix
+  ];
+
   home.packages = with pkgs; [
     nwg-look
     wf-recorder
