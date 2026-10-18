@@ -46,5 +46,7 @@
     adwaita-fonts
     lxgw-wenkai-screen
     font-awesome_7
+
+    (pkgs.callPackage ../../../pkgs/tools/desktop/waywallen-layer-shell {})
   ];
 }

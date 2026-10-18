@@ -1,5 +1,6 @@
 {
   inputs,
+  pkgs,
   ...
 }: {
   home.username = "mioha";
