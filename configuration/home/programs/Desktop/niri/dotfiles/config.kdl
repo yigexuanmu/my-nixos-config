@@ -258,7 +258,6 @@ spawn-at-startup "noctalia"
 // waybar 退出即重拉（崩溃后自动恢复）；想彻底停掉就注释这一行并 pkill 循环里的 sh
 spawn-at-startup "sh" "-c" "while :; do waybar; sleep 2; done"
 spawn-at-startup "fcitx5"
-spawn-at-startup "waywallen-layer-shell"
 environment {
     LANG "zh_CN.UTF-8"
     LC_ALL "zh_CN.UTF-8"
