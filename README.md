@@ -2,8 +2,11 @@
 
 > [!WARNING]
 > 此配置并非完全可复现，仅作为个人环境的大致参考。硬件配置、秘密信息、部分外部 flake 版本等需要手动适配。
+> 本配置使用了LLM。
 
-基于 Flake 的 NixOS 系统配置，模块化分层管理，本仓库已 Git 版本控制。
+基于 Flake 的 NixOS 系统配置，模块化分层管理。
+
+![系统截图](https://raw.githubusercontent.com/yigexuanmu/images/main/Screenshot%20from%202026-10-18%2021-18-53.png)
 
 ## Flake Inputs
 
@@ -14,10 +17,10 @@
 | lazyvim | [pfassina/lazyvim-nix](https://github.com/pfassina/lazyvim-nix) | LazyVim Neovim 配置 |
 | nix-cachyos-kernel | [xddxdd/nix-cachyos-kernel](https://github.com/xddxdd/nix-cachyos-kernel) | CachyOS BORE 内核 |
 | disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
-| noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia Shell（desktop.nix 安装） |
+| noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia Shell |
 | miyu-agent-nix | [yigexuanmu/miyu-agent-nix](https://github.com/yigexuanmu/miyu-agent-nix) | 终端 AI 助手 Miyu |
 | niri-glass | [yigexuanmu/Niri-glass](https://github.com/yigexuanmu/Niri-glass) | Niri 平铺窗口管理器定制构建（beta 分支） |
-| nur | [nix-community/NUR](https://github.com/nix-community/NUR) | Nix 用户仓库（zcode、workbuddy 等） |
+| nur | [nix-community/NUR](https://github.com/nix-community/NUR) | Nix 用户仓库 |
 | waydroid-nvidia-nix | [yigexuanmu/waydroid-nvidia-nix](https://github.com/yigexuanmu/waydroid-nvidia-nix) | NVIDIA GPU Waydroid 加速（Neo 分支） |
 | folia-major | [yigexuanmu/folia-major](https://github.com/yigexuanmu/folia-major) | Folia 相关包 |
 
@@ -60,7 +63,7 @@
 | device/hardware/hardware-config.nix | 手动配置，AMD CPU + NVMe 内核模块，nixpkgs.hostPlatform，AMD CPU 微码 |
 | device/disko.nix | GPT 5G EFI + LVM (vg-mioha) + Btrfs（卷标 pc-mioha），按功能划分 subvol：@Config→/etc、@Data→/var/lib、@Home→/home、@Library→/library、@Sandbox→/sandbox、@Snapshot→/.snapshots、System/@Boot→/boot、@Nix→/nix、@Store→/nix/store、@Guix→/gnu、@Guix-Store→/gnu/store、@Log、@Swap、@Tmp 等；swapDevices（swapfile 4G，重装后手动创建）声明于此 |
 | device/hardware/nvidia.nix | NVIDIA 开源 GPU 内核模块驱动（nvidia-open） |
-| device/hardware/bluetooth.nix | 蓝牙硬件 + blueman（自 networking.nix 拆出） |
+| device/hardware/bluetooth.nix | 蓝牙硬件 + blueman |
 | boot.nix | Limine（EFI，挂载点 /efi），CachyOS Bore x86_64-v3 内核，initrd LVM，transparent_hugepage=never，/boot、/etc、/nix neededForBoot |
 
 ### 系统基础
@@ -68,13 +71,13 @@
 | 模块 | 说明 |
 |------|------|
 | nix.nix | Lix (latest)，Flakes + nix-command，allowUnfree，清华/中科大/蓝脸 attic 镜像源，周度 GC（删 14 天前），stateVersion 26.05 |
-| overlays.nix | nixpkgs overlays（cachyos-kernel + lix 工具链，自 nix.nix 拆出） |
+| overlays.nix | nixpkgs overlays（cachyos-kernel + lix 工具链） |
 | networking.nix | 主机名 `mioha-nix`，NetworkManager，防火墙关闭，dnsmasq |
 | user.nix | 用户 `mioha`，组：wheel、networkmanager、libvirtd、kvm、input、audio、uinput、podman |
 | i18n.nix | 时区上海，英文 locale + 中文支持 |
 | input-method.nix | Fcitx5 输入法（rime + 中文插件 + 日语 Mozc + Mellow 主题） |
 | environment.nix | 系统软件包（gcc、nh、git、distrobox） |
-| tmpfiles.nix | /var/tmp、/var/build 目录规则（自 boot.nix 拆出） |
+| tmpfiles.nix | /var/tmp、/var/build 目录规则 |
 | fonts.nix | Noto 中日韩 + Color Emoji，JetBrains Mono / Fira Code Nerd Font 等 |
 
 ### 桌面环境
@@ -117,7 +120,7 @@
 
 | 模块 | 说明 |
 |------|------|
-| security/wrappers.nix | mihomo-party capability wrapper（自 clash-party.nix 拆出） |
+| security/wrappers.nix | mihomo-party capability wrapper |
 | security/sudo-rs.nix | sudo-rs 替代传统 sudo（security.sudo-rs.enable，security.sudo 关闭） |
 
 ## Home Manager
@@ -174,7 +177,6 @@ Windows 光标方案由 `pkgs/data/cursors/windows-cursor.nix` 构建成 Xcursor
 | strace / lsof | 调试工具 |
 | vscode / git | 编辑器与版本控制 |
 | opencode / pi-coding-agent | AI 编程助手 |
-| zcode / workbuddy | NUR 包（Sittymin.zcode、MCSeekeri.workbuddy） |
 
 ### Terminal
 
@@ -195,6 +197,7 @@ Windows 光标方案由 `pkgs/data/cursors/windows-cursor.nix` 构建成 Xcursor
 | 工具 | 说明 |
 |------|------|
 | folia-major | Folia (Minecraft) 相关包（flake） |
+| go-musicfox | TUI网易云播放器 |
 | qq | QQ 聊天 |
 | playerctl / cava | 媒体控制 / 音频可视化 |
 | kazumi | 看番软件 |
@@ -210,7 +213,7 @@ Windows 光标方案由 `pkgs/data/cursors/windows-cursor.nix` 构建成 Xcursor
 | osu-lazer-bin | osu! |
 | prismlauncher | Minecraft 启动器 |
 | mangohud | 游戏性能监控 |
-| gamescope | 游戏会话（自系统 environment.nix 移入） |
+| gamescope | 游戏会话 |
 
 ### Utility
 
