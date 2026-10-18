@@ -4,7 +4,7 @@
 > 此配置并非完全可复现，仅作为个人环境的大致参考。硬件配置、秘密信息、部分外部 flake 版本等需要手动适配。
 > 本配置使用了LLM。
 
-基于 Flake 的 NixOS 系统配置，模块化分层管理。
+基于 Flake 的 NixOS 系统配置，模块化分层管理。系统桌面样图：
 
 ![系统截图](https://raw.githubusercontent.com/yigexuanmu/images/main/Screenshot%20from%202026-10-18%2021-18-53.png)
 
@@ -240,8 +240,8 @@ sudo ./reinstall.sh [--yes]   # --yes 跳过目标盘二次确认
 
 ## 致谢
 
-- [SHORiN-KiWATA](https://github.com/SHORiN-KiWATA) — 配置文件参考（Miyu很好用）
-- [Zer05ky](https://github.com/sky1234762/ZEK-niri) — waybar及脚本参考（我的桌面环境和这个差不多）
+- [SHORiN-KiWATA](https://github.com/SHORiN-KiWATA) — 配置文件参考，waybar及脚本参考修改（Miyu很好用）
+- [Zer05ky](https://github.com/sky1234762/ZEK-niri) — waybar及脚本参考修改（提供waybar和noctalia结合的灵感）
 - [brokenshine/nixos-configs](https://gitee.com/brokenshine/nixos-configs) — NixOS 配置文件拆分参考
 - [NixOS-CN 安装教程](https://nixos-cn.org/tutorials/installation) — 安装教程参考
 - [opencode](https://github.com/anomalyco/opencode) — 开源 AI 编程助手（虽然我现在不用了XD）
