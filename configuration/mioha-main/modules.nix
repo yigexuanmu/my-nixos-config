@@ -16,6 +16,6 @@
     ../modules/security/wrappers.nix
     ../modules/virtualisation/libvirtd.nix
     ../modules/virtualisation/podman.nix
-    ../modules/virtualisation/vmware-workstation.nix
+#    ../modules/virtualisation/vmware-workstation.nix
   ];
 }
