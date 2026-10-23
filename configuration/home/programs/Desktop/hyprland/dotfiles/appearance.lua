@@ -31,6 +31,8 @@ hl.config({
             passes   = 3,
             noise    = 0.02,
             vibrancy = 0.3,
+            xray     = false,
+            new_optimizations = false,
         },
     },
 
