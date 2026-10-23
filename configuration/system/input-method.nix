@@ -14,7 +14,6 @@
       # ~/.local/share/fcitx5/rime/（上游覆盖式发版，无法固定 hash 进 nixpkgs）。
       (fcitx5-rime.override {rimeDataPkgs = [rime-data rime-wanxiang];})
       qt6Packages.fcitx5-chinese-addons
-      fcitx5-mozc
       fcitx5-gtk
       qt6Packages.fcitx5-qt
       fcitx5-mellow-themes
