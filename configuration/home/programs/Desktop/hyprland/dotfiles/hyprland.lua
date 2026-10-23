@@ -73,6 +73,7 @@ hl.env("QS_ICON_THEME", "Papirus-Dark")
 
 hl.env("XCURSOR_THEME", "Windows-Cursor")
 hl.env("XCURSOR_SIZE", "48")
+hl.env("HYPRCURSOR_THEME", "Windows-Cursor")
 hl.env("HYPRCURSOR_SIZE", "48")
 
 -------------------
@@ -80,6 +81,8 @@ hl.env("HYPRCURSOR_SIZE", "48")
 -------------------
 
 hl.on("hyprland.start", function()
+    -- HYPRCURSOR_THEME 只影响子进程，Hyprland 自身需通过 IPC 切换
+    hl.exec_cmd("hyprctl setcursor Windows-Cursor 48")
     hl.exec_cmd("noctalia")
     hl.exec_cmd("fcitx5 -d")
 

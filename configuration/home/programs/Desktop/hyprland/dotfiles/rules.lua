@@ -39,6 +39,7 @@ hl.layer_rule({
     name  = "noctalia-layers",
     match = { namespace = "^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd)$" },
     blur  = false,
+    no_anim = true,
 })
 
 -- XWayland 拖拽修复（自动生成配置里的条目，保留）

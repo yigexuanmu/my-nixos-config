@@ -21,6 +21,8 @@ in {
   systemd.user.sessionVariables = {
     XCURSOR_THEME = cursorName;
     XCURSOR_SIZE = toString cursorSize;
+    HYPRCURSOR_THEME = cursorName;
+    HYPRCURSOR_SIZE = toString cursorSize;
   };
 
   # GTK reads the cursor from settings.ini; nwg-look owns the rest of those
