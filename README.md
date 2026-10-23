@@ -18,6 +18,7 @@
 | nix-cachyos-kernel | [xddxdd/nix-cachyos-kernel](https://github.com/xddxdd/nix-cachyos-kernel) | CachyOS BORE 内核 |
 | disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
 | noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia Shell |
+| hyprland | [hyprwm/Hyprland](https://github.com/hyprwm/Hyprland) | Hyprland 合成器 |
 | miyu-agent-nix | [yigexuanmu/miyu-agent-nix](https://github.com/yigexuanmu/miyu-agent-nix) | 终端 AI 助手 Miyu |
 | niri-glass | [yigexuanmu/Niri-glass](https://github.com/yigexuanmu/Niri-glass) | Niri 平铺窗口管理器定制构建（beta 分支） |
 | nur | [nix-community/NUR](https://github.com/nix-community/NUR) | Nix 用户仓库 |
@@ -84,7 +85,7 @@
 
 | 模块 | 说明 |
 |------|------|
-| desktop.nix | Niri（Wayland 平铺窗口管理器，niri-glass 定制构建），Ly 显示管理器，gvfs，Noctalia，Firefox，OBS Studio（CUDA + wlrobs/backgroundremoval/pipewire/vaapi/gstreamer/vkcapture 插件），xwayland-satellite、xdg-desktop-portal-wlr |
+| desktop.nix | Niri（Wayland 平铺窗口管理器，niri-glass 定制构建），Hyprland，Ly 显示管理器，gvfs，Noctalia，Firefox，OBS Studio（CUDA + wlrobs/backgroundremoval/pipewire/vaapi/gstreamer/vkcapture 插件），xwayland-satellite、xdg-desktop-portal-wlr、xdg-desktop-portal-hyprland |
 | neovim.nix | Neovim（默认编辑器 + Python3 支持） |
 | virt-manager.nix | Virtual Machine Manager 图形化管理前端 |
 | steam.nix | Steam（全局防火墙关闭，openFirewall 不设） |
@@ -144,17 +145,18 @@
 | thunar | XFCE 文件管理器 |
 | pywalfox-native | Firefox 壁纸取色联动 |
 | 主题套件 | papirus-icon-theme、papirus-folders、adw-gtk3、afterglow-cursors、qt5ct/qt6ct、gnome-keyring |
-| cursor.nix | 光标主题 `Windows-Cursor`：48px，niri / XCURSOR / GTK / dconf / systemd 用户环境同步 |
+| cursor.nix | 光标主题 `Windows-Cursor`：48px，niri / Hyprland / XCURSOR / GTK / dconf / systemd 用户环境同步 |
 | niri/ | Niri 窗口管理器 dotfiles（binds/blur/config/pop-drop.kdl） |
+| hyprland/ | Hyprland 窗口管理器 dotfiles |
 
 ### 光标主题
 
-Windows 光标方案由 `pkgs/data/cursors/windows-cursor.nix` 构建成 Xcursor 主题，`Desktop/cursor.nix` 应用到 niri、Xwayland 与 GTK。
+Windows 光标方案由 `pkgs/data/cursors/windows-cursor.nix` 构建成 Xcursor 主题，`Desktop/cursor.nix` 应用到 niri / Hyprland、Xwayland 与 GTK。
 
 | 项 | 值/说明 |
 |----|---------|
 | 主题名 | `Windows-Cursor`（固定名） |
-| 尺寸 | 48（`cursor.nix` 与 niri `xcursor-size` 手动保持一致） |
+| 尺寸 | 48（`cursor.nix`、niri `xcursor-size`、Hyprland `XCURSOR_SIZE` 手动保持一致） |
 | 生成档位 | 24/30/32/36/42/48/60/64/72/96 |
 | 动画 | 读取 ANI 帧与 rate 延时（jiffy = 1/60 s）；静止 `.cur` 单帧 |
 | 转换器 | `pkgs/data/cursors/tool/win2xcursor.py`（Pillow + xcursorgen），本地 venv 在 `~/tools/cursor-convert` |
