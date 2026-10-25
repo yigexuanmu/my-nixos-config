@@ -37,7 +37,6 @@
     wlsunset
     swayosd
     swaynotificationcenter
-    hyprlock
     gnome-clocks
     gnome-calendar
     wl-screenrec

@@ -13,12 +13,12 @@
     "reload_style_on_change": true,
     "modules-left": [
         // "ext/workspaces",
-        "hyprland/workspaces",
+        "niri/workspaces",
         "custom/right_div#5",
         //"cffi/niri-taskbar", //需要安装waybar-niri-taskbar-git
-        "hyprland/window",
+        "niri/window",
         //"dwl/window",
-        // "hyprland/window",
+
         "custom/right_div#6"
     ],
     "modules-center": [

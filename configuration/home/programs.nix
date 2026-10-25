@@ -10,7 +10,6 @@
     inputs.lazyvim.homeManagerModules.default
     ./programs/Desktop/default.nix
     ./programs/Desktop/fuzzel
-    ./programs/Desktop/hyprland
     ./programs/Desktop/niri
     ./programs/Desktop/waybar
     ./programs/Develop/default.nix

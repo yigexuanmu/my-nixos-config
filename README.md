@@ -18,7 +18,6 @@
 | nix-cachyos-kernel | [xddxdd/nix-cachyos-kernel](https://github.com/xddxdd/nix-cachyos-kernel) | CachyOS BORE 内核 |
 | disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
 | noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia Shell |
-| hyprland | [hyprwm/Hyprland](https://github.com/hyprwm/Hyprland) | Hyprland 合成器 |
 | miyu-agent-nix | [yigexuanmu/miyu-agent-nix](https://github.com/yigexuanmu/miyu-agent-nix) | 终端 AI 助手 Miyu |
 | niri-glass | [yigexuanmu/Niri-glass](https://github.com/yigexuanmu/Niri-glass) | Niri 平铺窗口管理器定制构建（beta 分支） |
 | nur | [nix-community/NUR](https://github.com/nix-community/NUR) | Nix 用户仓库 |
@@ -48,7 +47,7 @@
 │   │   ├── security/             # 安全模块（sudo-rs、wrappers）
 │   │   └── packages/             # 系统级包模块
 │   ├── pkgs/                     # 自定义包定义
-│   │   ├── data/cursors/         # Windows 光标方案 → XCursor/Hyprcursor 主题（转换器 + source.zip）
+│   │   ├── data/cursors/         # Windows 光标方案 → XCursor 主题（转换器 + source.zip）
 │   │   ├── data/fonts/           # 字体打包
 │   │   └── tools/networking/     # 网络工具打包
 │   └── home/                     # Home Manager 配置
@@ -85,7 +84,7 @@
 
 | 模块 | 说明 |
 |------|------|
-| desktop.nix | Niri（Wayland 平铺窗口管理器，niri-glass 定制构建），Hyprland，Ly 显示管理器，gvfs，Noctalia，Firefox，OBS Studio（CUDA + wlrobs/backgroundremoval/pipewire/vaapi/gstreamer/vkcapture 插件），xwayland-satellite、xdg-desktop-portal-wlr、xdg-desktop-portal-hyprland |
+| desktop.nix | Niri（Wayland 平铺窗口管理器，niri-glass 定制构建），Ly 显示管理器，gvfs，Noctalia，Firefox，OBS Studio（CUDA + wlrobs/backgroundremoval/pipewire/vaapi/gstreamer/vkcapture 插件），xwayland-satellite、xdg-desktop-portal-wlr |
 | neovim.nix | Neovim（默认编辑器 + Python3 支持） |
 | virt-manager.nix | Virtual Machine Manager 图形化管理前端 |
 | steam.nix | Steam（全局防火墙关闭，openFirewall 不设） |
@@ -114,7 +113,7 @@
 | 包 | 说明 |
 |----|------|
 | clash-party.nix | Clash Party（自定义打包，pkgs/tools/networking/；包安装于 modules/packages/） |
-| windows-cursor.nix | Windows 光标方案（.ani/.cur）转 XCursor + Hyprcursor 主题（pkgs/data/cursors/，含 Python 转换器；动画 + 多尺寸） |
+| windows-cursor.nix | Windows 光标方案（.ani/.cur）转 XCursor 主题（pkgs/data/cursors/，含 Python 转换器；动画 + 多尺寸） |
 | harmonyos-sans.nix | HarmonyOS Sans 字体（自定义打包，pkgs/data/fonts/） |
 
 ### 安全
@@ -145,22 +144,21 @@
 | thunar | XFCE 文件管理器 |
 | pywalfox-native | Firefox 壁纸取色联动 |
 | 主题套件 | papirus-icon-theme、papirus-folders、adw-gtk3、afterglow-cursors、qt5ct/qt6ct、gnome-keyring |
-| cursor.nix | 光标主题 `Windows-Cursor`：48px，XCursor + Hyprcursor，Hyprland / XCURSOR / GTK / dconf / systemd 用户环境同步 |
+| cursor.nix | 光标主题 `Windows-Cursor`：48px，XCursor，XCURSOR / GTK / dconf / systemd 用户环境同步 |
 | niri/ | Niri 窗口管理器 dotfiles（binds/blur/config/pop-drop.kdl） |
-| hyprland/ | Hyprland 窗口管理器 dotfiles |
 
 ### 光标主题
 
-Windows 光标方案由 `pkgs/data/cursors/windows-cursor.nix` 构建成 XCursor + Hyprcursor 主题，`Desktop/cursor.nix` 应用到 Hyprland、Xwayland 与 GTK。
+Windows 光标方案由 `pkgs/data/cursors/windows-cursor.nix` 构建成 XCursor 主题，`Desktop/cursor.nix` 应用到 Xwayland 与 GTK。
 
 | 项 | 值/说明 |
 |----|---------|
 | 主题名 | `Windows-Cursor`（固定名） |
-| 格式 | XCursor：`cursors/` + `index.theme`；Hyprcursor：`manifest.hl` + `hyprcursors/*.hlc`（构建时用 `hyprcursor-util` 编译） |
-| 尺寸 | 48（`XCURSOR_SIZE`、`HYPRCURSOR_SIZE`） |
+| 格式 | `cursors/` + `index.theme` |
+| 尺寸 | 48（`XCURSOR_SIZE`） |
 | 生成档位 | 24/30/32/36/42/48/60/64/72/96 |
-| 动画 | 读取 ANI 帧与 rate 延时（jiffy = 1/60 s）；静止 `.cur` 单帧；Hyprcursor 以同尺寸多条 `define_size` 表示动画 |
-| 转换器 | `pkgs/data/cursors/tool/win2xcursor.py`（Pillow + xcursorgen），Hyprcursor 由 `hyprcursor-util` 编译；本地 venv 在 `~/tools/cursor-convert` |
+| 动画 | 读取 ANI 帧与 rate 延时（jiffy = 1/60 s）；静止 `.cur` 单帧 |
+| 转换器 | `pkgs/data/cursors/tool/win2xcursor.py`（Pillow + xcursorgen），本地 venv 在 `~/tools/cursor-convert` |
 | 角色映射 | `.inf` 的 `[Wreg]`（Arrow/Hand/SizeNS…）优先，无 `.inf` 时按文件名回退 |
 
 更换方案：替换 `pkgs/data/cursors/source.zip` 后 `nh home switch /etc/nixos`。已运行的 X11/GTK 进程需重启才会重新读取 `XCURSOR_*`。

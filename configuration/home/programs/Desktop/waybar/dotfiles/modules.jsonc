@@ -57,21 +57,15 @@
     //},
   },
   //工作区和窗口名字
-  "hyprland/workspaces": {
+  "niri/workspaces": {
     "format": "{icon}",
     "format-icons": {
       "active": "󰜋",
       "default": "",
-      "empty": "",
-      "urgent": "󰀦",
     },
-    "all-outputs": false,
-    "on-click": "activate",
   },
-  "hyprland/window": {
+  "niri/window": {
     "format": "{}",
-    "max-length": 60,
-    "separate-outputs": true,
     "rewrite": {
       "(.*) - Mozilla Firefox": "🌎 $1",
       "(.*) - zsh": "> [$1]",

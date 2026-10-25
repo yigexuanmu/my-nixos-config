@@ -386,20 +386,13 @@ def find_sources(root):
     return sources
 
 
-def build_theme(src, out, sizes, name, formats):
+def build_theme(src, out, sizes, name):
     sources = find_sources(src)
     if not sources:
         raise SystemExit(f"no .ani/.cur cursors found under {src}")
 
-    want_xcursor = "xcursor" in formats
-    want_hypr = "hyprcursor" in formats
     cursors_dir = os.path.join(out, "cursors")
-    hypr_dir = os.path.join(out, "hyprcursors")
-    if want_xcursor:
-        os.makedirs(cursors_dir, exist_ok=True)
-    if want_hypr:
-        os.makedirs(hypr_dir, exist_ok=True)
-
+    os.makedirs(cursors_dir, exist_ok=True)
     tmp = tempfile.mkdtemp(prefix="win2xcursor.")
     try:
         for target, aliases in CURSORS:
@@ -409,47 +402,26 @@ def build_theme(src, out, sizes, name, formats):
                 continue
             frames = load_cursor(path)
             lines = []
-            meta = ["resize_algorithm = bilinear"]
-            src_w, src_h = frames[0][0].size
-            meta.append(f"hotspot_x = {frames[0][1] / src_w:.6f}")
-            meta.append(f"hotspot_y = {frames[0][2] / src_h:.6f}")
-            meta.extend(f"define_override = {alias}" for alias in aliases)
-            target_dir = os.path.join(hypr_dir, target)
-            if want_hypr:
-                os.makedirs(target_dir, exist_ok=True)
             for size in sizes:
                 for idx, (img, hot_x, hot_y, delay) in enumerate(frames):
+                    src_w, src_h = img.size
                     px = min(max(int(hot_x * size / src_w + 0.5), 0), size - 1)
                     py = min(max(int(hot_y * size / src_h + 0.5), 0), size - 1)
-                    scaled = img.resize((size, size), Image.LANCZOS)
-                    if want_xcursor:
-                        png = os.path.join(tmp, f"{target}.{size}.{idx}.png")
-                        scaled.save(png)
-                        lines.append(f"{size} {px} {py} {png} {delay}")
-                    if want_hypr:
-                        image = f"image{size}_{idx}.png"
-                        scaled.save(os.path.join(target_dir, image))
-                        if len(frames) > 1:
-                            meta.append(f"define_size = {size}, {image}, {max(delay, 1)}")
-                        else:
-                            meta.append(f"define_size = {size}, {image}")
+                    png = os.path.join(tmp, f"{target}.{size}.{idx}.png")
+                    img.resize((size, size), Image.LANCZOS).save(png)
+                    lines.append(f"{size} {px} {py} {png} {delay}")
 
-            if want_xcursor:
-                config = os.path.join(tmp, target + ".conf")
-                with open(config, "w") as f:
-                    f.write("\n".join(lines) + "\n")
-                subprocess.run(
-                    ["xcursorgen", config, os.path.join(cursors_dir, target)],
-                    check=True,
-                )
-                for alias in aliases:
-                    os.symlink(target, os.path.join(cursors_dir, alias))
-            if want_hypr:
-                with open(os.path.join(target_dir, "meta.hl"), "w") as f:
-                    f.write("\n".join(meta) + "\n")
+            config = os.path.join(tmp, target + ".conf")
+            with open(config, "w") as f:
+                f.write("\n".join(lines) + "\n")
+            subprocess.run(
+                ["xcursorgen", config, os.path.join(cursors_dir, target)],
+                check=True,
+            )
+            for alias in aliases:
+                os.symlink(target, os.path.join(cursors_dir, alias))
             print(
-                f"{target}: {os.path.basename(path)} "
-                f"({len(frames)} frames, sizes {sizes}, formats {','.join(sorted(formats))})",
+                f"{target}: {os.path.basename(path)} ({len(frames)} frames, sizes {sizes})",
                 file=sys.stderr,
             )
     finally:
@@ -460,22 +432,13 @@ def build_theme(src, out, sizes, name, formats):
                 os.rmdir(os.path.join(dirpath, d))
         os.rmdir(tmp)
 
-    if want_xcursor:
-        with open(os.path.join(out, "index.theme"), "w") as f:
-            f.write(
-                "[Icon Theme]\n"
-                f"Name={name}\n"
-                "Comment=Windows cursor scheme converted to Xcursor\n"
-                "Inherits=Adwaita\n"
-            )
-    if want_hypr:
-        with open(os.path.join(out, "manifest.hl"), "w") as f:
-            f.write(
-                f"name = {name}\n"
-                "description = Windows cursor scheme converted to Hyprcursor\n"
-                "version = 1.0\n"
-                "cursors_directory = hyprcursors\n"
-            )
+    with open(os.path.join(out, "index.theme"), "w") as f:
+        f.write(
+            "[Icon Theme]\n"
+            f"Name={name}\n"
+            "Comment=Windows cursor scheme converted to Xcursor\n"
+            "Inherits=Adwaita\n"
+        )
 
 
 def main(argv=None):
@@ -484,18 +447,9 @@ def main(argv=None):
     parser.add_argument("--out", required=True, help="theme directory to create")
     parser.add_argument("--name", default=THEME_NAME)
     parser.add_argument("--sizes", default="24,30,32,36,42,48,60,64,72,96")
-    parser.add_argument(
-        "--formats",
-        default="xcursor",
-        help="comma separated: xcursor, hyprcursor",
-    )
     args = parser.parse_args(argv)
     sizes = [int(s) for s in args.sizes.split(",") if s.strip()]
-    formats = {f.strip() for f in args.formats.split(",") if f.strip()}
-    unknown = formats - {"xcursor", "hyprcursor"}
-    if unknown or not formats:
-        raise SystemExit(f"unknown formats: {','.join(sorted(unknown))}")
-    build_theme(args.src, args.out, sizes, args.name, formats)
+    build_theme(args.src, args.out, sizes, args.name)
 
 
 if __name__ == "__main__":

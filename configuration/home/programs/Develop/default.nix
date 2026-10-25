@@ -24,5 +24,6 @@
     opencode
     pi-coding-agent
     nodejs
+    nur.repos.MCSeekeri.workbuddy
   ];
 }
