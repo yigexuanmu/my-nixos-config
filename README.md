@@ -158,7 +158,7 @@ Windows 光标方案由 `pkgs/data/cursors/windows-cursor.nix` 构建成 XCursor
 | 尺寸 | 48（`XCURSOR_SIZE`） |
 | 生成档位 | 24/30/32/36/42/48/60/64/72/96 |
 | 动画 | 读取 ANI 帧与 rate 延时（jiffy = 1/60 s）；静止 `.cur` 单帧 |
-| 转换器 | `pkgs/data/cursors/tool/win2xcursor.py`（Pillow + xcursorgen），本地 venv 在 `~/tools/cursor-convert` |
+| 转换器 | `pkgs/data/cursors/tool/win2xcursor.py`（Pillow + xcursorgen）；构建时在 `$TMPDIR` 创建临时 venv，不依赖用户目录 |
 | 角色映射 | `.inf` 的 `[Wreg]`（Arrow/Hand/SizeNS…）优先，无 `.inf` 时按文件名回退 |
 
 更换方案：替换 `pkgs/data/cursors/source.zip` 后 `nh home switch /etc/nixos`。已运行的 X11/GTK 进程需重启才会重新读取 `XCURSOR_*`。

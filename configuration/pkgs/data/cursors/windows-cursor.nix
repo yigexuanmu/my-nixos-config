@@ -30,7 +30,8 @@ stdenv.mkDerivation {
   installPhase = ''
     runHook preInstall
     mkdir -p "$out/share/icons"
-    PYTHONPATH=${./tool} python -m win2xcursor \
+    python -m venv --without-pip --system-site-packages "$TMPDIR/venv"
+    PYTHONPATH=${./tool} "$TMPDIR/venv/bin/python" -m win2xcursor \
       --src source \
       --out "$out/share/icons/Windows-Cursor" \
       --name Windows-Cursor \
