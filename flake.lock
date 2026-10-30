@@ -244,22 +244,21 @@
         "type": "github"
       }
     },
-    "niri-glass": {
+    "niri-mioha": {
       "inputs": {
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1790859592,
-        "narHash": "sha256-/OxOPCO4PYd+SOes6qdWl9d5Sw1Iv5IhGM0y3ANXQ5o=",
+        "lastModified": 1792920697,
+        "narHash": "sha256-zpHifpoZaJEUVY19vUZP+3Uih+fnguIFro4u53s/lw0=",
         "owner": "yigexuanmu",
-        "repo": "Niri-glass",
-        "rev": "2d2af7f444be45ffd745510f9b5f2e445da07e23",
+        "repo": "niri-mioha",
+        "rev": "680102a0dd617af9a47486fa4a4f1139e8bee331",
         "type": "github"
       },
       "original": {
         "owner": "yigexuanmu",
-        "ref": "beta",
-        "repo": "Niri-glass",
+        "repo": "niri-mioha",
         "type": "github"
       }
     },
@@ -472,7 +471,7 @@
         "lazyvim": "lazyvim",
         "linuxqq-wayland-fix": "linuxqq-wayland-fix",
         "miyu-agent-nix": "miyu-agent-nix",
-        "niri-glass": "niri-glass",
+        "niri-mioha": "niri-mioha",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
         "nixpkgs": "nixpkgs_7",
         "noctalia": "noctalia",

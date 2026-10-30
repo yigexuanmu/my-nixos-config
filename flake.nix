@@ -23,7 +23,7 @@
 
     miyu-agent-nix.url = "github:yigexuanmu/miyu-agent-nix";
 
-    niri-glass.url = "github:yigexuanmu/Niri-glass/beta";
+    niri-mioha.url = "github:yigexuanmu/niri-mioha";
 
     nur = {
       url = "github:nix-community/NUR";
@@ -50,7 +50,7 @@
     nixpkgs,
     home-manager,
     lazyvim,
-    niri-glass,
+    niri-mioha,
     linuxqq-wayland-fix,
     ...
   } @ inputs: {

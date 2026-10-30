@@ -511,3 +511,30 @@ window#waybar.empty #window {
     padding: 0px;
     font-size: 1.39em; /* 25px */
 }
+
+#cpu,
+#memory,
+#temperature {
+    padding: 0 0.35em;
+    font-size: 1.05em;
+    background-color: @surface_container_high;
+    color: @secondary;
+}
+
+#temperature.critical {
+    color: @error;
+}
+
+/* CPU / 内存 / 温度：警告与危险态 */
+#cpu.warning,
+#memory.warning,
+#temperature.warning {
+    color: @tertiary;
+}
+
+#cpu.critical,
+#memory.critical,
+#temperature.critical {
+    color: @error;
+}
+

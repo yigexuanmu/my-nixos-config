@@ -14,7 +14,7 @@
   ];
   programs.niri = {
     enable = true;
-    package = inputs.niri-glass.packages.x86_64-linux.default;
+    package = inputs.niri-mioha.packages.${pkgs.stdenv.hostPlatform.system}.default;
   };
   programs.firefox.enable = true;
   programs.obs-studio = {

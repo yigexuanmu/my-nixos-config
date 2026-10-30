@@ -6,6 +6,7 @@
   nix.package = pkgs.lixPackageSets.lix_2_96.lix;
   nixpkgs.config.allowUnfree = true;
   nix.settings.substituters = [
+    "http://127.0.0.1:5000"
     "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
     "https://mirrors.ustc.edu.cn/nix-channels/store"
     "https://nix-community.cachix.org"
@@ -28,6 +29,10 @@
     automatic = true;
     dates = "weekly";
     options = "--delete-older-than 14d";
+  };
+  services.nix-serve = {
+    enable = true;
+    # 如果通过 localhost 访问且不关心签名，可以简化或跳过密钥配置
   };
   # 仅系统作用域: pnpm-9 由系统级依赖引入（与 Home 的 pnpm-10 版本不同，勿合并）
   nixpkgs.config.permittedInsecurePackages = [

@@ -2,7 +2,7 @@
 
 # 配置
 CHARS="▁▂▃▄▅▆▇█"
-BARS=12
+BARS=36
 FPS=60
 SENS=150
 CONF="/tmp/waybar_cava_config"

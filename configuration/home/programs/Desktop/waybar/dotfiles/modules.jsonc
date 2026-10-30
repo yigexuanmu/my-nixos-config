@@ -71,6 +71,39 @@
       "(.*) - zsh": "> [$1]",
     },
   },
+  //CPU / 内存 / 温度
+  "cpu": {
+    "interval": 2,
+    "format": "{icon} {usage}%",
+    "format-icons": ["\uf2db"],
+    "states": {
+      "warning": 70,
+      "critical": 90,
+    },
+    "tooltip-format": "CPU 占用：{usage}%",
+  },
+  "memory": {
+    "interval": 5,
+    "format": "{icon} {percentage}%",
+    "format-icons": ["\uefc5"],
+    "states": {
+      "warning": 80,
+      "critical": 92,
+    },
+    "tooltip-format": "内存：{used} / {total} GiB（{percentage}%）",
+  },
+  "temperature": {
+    "interval": 2,
+    "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
+    "input-filename": "temp1_input",
+    "warning-threshold": 60,
+    "critical-threshold": 70,
+    "format": "{icon} {temperatureC}°C",
+    "format-warning": "{icon} {temperatureC}°C",
+    "format-critical": "{icon} {temperatureC}°C",
+    "format-icons": ["\uf2cb", "\uf2ca", "\uf2c9", "\uf2c8", "\uf2c7"],
+    "tooltip-format": "CPU 温度：{temperatureC}°C",
+  },
   //网络和蓝牙
   "group/network-bluetooth": {
     "orientation": "inherit",
