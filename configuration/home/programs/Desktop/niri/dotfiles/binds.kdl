@@ -66,6 +66,9 @@ binds {
     Mod+Alt+MouseLeft { toggle-magnifier; }
     Mod+Alt+WheelScrollUp { adjust-magnifier-zoom +0.5; }
     Mod+Alt+WheelScrollDown { adjust-magnifier-zoom -0.5; }
+
+    // niri-mioha 独有功能
+    Mod+M hotkey-overlay-title="开关光标特效" repeat=false { toggle-cursor-effect; }
     // 下面的快捷键看着很多很复杂，其实并不难记。
     // 记住三组方向键，wasd、hjkl和上下左右箭头
     // 总的来说

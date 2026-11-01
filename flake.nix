@@ -8,9 +8,6 @@
 
     lazyvim.url = "github:pfassina/lazyvim-nix";
 
-    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel";
-
-
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";

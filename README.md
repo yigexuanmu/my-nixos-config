@@ -15,7 +15,6 @@
 | nixpkgs | [NixOS/nixpkgs](https://github.com/NixOS/nixpkgs) | Nix 包集合 (nixos-unstable) |
 | home-manager | [nix-community/home-manager](https://github.com/nix-community/home-manager) | 用户级包管理与配置 |
 | lazyvim | [pfassina/lazyvim-nix](https://github.com/pfassina/lazyvim-nix) | LazyVim Neovim 配置 |
-| nix-cachyos-kernel | [xddxdd/nix-cachyos-kernel](https://github.com/xddxdd/nix-cachyos-kernel) | CachyOS BORE 内核 |
 | disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
 | noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia Shell |
 | miyu-agent-nix | [yigexuanmu/miyu-agent-nix](https://github.com/yigexuanmu/miyu-agent-nix) | 终端 AI 助手 Miyu |
@@ -64,14 +63,14 @@
 | device/disko.nix | GPT 5G EFI + LVM (vg-mioha) + Btrfs（卷标 pc-mioha），按功能划分 subvol：@Config→/etc、@Data→/var/lib、@Home→/home、@Library→/library、@Sandbox→/sandbox、@Snapshot→/.snapshots、System/@Boot→/boot、@Nix→/nix、@Store→/nix/store、@Guix→/gnu、@Guix-Store→/gnu/store、@Log、@Swap、@Tmp 等；swapDevices（swapfile 4G，重装后手动创建）声明于此 |
 | device/hardware/nvidia.nix | NVIDIA 开源 GPU 内核模块驱动（nvidia-open） |
 | device/hardware/bluetooth.nix | 蓝牙硬件 + blueman |
-| boot.nix | Limine（EFI，挂载点 /efi），CachyOS Bore x86_64-v3 内核，initrd LVM，transparent_hugepage=never，/boot、/etc、/nix neededForBoot |
+| boot.nix | Limine（EFI，挂载点 /efi），linux_latest 内核，initrd LVM，transparent_hugepage=never，/boot、/etc、/nix neededForBoot |
 
 ### 系统基础
 
 | 模块 | 说明 |
 |------|------|
 | nix.nix | Lix (latest)，Flakes + nix-command，allowUnfree，清华/中科大/蓝脸 attic 镜像源，周度 GC（删 14 天前），stateVersion 26.05 |
-| overlays.nix | nixpkgs overlays（cachyos-kernel + lix 工具链） |
+| overlays.nix | nixpkgs overlays（lix 工具链） |
 | networking.nix | 主机名 `mioha-nix`，NetworkManager，防火墙关闭，dnsmasq |
 | user.nix | 用户 `mioha`，组：wheel、networkmanager、libvirtd、kvm、input、audio、uinput、podman |
 | i18n.nix | 时区上海，英文 locale + 中文支持 |
