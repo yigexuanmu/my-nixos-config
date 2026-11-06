@@ -14,7 +14,7 @@
     };
   };
 
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-bore-x86_64-v3;
   boot.supportedFilesystems.btrfs = true;
   # 禁用透明大页，避免 kcompactd0 高 CPU 占用
   boot.kernelParams = [ "transparent_hugepage=never" ];

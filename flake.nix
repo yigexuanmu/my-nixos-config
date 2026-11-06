@@ -8,6 +8,8 @@
 
     lazyvim.url = "github:pfassina/lazyvim-nix";
 
+    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel";
+
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -28,7 +30,7 @@
     };
 
     waydroid-nvidia-nix = {
-      url = "github:yigexuanmu/waydroid-nvidia-nix/Neo";
+      url = "github:yigexuanmu/waydroid-nvidia-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
