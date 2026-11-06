@@ -17,9 +17,7 @@
 | lazyvim | [pfassina/lazyvim-nix](https://github.com/pfassina/lazyvim-nix) | LazyVim Neovim 配置 |
 | nix-cachyos-kernel | [xddxdd/nix-cachyos-kernel](https://github.com/xddxdd/nix-cachyos-kernel) | CachyOS BORE 内核 |
 | disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
-| noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia Shell |
 | miyu-agent-nix | [yigexuanmu/miyu-agent-nix](https://github.com/yigexuanmu/miyu-agent-nix) | 终端 AI 助手 Miyu |
-| niri-glass | [yigexuanmu/Niri-glass](https://github.com/yigexuanmu/Niri-glass) | Niri 平铺窗口管理器定制构建（beta 分支） |
 | nur | [nix-community/NUR](https://github.com/nix-community/NUR) | Nix 用户仓库 |
 | waydroid-nvidia-nix | [yigexuanmu/waydroid-nvidia-nix](https://github.com/yigexuanmu/waydroid-nvidia-nix) | NVIDIA GPU Waydroid 加速（默认分支，venus 模式） |
 | folia-major | [yigexuanmu/folia-major](https://github.com/yigexuanmu/folia-major) | Folia 相关包 |
@@ -84,7 +82,8 @@
 
 | 模块 | 说明 |
 |------|------|
-| desktop.nix | Niri（Wayland 平铺窗口管理器，niri-glass 定制构建），Ly 显示管理器，gvfs，Noctalia，Firefox，OBS Studio（CUDA + wlrobs/backgroundremoval/pipewire/vaapi/gstreamer/vkcapture 插件），xwayland-satellite、xdg-desktop-portal-wlr |
+| desktop.nix | gvfs，Firefox，OBS Studio（CUDA + backgroundremoval/pipewire/vaapi/gstreamer/vkcapture 插件） |
+| kde.nix | KDE Plasma 6 桌面 + plasma-login-manager 显示管理器 |
 | neovim.nix | Neovim（默认编辑器 + Python3 支持） |
 | virt-manager.nix | Virtual Machine Manager 图形化管理前端 |
 | steam.nix | Steam（全局防火墙关闭，openFirewall 不设） |
@@ -138,14 +137,12 @@
 | 工具 | 说明 |
 |------|------|
 | nwg-look | GTK 主题配置 |
-| wf-recorder / slurp / grim | Wayland 录屏/截图 |
 | imv | 图片查看器 |
 | wl-clipboard | Wayland 剪贴板 |
 | thunar | XFCE 文件管理器 |
-| pywalfox-native | Firefox 壁纸取色联动 |
 | 主题套件 | papirus-icon-theme、papirus-folders、adw-gtk3、afterglow-cursors、qt5ct/qt6ct、gnome-keyring |
 | cursor.nix | 光标主题 `Windows-Cursor`：48px，XCursor，XCURSOR / GTK / dconf / systemd 用户环境同步 |
-| niri/ | Niri 窗口管理器 dotfiles（binds/blur/config/pop-drop.kdl） |
+| 终端配色 | kitty/starship/btop/yazi/cava/nvim 使用由 noctalia 快照固化的调色板（base `#121316`） |
 
 ### 光标主题
 

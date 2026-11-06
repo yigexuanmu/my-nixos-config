@@ -8,12 +8,8 @@
 
   home.packages = with pkgs; [
     nwg-look
-    wf-recorder
-    slurp
-    grim
     imv
     wl-clipboard
-    pywalfox-native
     libnotify
     # 主题相关
     papirus-icon-theme
@@ -26,26 +22,12 @@
     gtk3
     gtk4
     gnome-keyring
-    waybar
-    fuzzel
-    satty
-    swappy
-    hyprpicker
     ddcutil
-    cliphist
-    matugen
-    wlsunset
-    swayosd
-    swaynotificationcenter
     gnome-clocks
     gnome-calendar
-    wl-screenrec
-    wlr-randr
     xdg-user-dirs
     adwaita-fonts
     lxgw-wenkai-screen
     font-awesome_7
-
-    (pkgs.callPackage ../../../pkgs/tools/desktop/waywallen-layer-shell {})
   ];
 }

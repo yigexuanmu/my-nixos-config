@@ -15,14 +15,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    noctalia = {
-      url = "github:noctalia-dev/noctalia";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     miyu-agent-nix.url = "github:yigexuanmu/miyu-agent-nix";
-
-    niri-mioha.url = "github:yigexuanmu/niri-mioha";
 
     nur = {
       url = "github:nix-community/NUR";
@@ -49,7 +42,6 @@
     nixpkgs,
     home-manager,
     lazyvim,
-    niri-mioha,
     linuxqq-wayland-fix,
     ...
   } @ inputs: {

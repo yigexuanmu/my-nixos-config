@@ -13,7 +13,6 @@
     "https://attic.xuyh0120.win/lantian"
     "https://cache.nixos-cuda.org"
     "https://cache.flox.dev"
-    "https://noctalia.cachix.org"
     "https://yigexuanmu.github.io/miyu-agent-nix/"
   ];
   nix.settings.trusted-public-keys = [
@@ -21,7 +20,6 @@
     "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
     "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
     "flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs="
-    "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
     "miyu-agent-nix-1:4hk2EYv/cb00ccSkWL9snAoB92l/15PGuiS8qlYMcBQ="
   ];
   nix.settings.experimental-features = ["nix-command" "flakes"];

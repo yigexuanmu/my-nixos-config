@@ -16,8 +16,8 @@ in {
   };
 
   # Also put the cursor variables into the systemd user environment, so
-  # services and apps started outside niri (and Xwayland on next login)
-  # see the same theme and size.
+  # services and apps started outside the Plasma session (and Xwayland on
+  # next login) see the same theme and size.
   systemd.user.sessionVariables = {
     XCURSOR_THEME = cursorName;
     XCURSOR_SIZE = toString cursorSize;
