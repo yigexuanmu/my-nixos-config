@@ -130,7 +130,7 @@
 |------|------|
 | programs.nix | 用户 `mioha`，聚合所有 Home 模块，启用 LazyVim + Git + mpris-proxy，stateVersion 26.05 |
 | nixpkgs.nix | 允许非自由包，pipx 覆盖，不安全包白名单 |
-| session.nix | Flatpak 数据目录，MIME 默认应用（目录→Thunar、浏览器→Chrome），EDITOR=nvim、TERMINAL=kitty、BROWSER=google-chrome |
+| session.nix | Flatpak 数据目录，默认终端 kitty，EDITOR=nvim、TERMINAL=kitty、BROWSER=google-chrome |
 
 ### Desktop
 
@@ -139,7 +139,6 @@
 | nwg-look | GTK 主题配置 |
 | imv | 图片查看器 |
 | wl-clipboard | Wayland 剪贴板 |
-| thunar | XFCE 文件管理器 |
 | 主题套件 | papirus-icon-theme、papirus-folders、adw-gtk3、afterglow-cursors、qt5ct/qt6ct、gnome-keyring |
 | cursor.nix | 光标主题 `Windows-Cursor`：48px，XCursor，XCURSOR / GTK / dconf / systemd 用户环境同步 |
 | 终端配色 | kitty/starship/btop/yazi/cava/nvim 使用由 noctalia 快照固化的调色板（base `#121316`） |

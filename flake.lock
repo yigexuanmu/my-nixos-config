@@ -156,11 +156,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1793193205,
-        "narHash": "sha256-X6xa6sGA7RnJQuZGbFMC+K+KToWAlBDCCjJXfTwEPsw=",
+        "lastModified": 1793757180,
+        "narHash": "sha256-gyV7AtCwLnOImcrfSETP4J3Ie96bz19DY47B7m7Y3HM=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "095fef2f265c3c0da4fe315efba8f8a04495ab34",
+        "rev": "b787c48e2ec57a9d098f5c2721882a3bc1e16f97",
         "type": "github"
       },
       "original": {
@@ -193,11 +193,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1792770968,
-        "narHash": "sha256-uxTwR3P0DejaLGiB/O+5AfsMHlFWbOIrW3WJFVlQL+E=",
+        "lastModified": 1793603338,
+        "narHash": "sha256-J9tGGmDBIF8IVtKHCmN/FS7rfgzJxJKHryRk65fXgbs=",
         "owner": "SHORIN-KIWATA",
         "repo": "linuxqq-wayland-fix",
-        "rev": "56a13c678b1637d25e656aa92f1a718deda11017",
+        "rev": "e45408c477d2307461ff8e900cf78084590fd83d",
         "type": "github"
       },
       "original": {
@@ -374,11 +374,11 @@
     },
     "nixpkgs_6": {
       "locked": {
-        "lastModified": 1793341285,
-        "narHash": "sha256-Y1CiZ4SoBUjLQyQM/pY+rS2dXD3CHLPstF0lmOc73D4=",
+        "lastModified": 1793726008,
+        "narHash": "sha256-jQp1wKvbwWdLBASTXkSi/VYmDJ5AbBi1WvcMt9HWJC8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "1c89083e451e891152365b799595cf7790a43325",
+        "rev": "1d060086d60cb76a40cf37109f979d88a5bd6396",
         "type": "github"
       },
       "original": {
@@ -396,11 +396,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793525891,
-        "narHash": "sha256-1c5bwCbm1daTb2rVXWNA1OsHFIy8HQ5Mt71gYpOP0aI=",
+        "lastModified": 1793968359,
+        "narHash": "sha256-9BUS3zUvpsuhsRcycIaSvqh5Fslw2r2QXJ0kzsxqdsA=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "d7b54980a9eabc6b1d29f638f03f82a97e0889b7",
+        "rev": "e28f1022487fe7eca29a2c6453dd023270baafc0",
         "type": "github"
       },
       "original": {
@@ -514,11 +514,11 @@
         "wnv-src": "wnv-src"
       },
       "locked": {
-        "lastModified": 1793533723,
-        "narHash": "sha256-7H2ehIYR4+c+Zrc4rdIZkoSz584o/EhlzSEIqpm7bK4=",
+        "lastModified": 1793534322,
+        "narHash": "sha256-cSsOsBYSQziF6POOWlqVLKS8XGIwOhsz2exfxT/MXXE=",
         "owner": "yigexuanmu",
         "repo": "waydroid-nvidia-nix",
-        "rev": "52ed0a39ca5070cc6eb60765dc8662f3d30e4bb7",
+        "rev": "28a092527b56f3ddba4592083bc7154d84599d79",
         "type": "github"
       },
       "original": {
