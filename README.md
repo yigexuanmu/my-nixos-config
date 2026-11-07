@@ -4,9 +4,7 @@
 > 此配置并非完全可复现，仅作为个人环境的大致参考。硬件配置、秘密信息、部分外部 flake 版本等需要手动适配。
 > 本配置使用了LLM。
 
-基于 Flake 的 NixOS 系统配置，模块化分层管理。系统桌面样图：
-
-![系统截图](https://raw.githubusercontent.com/yigexuanmu/images/main/Screenshot%20from%202026-10-18%2021-18-53.png)
+以KDE Plasma为主，基于 Flake 的 NixOS 系统配置，模块化分层管理。
 
 ## Flake Inputs
 
