@@ -34,6 +34,7 @@
 
     linuxqq-wayland-fix.url = "github:SHORIN-KIWATA/linuxqq-wayland-fix";
     #linuxqq-wayland-fix.url = "github:yigexuanmu/linuxqq-wayland-fix-nix";
+    denial.url = "github:denialwm/denial";
   };
 
 
@@ -58,6 +59,8 @@
 
         ./configuration/mioha-main/system.nix
         ./configuration/mioha-main/modules.nix
+
+        inputs.denial.nixosModules.default
 
         linuxqq-wayland-fix.nixosModules.default
         {
