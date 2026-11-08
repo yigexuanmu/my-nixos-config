@@ -28,6 +28,7 @@
     ldns
     aria2
     socat
+    dmg2img
     nmap
     ipcalc
     iotop
