@@ -2,7 +2,7 @@
   pkgs,
   ...
 }: {
-  # 保留 xserver: 仅为其 XKB 键盘配置供 XWayland 使用，不启图形 X 会话
+  # 保留 xserver: XKB 键盘配置供 XWayland 使用，SDDM 的 X11 greeter 也依赖它
   services.xserver.enable = true;
   services.gvfs.enable = true;
   services.displayManager.sddm.enable = true;

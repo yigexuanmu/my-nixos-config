@@ -2,7 +2,6 @@
   imports = [
     ../modules/programs/steam.nix
     ../modules/programs/desktop.nix
-    ../modules/programs/kde.nix
     ../modules/programs/neovim.nix
     ../modules/programs/virt-manager.nix
     ../modules/programs/nix-ld.nix
