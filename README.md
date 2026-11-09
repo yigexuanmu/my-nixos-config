@@ -17,10 +17,10 @@
 | disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
 | miyu-agent-nix | [yigexuanmu/miyu-agent-nix](https://github.com/yigexuanmu/miyu-agent-nix) | 终端 AI 助手 Miyu |
 | nur | [nix-community/NUR](https://github.com/nix-community/NUR) | Nix 用户仓库（`nur.repos.MCSeekeri.workbuddy`） |
-| noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia（壁纸 / matugen 配色生成） |
+| noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia |
 | mangowm | [mangowm/mango](https://github.com/mangowm/mango) | Mango 合成器 + NixOS 模块 |
-| waybar | [Alexays/Waybar](https://github.com/Alexays/Waybar) | Waybar 上游 master（0.16 才带 `mango/*` 模块，本地加 `-Dmango=true` 编译） |
-| waydroid-nvidia-nix | [yigexuanmu/waydroid-nvidia-nix](https://github.com/yigexuanmu/waydroid-nvidia-nix) | NVIDIA GPU Waydroid 加速（`nvidia-prolapse` 模式） |
+| waybar | [Alexays/Waybar](https://github.com/Alexays/Waybar) | Waybar 上游 master |
+| waydroid-nvidia-nix | [yigexuanmu/waydroid-nvidia-nix](https://github.com/yigexuanmu/waydroid-nvidia-nix) | NVIDIA GPU Waydroid |
 | folia-major | [yigexuanmu/folia-major](https://github.com/yigexuanmu/folia-major) | Folia 相关包 |
 | linuxqq-wayland-fix | [SHORIN-KIWATA/linuxqq-wayland-fix](https://github.com/SHORIN-KIWATA/linuxqq-wayland-fix) | QQ Wayland 修复 |
 
@@ -41,8 +41,7 @@
     │   ├── modules.nix                # 聚合 programs/services/security/virtualisation 模块
     │   ├── home.nix                   # 聚合 Home Manager 模块
     │   ├── device.nix                 # 导入硬件配置
-    │   ├── packages.nix               # 导入自定义包安装模块
-    │   └── modules/security/sudo-rs.nix   # 重复副本（未被导入，实际生效的是 modules/security/sudo-rs.nix）
+    │   └── packages.nix               # 导入自定义包安装模块
     ├── system/                        # 纯系统级配置（单主题单文件）
     ├── device/
     │   ├── disko.nix                  # 磁盘布局
