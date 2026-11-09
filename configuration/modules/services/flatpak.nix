@@ -1,9 +1,7 @@
 {
-  pkgs,
   ...
 }: {
   services.flatpak.enable = true;
-  xdg.portal.enable = true;
-  xdg.portal.config.common.default = "*";
-  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+
+  # XDG portal 相关配置已迁移到 modules/programs/desktop.nix
 }

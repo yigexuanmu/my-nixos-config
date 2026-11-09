@@ -3,7 +3,6 @@
   inputs,
   ...
 }: {
-  # 保留 xserver: 仅为其 XKB 键盘配置供 XWayland 使用，不启图形 X 会话
   services.xserver.enable = true;
   services.gvfs.enable = true;
   services.displayManager.ly.enable = true;
@@ -12,6 +11,19 @@
   ];
   programs.firefox.enable = true;
   programs.mango.enable = true;
+
+  xdg.portal = {
+    enable = true;
+    config.common.default = "*";
+    extraPortals = [pkgs.xdg-desktop-portal-gtk];
+
+    wlr.enable = true;
+    wlr.settings.screencast = {
+      chooser_type = "dmenu";
+      chooser_cmd = "${pkgs.fuzzel}/bin/fuzzel -d -l 10 -p 'Select display to share: '";
+    };
+  };
+
   programs.obs-studio = {
     enable = true;
     enableVirtualCamera = true;
