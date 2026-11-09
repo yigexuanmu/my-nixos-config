@@ -9,18 +9,17 @@
   imports = [
     inputs.lazyvim.homeManagerModules.default
     ./programs/Desktop/default.nix
+    ./programs/Desktop/fuzzel
+    ./programs/Desktop/mango
+    ./programs/Desktop/waybar
     ./programs/Develop/default.nix
     ./programs/Entertain/default.nix
     ./programs/Entertain/cava
     ./programs/Games/default.nix
     ./programs/Terminal/default.nix
-    ./programs/Terminal/btop
     ./programs/Terminal/fastfetch
     ./programs/Terminal/fish
     ./programs/Terminal/kitty
-    ./programs/Terminal/neovim
-    ./programs/Terminal/starship
-    ./programs/Terminal/yazi
     ./programs/Utility/default.nix
   ];
 

@@ -22,6 +22,24 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    noctalia = {
+      url = "github:noctalia-dev/noctalia";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    mangowm = {
+      url = "github:mangowm/mango";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # waybar master：nixpkgs 里的 0.15.0 没有 mango/* 模块，
+    # 0.16.0 才带 mango/workspaces、mango/layout、mango/window、
+    # mango/language、mango/keymode
+    waybar = {
+      url = "github:Alexays/Waybar";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     waydroid-nvidia-nix = {
       url = "github:yigexuanmu/waydroid-nvidia-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -34,7 +52,6 @@
 
     linuxqq-wayland-fix.url = "github:SHORIN-KIWATA/linuxqq-wayland-fix";
     #linuxqq-wayland-fix.url = "github:yigexuanmu/linuxqq-wayland-fix-nix";
-    denial.url = "github:denialwm/denial";
   };
 
 
@@ -42,6 +59,7 @@
     self,
     nixpkgs,
     home-manager,
+    mangowm,
     lazyvim,
     linuxqq-wayland-fix,
     ...
@@ -55,12 +73,12 @@
 
         inputs.disko.nixosModules.disko
 
+        inputs.mangowm.nixosModules.mango
+
       	inputs.nur.modules.nixos.default
 
         ./configuration/mioha-main/system.nix
         ./configuration/mioha-main/modules.nix
-
-        inputs.denial.nixosModules.default
 
         linuxqq-wayland-fix.nixosModules.default
         {
