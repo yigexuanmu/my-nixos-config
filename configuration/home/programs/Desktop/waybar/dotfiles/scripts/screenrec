@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Script Name: shorin-screenrec
+# Script Name: mioha-screenrec
 # Description: 终极双引擎 Wayland 录屏管理脚本 (支持 Waybar 与纯 CLI 调用)。
 #
 # Architecture (双引擎架构):
@@ -14,16 +14,16 @@
 #   4. 智能音频捕获: 剥离PulseAudio乱码，优雅选择系统声音或麦克风。
 #   5. Waybar 同步: 实时显示时长、引擎状态、JSON 极简输出。
 #
-# Usage: shorin-screenrec -h
+# Usage: mioha-screenrec -h
 # ==============================================================================
 
 set -Eeuo pipefail
 
 # ================== Runtime state & Persistent Config ==================
-APP_NAME="shorin-screenrec"
+APP_NAME="mioha-screenrec"
 
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$UID}"
-STATE_DIR="$RUNTIME_DIR/shorin_screenrec"
+STATE_DIR="$RUNTIME_DIR/mioha_screenrec"
 
 PIDFILE="$STATE_DIR/pid"
 STARTFILE="$STATE_DIR/start"
@@ -35,7 +35,7 @@ WAYBAR_PIDS_CACHE="$STATE_DIR/waybar.pids"
 CURRENT_ENGINE_FILE="$STATE_DIR/active_engine"
 
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
-CONFIG_DIR="$XDG_CACHE_HOME/shorin-screenrec"
+CONFIG_DIR="$XDG_CACHE_HOME/mioha-screenrec"
 
 CFG_ENGINE="$CONFIG_DIR/engine"
 CFG_CODEC_WL="$CONFIG_DIR/codec_wl"
@@ -113,6 +113,31 @@ has_capture_source() {
   fi
 }
 
+# 指定的音频节点是否仍存在（蓝牙/HDMI 断开后配置里会留下僵尸设备名）
+audio_node_exists() {
+  local name="${1:-}"
+  [[ -n "$name" ]] || return 1
+  if has pw-dump && has jq; then
+    pw-dump 2>/dev/null | jq -e --arg n "$name" \
+      '[.[] | .info.props."node.name"? // empty] | index($n) != null' >/dev/null 2>&1
+    return
+  fi
+  return 0
+}
+
+# 当前 DRM 驱动名（nvidia / amdgpu / i915 / xe ...）。优先按实际使用的 render node 判断
+drm_driver() {
+  local node="${1:-}" p
+  if [[ -n "$node" ]]; then
+    p="/sys/class/drm/$(basename "$node")/device/driver"
+    if [[ -e "$p" ]]; then basename "$(readlink -f "$p")"; return 0; fi
+  fi
+  for p in /sys/class/drm/renderD*/device/driver /sys/class/drm/card*/device/driver; do
+    if [[ -e "$p" ]]; then basename "$(readlink -f "$p")"; return 0; fi
+  done
+  return 0
+}
+
 show_help() {
   cat <<EOF
 用法: $APP_NAME [命令] [选项]
@@ -157,7 +182,11 @@ msg() {
         err_need_slurp)   printf "需要安装 'slurp' 以进行区域选择。" ;;
         err_need_ffmpeg)  printf "GIF 转换需要 'ffmpeg'，但未找到。" ;;
         err_need_pw)      printf "需要 'pw-dump' 与 'jq' 以列出音频设备。" ;;
+        err_no_menu_backend) printf "没有可用的菜单程序（fuzzel / wofi / rofi / bemenu 都不在 PATH 里）。" ;;
         warn_no_audio_source) printf "系统里没有可用的音频采集源，本次已跳过录音。" ;;
+        warn_audio_dev_missing) printf "音频设备 '%s' 已不存在（可能断连），本次改用默认音频源。" "$@" ;;
+        warn_wl_nvidia)   printf "当前是 NVIDIA 显卡：wl-screenrec 无法导入合成器的 DMA-BUF（格式协商失败），已自动改用 wf-recorder。" ;;
+        notif_fallback)   printf "已自动降级为 %s / %s（原配置在该环境下不可用）。" "$1" "$2" ;;
         cancel_no_mode)   printf "已取消：未选择录制模式。" ;;
         cancel_no_output) printf "已取消：未选择输出。" ;;
         cancel_no_region) printf "已取消：未选择区域。" ;;
@@ -208,7 +237,11 @@ msg() {
         err_need_slurp)   printf "Error: 'slurp' required for region selection." ;;
         err_need_ffmpeg)  printf "Error: 'ffmpeg' required for GIF conversion." ;;
         err_need_pw)      printf "Error: 'pw-dump' and 'jq' required to list audio devices." ;;
+        err_no_menu_backend) printf "No menu program available (fuzzel / wofi / rofi / bemenu not in PATH)." ;;
         warn_no_audio_source) printf "No audio capture source available; skipping audio." ;;
+        warn_audio_dev_missing) printf "Audio device '%s' is gone (disconnected?); using the default source." "$@" ;;
+        warn_wl_nvidia)   printf "NVIDIA GPU detected: wl-screenrec cannot import the compositor DMA-BUF (format negotiation fails). Falling back to wf-recorder." ;;
+        notif_fallback)   printf "Fell back to %s / %s (previous config unusable here)." "$1" "$2" ;;
         cancel_no_mode)   printf "Canceled: no recording mode selected." ;;
         cancel_no_output) printf "Canceled: no output selected." ;;
         cancel_no_region) printf "Canceled: no region selected." ;;
@@ -334,18 +367,31 @@ ext_for_codec(){
     *) echo mp4 ;;
   esac
 }
-choose_ext(){
-  local e="${SAVE_EXT,,}"
-  if [[ -z "$e" || "$e" == "auto" ]]; then
-    if [[ "$ENGINE" == "wl-screenrec" ]]; then ext_for_codec "$CODEC_WL"
-    else ext_for_codec "$CODEC_WF"; fi
-  else
-    case "$e" in mp4|mkv|webm) echo "$e" ;; *) echo mp4 ;; esac
+# 按“本次尝试的引擎+编码”推扩展名（自动降级后编码可能变化，扩展名要跟着变）
+ext_for_engine_codec(){
+  local codec="$2" e="${SAVE_EXT,,}"
+  if [[ -z "$e" || "$e" == "auto" ]]; then ext_for_codec "$codec"
+  else case "$e" in mp4|mkv|webm) echo "$e" ;; *) echo mp4 ;; esac
   fi
 }
 
 # ================== Menus ==================
 __norm() { printf '%s' "$1" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'; }
+
+# stdin 是不是「用户看得见的终端」——只有伪终端(/dev/pts/*，终端模拟器 / tmux)才算。
+# 从 waybar 的 on-click、mango 的 spawn 出来时，stdin 通常继承合成器所在的虚拟终端
+# (/dev/tty1)，或者干脆是 /dev/null：
+#   - /dev/tty1 虽然 -t 为真，但用户看到的是图形界面，TUI 写到 VT 上不可见，
+#     键盘事件也归合成器，read 会一直挂着；
+#   - 没有控制终端时 fzf 直接 "failed to open /dev/tty" 退出。
+# 两种表现都是「点了没反应」，所以必须区分 pts 和 VT。
+has_visible_tty() {
+  [[ -t 0 ]] || return 1
+  case "$(readlink -f /proc/self/fd/0 2>/dev/null || true)" in
+    /dev/pts/*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 
 _pick_menu_backend() {
   local pref="${MENU_BACKEND,,}"
@@ -353,12 +399,12 @@ _pick_menu_backend() {
   
   # 如果用户在环境变量中强行指定了某一个后端，绝对尊重用户的选择
   if [[ "$pref" != "auto" ]]; then
-    if has "$pref"; then echo "$pref"; else [[ -t 0 ]] && echo "term" || echo "none"; fi
+    if has "$pref"; then echo "$pref"; else has_visible_tty && echo "term" || echo "none"; fi
     return
   fi
 
   # [智能上下文探测 Context-Aware Detection]
-  if [[ -t 0 ]]; then
+  if has_visible_tty; then
     # 1. 终端环境 (TTY)：如果装了 fzf 则使用极客最爱的 fzf，否则使用最纯粹的数字问答 (term)
     if has fzf; then 
       echo "fzf"
@@ -402,7 +448,9 @@ menu_pick() {
         if (( idx>=1 && idx<=${#items[@]} )); then sel="${items[$((idx-1))]}"; rc=0; fi
       fi
       ;;
-    none) return 130 ;;
+    none)
+      local nm="$(msg err_no_menu_backend)"
+      echo_terminal "$nm"; notify "$nm"; return 130 ;;
   esac
   [[ $rc -ne 0 || -z "${sel:-}" ]] && return 130
   printf '%s' "$(__norm "$sel")"
@@ -411,7 +459,9 @@ menu_pick() {
 # ---------- Outputs ----------
 list_outputs() {
   local raw=""
-  if has niri; then
+  if has mmsg && has jq; then                       # mango
+    raw="$(mmsg get all-monitors 2>/dev/null | jq -r '.monitors[]? | select(.active != false) | .name' 2>/dev/null)"
+  elif has niri; then
     raw="$(niri msg outputs 2>/dev/null | awk -F '[()]' '/^Output/ {print $2}')"
   elif has hyprctl && has jq; then
     raw="$(hyprctl monitors -j 2>/dev/null | jq -r '.[].name')"
@@ -611,6 +661,88 @@ pretty_dur() {
 json_escape() { sed ':a;N;$!ba;s/\\/\\\\/g;s/"/\\"/g;s/\n/\\n/g'; }
 
 # ================== Start / Stop ==================
+# --- 引擎参数构建 / 单次启动尝试 -------------------------------------------------
+# 注意：以下两个函数依赖 bash 的动态作用域，直接读取 start_rec() 里的局部变量
+#      (output / GEOM / SAVE_PATH / dev / AUDIO / AUDIO_DEVICE / FRAMERATE)。
+ENGINE_ARGS=()
+LAST_ERR=""
+
+build_engine_args() {  # $1=engine $2=codec -> ENGINE_ARGS
+  local eng="$1" codec="$2"
+  ENGINE_ARGS=()
+
+  if [[ -n "$FRAMERATE" && ! "$FRAMERATE" =~ ^[0-9]+$ ]]; then
+    echo_terminal "$(msg warn_invalid_fps "$FRAMERATE")" >&2
+  fi
+
+  case "$eng" in
+    wl-screenrec)
+      [[ -n "$output" ]] && ENGINE_ARGS+=( -o "$output" )
+      [[ -n "$GEOM" ]]   && ENGINE_ARGS+=( -g "$GEOM" )
+      ENGINE_ARGS+=( -f "$SAVE_PATH" )
+      [[ -n "$dev" ]] && ENGINE_ARGS+=( --dri-device "$dev" )
+      [[ "$codec" != "auto" ]] && ENGINE_ARGS+=( --codec "$codec" )
+      if [[ "$AUDIO" == "on" ]]; then
+        ENGINE_ARGS+=( --audio )
+        [[ -n "$AUDIO_DEVICE" ]] && ENGINE_ARGS+=( --audio-device "$AUDIO_DEVICE" )
+      fi
+      [[ -n "$FRAMERATE" ]] && ENGINE_ARGS+=( -m "$FRAMERATE" )
+      ;;
+
+    wf-recorder)
+      [[ -n "$output" ]] && ENGINE_ARGS+=( -o "$output" )
+      [[ -n "$GEOM" ]]   && ENGINE_ARGS+=( -g "$GEOM" )
+      ENGINE_ARGS+=( --file "$SAVE_PATH" -c "$codec" )
+
+      # 不传 -d：wf-recorder 会尝试在 render node 上建 hw frames context，
+      # 而合成器出来的缓冲是 bgr0，直接失败（AVHWFramesContext: Unsupported format: bgr0）。
+      [[ -n "$dev" && "${WF_DRM_DEVICE:-off}" == "on" ]] && ENGINE_ARGS+=( -d "$dev" )
+
+      if [[ "$AUDIO" == "on" ]]; then
+        if [[ -n "$AUDIO_DEVICE" ]]; then ENGINE_ARGS+=( "--audio=$AUDIO_DEVICE" )
+        else ENGINE_ARGS+=( -a ); fi
+      fi
+
+      [[ -n "$FRAMERATE" ]] && ENGINE_ARGS+=( --framerate "$FRAMERATE" )
+
+      # ---- 像素格式（mango + NVIDIA 的关键点）----
+      # 合成器交出来的是 bgr0(XRGB8888)。h264_nvenc 不接受 bgr0 输入，会在
+      # avcodec_open2() 里直接抛 "CreateInputBuffer failed: out of memory (10)"，
+      # 必须用 -x 指定编码器输入格式，让 wf-recorder 先做一次转换。
+      # hevc/av1_nvenc 能直接吃 bgr0，保留零拷贝路径（2560x1600@60 实测
+      # ≈117% CPU，加了 -x 反而 ≈197%），所以不要给它们加 -x。
+      case "$codec" in
+        *h264*nvenc) ENGINE_ARGS+=( -x yuv420p ) ;;
+        *_nvenc)     : ;;
+        *_vaapi)     ENGINE_ARGS+=( -F "scale_vaapi=format=nv12:out_range=full:out_color_primaries=bt709" ) ;;
+        *)           ENGINE_ARGS+=( -F "format=yuv420p" ) ;;
+      esac
+      ;;
+    *)
+      return 1 ;;
+  esac
+  return 0
+}
+
+try_start() {  # $1=engine $2=codec；成功写 PIDFILE 返回 0，失败把原因留在 LAST_ERR
+  local eng="$1" codec="$2"
+  LAST_ERR=""
+  build_engine_args "$eng" "$codec" || { LAST_ERR="$(msg err_engine_not_found "$eng")"; return 1; }
+
+  local eng_log="$STATE_DIR/engine.log" pid
+  setsid nohup "$eng" "${ENGINE_ARGS[@]}" >"$eng_log" 2>&1 &
+  pid=$!
+  sleep 1.2
+  if ! kill -0 "$pid" 2>/dev/null; then
+    local err; err="$(grep -m1 -i -E 'error|failed|unable|cannot|not found' "$eng_log" 2>/dev/null || true)"
+    [[ -n "$err" ]] || err="$(tail -n 2 "$eng_log" 2>/dev/null | tr '\n' ' ')"
+    LAST_ERR="$(printf '%s' "$err" | sed -E 's/\x1b\[[0-9;]*[A-Za-z]//g' | cut -c1-200)"
+    return 1
+  fi
+  printf '%s\n' "$pid" >"$PIDFILE"
+  return 0
+}
+
 start_rec() {
   if is_running; then 
     local msg="$(msg already_running)"
@@ -622,9 +754,17 @@ start_rec() {
     echo_terminal "$msg"; notify "$msg"; exit 1 
   }
 
+  # NVIDIA + wl-screenrec：合成器只提供带 block-linear 修饰符的 XR24/AR24，
+  # wl-screenrec 的 Vulkan 导入协商不了，会直接 "Failed to negotiate format"。
+  if [[ "$ENGINE" == "wl-screenrec" ]] && [[ "$(drm_driver "$(pick_render_device)")" == nvidia ]]; then
+    ENGINE="wf-recorder"; printf '%s' "$ENGINE" >"$CFG_ENGINE"
+    local wmsg; wmsg="$(msg warn_wl_nvidia)"; echo_terminal "$wmsg"; notify "$wmsg"
+  fi
+
   MODE_DECIDED=""
   if ! decide_mode; then
-    echo_terminal "$(msg cancel_no_mode)"; emit_waybar_signal; exit 130
+    local cmsg; cmsg="$(msg cancel_no_mode)"
+    echo_terminal "$cmsg"; notify "$cmsg"; emit_waybar_signal; exit 130
   fi
   local mode="$MODE_DECIDED"
 
@@ -641,8 +781,15 @@ start_rec() {
     echo_terminal "$(msg warn_no_audio_source)"
   fi
 
+  # 配置里记着的音频设备可能已经断连（蓝牙耳机/HDMI），直接把僵尸设备名交给
+  # 引擎会导致启动即失败，这里退回默认音频源。
+  if [[ "$AUDIO" == "on" && -n "$AUDIO_DEVICE" ]] && ! audio_node_exists "$AUDIO_DEVICE"; then
+    local amsg; amsg="$(msg warn_audio_dev_missing "$AUDIO_DEVICE")"
+    echo_terminal "$amsg"; notify "$amsg"
+    AUDIO_DEVICE=""
+  fi
+
   local marker="" output="" GEOM="" gtok=""
-  local -a args=()
 
   local ROOT_DIR="$(get_save_dir)"
   local TARGET_DIR
@@ -650,7 +797,10 @@ start_rec() {
   mkdir -p "$TARGET_DIR"
 
   if [[ "$mode" == "full" ]]; then
-    output="$(decide_output)"
+    if ! output="$(decide_output)"; then
+      local omsg; omsg="$(msg cancel_no_output)"
+      echo_terminal "$omsg"; notify "$omsg"; emit_waybar_signal; exit 130
+    fi
     marker="FS${output:+-$output}"
   else
     if [[ -n "$REC_AREA" ]]; then
@@ -666,77 +816,68 @@ start_rec() {
 
   local ts="$(date +'%Y-%m-%d-%H%M%S')"; local safe_title="${TITLE// /_}"
   local base="$ts${safe_title:+-$safe_title}-${marker}"
-  local ext="$(choose_ext)"
-  local SAVE_PATH="$TARGET_DIR/$base.$ext"
+  local SAVE_PATH=""
 
   local dev="$(pick_render_device)"
 
+  # ---- 候选 (engine|codec) 队列：第一个是用户设定，后面是自动降级链 ----
+  local -a pairs=()
   case "$ENGINE" in
     wl-screenrec)
-      [[ -n "$output" ]] && args+=( -o "$output" )
-      [[ -n "$GEOM" ]]   && args+=( -g "$GEOM" )
-      args+=( -f "$SAVE_PATH" )
-      [[ -n "$dev" ]] && args+=( --dri-device "$dev" )
-      [[ "$CODEC_WL" != "auto" ]] && args+=( --codec "$CODEC_WL" )
-
-      if [[ "$AUDIO" == "on" ]]; then 
-        args+=( --audio )
-        [[ -n "$AUDIO_DEVICE" ]] && args+=( --audio-device "$AUDIO_DEVICE" )
-      fi
-
-      if [[ -n "$FRAMERATE" ]]; then
-        if [[ "$FRAMERATE" =~ ^[0-9]+$ && "$FRAMERATE" -gt 0 ]]; then args+=( -m "$FRAMERATE" )
-        else echo_terminal "$(msg warn_invalid_fps "$FRAMERATE")" >&2; fi
-      fi
+      pairs+=( "wl-screenrec|$CODEC_WL" )
+      pairs+=( "wf-recorder|$CODEC_WF" )
       ;;
-      
-    wf-recorder)
-      [[ -n "$output" ]] && args+=( -o "$output" )
-      [[ -n "$GEOM" ]]   && args+=( -g "$GEOM" )
-      args+=( --file "$SAVE_PATH" -c "$CODEC_WF" )
-      # 不传 -d：wf-recorder 会尝试在 render node 上建 hw frames context，
-      # 而 niri 出来的缓冲是 bgr0，直接失败（AVHWFramesContext: Unsupported format: bgr0）。
-      [[ -n "$dev" && "${WF_DRM_DEVICE:-off}" == "on" ]] && args+=( -d "$dev" )
-
-      if [[ "$AUDIO" == "on" ]]; then 
-        if [[ -n "$AUDIO_DEVICE" ]]; then 
-          args+=( "--audio=$AUDIO_DEVICE" )
-        else 
-          args+=( "-a" )
-        fi
-      fi
-
-      if [[ -n "$FRAMERATE" ]]; then
-        if [[ "$FRAMERATE" =~ ^[0-9]+$ && "$FRAMERATE" -gt 0 ]]; then args+=( --framerate "$FRAMERATE" )
-        else echo_terminal "$(msg warn_invalid_fps "$FRAMERATE")" >&2; fi
-      fi
-
-      if [[ "$CODEC_WF" == *"_vaapi" ]]; then args+=( -F "scale_vaapi=format=nv12:out_range=full:out_color_primaries=bt709" )
-      elif [[ "$CODEC_WF" != *"_nvenc" ]]; then args+=( -F "format=yuv420p" ); fi
-      # nvenc 不加 format=yuv420p：ffmpeg 自动协商同样的 yuv420p 输出，但省掉一次
-      # 显式 swscale（实测 1280x800：98% -> 8% 单核）
+    *)
+      pairs+=( "wf-recorder|$CODEC_WF" )
+      # h264_nvenc 在部分分辨率/驱动组合下会失败，hevc_nvenc 通常还能用
+      case "$CODEC_WF" in
+        h264_nvenc) pairs+=( "wf-recorder|hevc_nvenc" ) ;;
+      esac
       ;;
   esac
+  case "${pairs[*]}" in
+    *"wf-recorder|libx264"*) : ;;
+    *) pairs+=( "wf-recorder|libx264" ) ;;
+  esac
 
-  local eng_log="$STATE_DIR/engine.log"
-  setsid nohup "$ENGINE" "${args[@]}" >"$eng_log" 2>&1 &
-  local pid=$!
-  sleep 1.2
-  if ! kill -0 "$pid" 2>/dev/null; then
-    local err; err="$(grep -m1 -i -E 'error|failed|unable|cannot|not found' "$eng_log" 2>/dev/null || true)"
-    [[ -n "$err" ]] || err="$(tail -n 2 "$eng_log" 2>/dev/null | tr '\n' ' ')"
-    err="$(printf '%s' "$err" | sed -E 's/\x1b\[[0-9;]*[A-Za-z]//g' | cut -c1-180)"
-    [[ -n "$err" ]] || err="$(msg err_engine_not_found "$ENGINE")"
+  local started=0 eng="" codec=""
+  LAST_ERR=""
+  local pair
+  while IFS='|' read -r eng codec; do
+    [[ -n "$eng" ]] || continue
+    has "$eng" || continue
+    SAVE_PATH="$TARGET_DIR/$base.$(ext_for_engine_codec "$eng" "$codec")"
+    if try_start "$eng" "$codec"; then started=1; break; fi
+  done < <(printf '%s\n' "${pairs[@]}" | awk '!seen[$0]++')
+
+  if ((started == 0)); then
+    local err="${LAST_ERR:-$(msg err_engine_not_found "$ENGINE")}"
     echo_terminal "启动失败: $err"
     notify "录制启动失败: $err"
     emit_waybar_signal
     exit 1
   fi
-  echo "$pid" >"$PIDFILE"
+
+  # 记录实际生效的引擎/编码；若发生降级则写回配置，下次直接命中
+  local fell_back=""
+  if [[ "$eng" != "$ENGINE" ]]; then
+    ENGINE="$eng"; printf '%s' "$ENGINE" >"$CFG_ENGINE"; fell_back="1"
+  fi
+  if [[ "$eng" == "wl-screenrec" ]]; then
+    if [[ "$codec" != "$CODEC_WL" ]]; then CODEC_WL="$codec"; printf '%s' "$CODEC_WL" >"$CFG_CODEC_WL"; fell_back="1"; fi
+  else
+    if [[ "$codec" != "$CODEC_WF" ]]; then CODEC_WF="$codec"; printf '%s' "$CODEC_WF" >"$CFG_CODEC_WF"; fell_back="1"; fi
+  fi
+
   date +%s >"$STARTFILE"
   echo "$SAVE_PATH" >"$SAVEPATH_FILE"
   echo "$mode" >"$MODEFILE"
   echo "$ENGINE" >"$CURRENT_ENGINE_FILE"
+
+  if [[ -n "$fell_back" ]]; then
+    local fb; fb="$(msg notif_fallback "$ENGINE" "$codec")"
+    echo_terminal "$fb"; notify "$fb"
+  fi
 
   local note; if [[ "$mode" == "full" ]]; then note="$(msg notif_started_full "${output:-Default}" "$SAVE_PATH")"; else note="$(msg notif_started_region "$SAVE_PATH")"; fi
   

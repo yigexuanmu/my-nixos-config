@@ -23,7 +23,7 @@
     ],
     "modules-center": [
         "custom/left_div#3",
-	// 这个模块是shorinNiri相关的常用命令
+	// 这个模块是miohaNiri相关的常用命令
 	"custom/actions",
         "custom/wfrec",
         "custom/screenshot",

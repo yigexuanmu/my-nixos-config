@@ -32,7 +32,7 @@
   };
   services.nix-serve = {
     enable = true;
-    # 如果通过 localhost 访问且不关心签名，可以简化或跳过密钥配置
+    package = pkgs.nix-serve-ng;
   };
   # 仅系统作用域: pnpm-9 由系统级依赖引入（与 Home 的 pnpm-10 版本不同，勿合并）
   nixpkgs.config.permittedInsecurePackages = [

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/shorin-check-nix-updates"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/mioha-check-nix-updates"
 CACHE_FILE="$CACHE_DIR/pending.txt"
 LOCK_FILE="${XDG_RUNTIME_DIR:-/tmp}/waybar-nix-updates.lock"
 CHECK_INTERVAL="${CHECK_INTERVAL:-3600}"
