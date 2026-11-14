@@ -24,5 +24,13 @@
     pi-coding-agent
     nodejs
     nur.repos.MCSeekeri.workbuddy
+    pandoc
+    duckdb
+    mediainfo
+    typst
+    ouch
+    zoxide
+    glib
+    gvfs
   ];
 }
