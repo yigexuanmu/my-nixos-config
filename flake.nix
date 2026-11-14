@@ -50,6 +50,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    folia-rust = {
+      url = "github:yigexuanmu/Folia-rust-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     linuxqq-wayland-fix.url = "github:SHORIN-KIWATA/linuxqq-wayland-fix";
     #linuxqq-wayland-fix.url = "github:yigexuanmu/linuxqq-wayland-fix-nix";
   };

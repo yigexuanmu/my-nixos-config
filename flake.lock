@@ -207,6 +207,26 @@
         "type": "github"
       }
     },
+    "folia-rust": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794662043,
+        "narHash": "sha256-i97zq4TZMxaT5KlyzoieuxuFg73817310dIDeY2aKq0=",
+        "owner": "yigexuanmu",
+        "repo": "Folia-rust-nix",
+        "rev": "3198dc509d28cb626009145cc735333344f4de3a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "yigexuanmu",
+        "repo": "Folia-rust-nix",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": "nixpkgs"
@@ -526,6 +546,7 @@
       "inputs": {
         "disko": "disko",
         "folia-major": "folia-major",
+        "folia-rust": "folia-rust",
         "home-manager": "home-manager",
         "lazyvim": "lazyvim",
         "linuxqq-wayland-fix": "linuxqq-wayland-fix",
