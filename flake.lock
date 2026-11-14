@@ -214,11 +214,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794662043,
-        "narHash": "sha256-i97zq4TZMxaT5KlyzoieuxuFg73817310dIDeY2aKq0=",
+        "lastModified": 1794666970,
+        "narHash": "sha256-E4khqRpsR0QBpWHwDPwrMF/w0W5HQ5WFCv8yFJ8vJMw=",
         "owner": "yigexuanmu",
         "repo": "Folia-rust-nix",
-        "rev": "3198dc509d28cb626009145cc735333344f4de3a",
+        "rev": "36bc8a9f3db1ca7587222a773adcb234fab2e18e",
         "type": "github"
       },
       "original": {
