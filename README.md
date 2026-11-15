@@ -273,7 +273,7 @@ sudo ./reinstall.sh [--yes]   # --yes 跳过目标盘二次确认
 
 ## 致谢
 
-- [mangowm](https://github.com/mangowm/mango) — Mango 合成器与 wiki（`docs/mango-vs-niri.md` 的主要依据）
+- [mangowm](https://github.com/mangowm/mango) — Mango 合成器
 - [SHORiN-KiWATA](https://github.com/SHORiN-KiWATA) — 配置文件参考，waybar 及脚本参考修改，linuxqq-wayland-fix（Miyu 很好用）
 - [Zer05ky](https://github.com/sky1234762/ZEK-niri) — waybar 及脚本参考修改（提供 waybar 和 noctalia 结合的灵感）
 - [brokenshine/nixos-configs](https://gitee.com/brokenshine/nixos-configs) — NixOS 配置文件拆分参考
