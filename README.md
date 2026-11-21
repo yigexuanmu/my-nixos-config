@@ -20,7 +20,6 @@
 | noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia |
 | mangowm | [mangowm/mango](https://github.com/mangowm/mango) | Mango 合成器 + NixOS 模块 |
 | waybar | [Alexays/Waybar](https://github.com/Alexays/Waybar) | Waybar 上游 master |
-| waydroid-nvidia-nix | [yigexuanmu/waydroid-nvidia-nix](https://github.com/yigexuanmu/waydroid-nvidia-nix) | NVIDIA GPU Waydroid |
 | folia-major | [yigexuanmu/folia-major](https://github.com/yigexuanmu/folia-major) | Folia 相关包 |
 | linuxqq-wayland-fix | [SHORIN-KIWATA/linuxqq-wayland-fix](https://github.com/SHORIN-KIWATA/linuxqq-wayland-fix) | QQ Wayland 修复 |
 
@@ -110,7 +109,6 @@
 | services/pipewire.nix | 音频服务 + PulseAudio 兼容 |
 | services/openssh.nix | SSH 服务，允许密码登录，`PermitRootLogin = "prohibit-password"` |
 | services/flatpak.nix | Flatpak（XDG portal 配置已迁移到 programs/desktop.nix） |
-| services/waydroid-nvidia.nix | Waydroid NVIDIA 加速（flake waydroid-nvidia-nix），`mode = "nvidia-prolapse"`，165Hz，`waydroid-nvidia-full` 包，waydroid-helper |
 | services/guix.nix | Guix 包管理服务（20 个 build user），SJTU/CERNET 镜像 + 官方回退，周度 GC（保留 1 个月、≥10G 空闲、`--optimize` 去重）；`/gnu`、`/gnu/store` neededForBoot |
 | services/polkit.nix | Polkit + GNOME 认证代理（`polkit_gnome`，作为 systemd 用户服务随 graphical-session 拉起） |
 

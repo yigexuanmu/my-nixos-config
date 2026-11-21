@@ -483,8 +483,7 @@
         "nixpkgs": "nixpkgs_5",
         "noctalia": "noctalia",
         "nur": "nur",
-        "waybar": "waybar",
-        "waydroid-nvidia-nix": "waydroid-nvidia-nix"
+        "waybar": "waybar"
       }
     },
     "scenefx": {
@@ -573,44 +572,6 @@
       "original": {
         "owner": "Alexays",
         "repo": "Waybar",
-        "type": "github"
-      }
-    },
-    "waydroid-nvidia-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "wnv-src": "wnv-src"
-      },
-      "locked": {
-        "lastModified": 1793534322,
-        "narHash": "sha256-cSsOsBYSQziF6POOWlqVLKS8XGIwOhsz2exfxT/MXXE=",
-        "owner": "yigexuanmu",
-        "repo": "waydroid-nvidia-nix",
-        "rev": "28a092527b56f3ddba4592083bc7154d84599d79",
-        "type": "github"
-      },
-      "original": {
-        "owner": "yigexuanmu",
-        "repo": "waydroid-nvidia-nix",
-        "type": "github"
-      }
-    },
-    "wnv-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1793197103,
-        "narHash": "sha256-4crDAMPDrF5UD3IjbGx6F7Gl/Mgb0jT3gqOuxSi3g1s=",
-        "owner": "Shiro836",
-        "repo": "waydroid-nvidia",
-        "rev": "15838e131d3f48f3038ec9f3fd7c4975541c9d81",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Shiro836",
-        "ref": "v0.2.0",
-        "repo": "waydroid-nvidia",
         "type": "github"
       }
     }
