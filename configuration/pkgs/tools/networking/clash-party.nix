@@ -32,11 +32,11 @@
 
 stdenv.mkDerivation rec {
   pname = "clash-party";
-  version = "2.0.0";
+  version = "2.0.5";
 
   src = fetchurl {
     url = "https://github.com/mihomo-party-org/clash-party/releases/download/v${version}/clash-party-linux-${version}-amd64.deb";
-    sha256 = "5355b359bdbdfc0cac9e53f114c953a143a85f72a9af74caa3ffbe885f485e4a";
+    sha256 = "277a9cd9d41c946dc1a1b52231a6b32d88fd874d041371518f7da02874b4cdc6";
   };
 
   nativeBuildInputs = [

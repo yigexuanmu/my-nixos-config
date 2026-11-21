@@ -24,6 +24,7 @@
     pi-coding-agent
     nodejs
     nur.repos.MCSeekeri.workbuddy
+    nur.repos.zhyiheihei.zcode
     pandoc
     duckdb
     mediainfo

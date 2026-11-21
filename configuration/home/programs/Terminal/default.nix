@@ -21,7 +21,6 @@
     fzf
     tty-clock
     chafa
-    inputs.miyu-agent-nix.packages.x86_64-linux.default
     fish
     zellij
   ];
