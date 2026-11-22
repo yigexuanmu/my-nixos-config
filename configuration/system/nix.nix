@@ -1,3 +1,13 @@
+# ────────────────────────────────────────────────────────────
+# 文件关联（仅 /etc/nixos 范围）
+#   上游（引用本文件）：configuration/mioha-main/system.nix
+#   下游（本文件引用）：无
+#   相关（语义关联）：
+#     - flake.nix（inputs 与 cache 设置）
+#     - configuration/system/overlays.nix（substituters 与 cache 配合）
+#     - configuration/home/nixpkgs.nix（Home 侧 nixpkgs 配置）
+# ────────────────────────────────────────────────────────────
+
 {
   inputs,
   pkgs,

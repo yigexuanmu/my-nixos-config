@@ -1,3 +1,14 @@
+# ────────────────────────────────────────────────────────────
+# 文件关联（仅 /etc/nixos 范围）
+#   上游（引用本文件）：configuration/home/programs.nix
+#   下游（本文件引用）：configuration/home/programs/Desktop/cursor.nix
+#   相关（语义关联）：
+#     - configuration/home/programs/Desktop/waybar/default.nix（waybar 包在此安装，配置在彼）
+#     - configuration/home/programs/Desktop/fuzzel/default.nix
+#     - configuration/home/programs/Desktop/mango/default.nix
+#     - configuration/home/programs/Entertain/cava/default.nix（cava 包）
+# ────────────────────────────────────────────────────────────
+
 {
   pkgs,
   inputs,

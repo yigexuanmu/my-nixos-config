@@ -1,3 +1,13 @@
+# ────────────────────────────────────────────────────────────
+# 文件关联（仅 /etc/nixos 范围）
+#   上游（引用本文件）：configuration/mioha-main/modules.nix
+#   下游（本文件引用）：无
+#   相关（语义关联）：
+#     - configuration/home/programs/Entertain/cava/default.nix（cava 音频可视化）
+#     - configuration/home/programs/Desktop/waybar/default.nix（cava 脚本）
+#     - configuration/modules/programs/steam.nix（32 位 Wine/Steam 音频）
+# ────────────────────────────────────────────────────────────
+
 {
   ...
 }: {

@@ -1,3 +1,27 @@
+# ────────────────────────────────────────────────────────────
+# 文件关联（仅 /etc/nixos 范围）
+#   上游（引用本文件）：configuration/mioha-main/home.nix
+#   下游（本文件引用）：
+#     - configuration/home/programs/Desktop/default.nix
+#     - configuration/home/programs/Desktop/fuzzel/default.nix
+#     - configuration/home/programs/Desktop/mango/default.nix
+#     - configuration/home/programs/Desktop/rime.nix
+#     - configuration/home/programs/Desktop/waybar/default.nix
+#     - configuration/home/programs/Develop/default.nix
+#     - configuration/home/programs/Entertain/default.nix
+#     - configuration/home/programs/Entertain/cava/default.nix
+#     - configuration/home/programs/Games/default.nix
+#     - configuration/home/programs/Terminal/default.nix
+#     - configuration/home/programs/Terminal/fastfetch/default.nix
+#     - configuration/home/programs/Terminal/fish/default.nix
+#     - configuration/home/programs/Terminal/kitty/default.nix
+#     - configuration/home/programs/Utility/default.nix
+#   相关（语义关联）：
+#     - configuration/home/session.nix
+#     - configuration/home/mango-session.nix
+#     - configuration/system/user.nix（自动：共享 /home/mioha）
+# ────────────────────────────────────────────────────────────
+
 {
   inputs,
   pkgs,
@@ -11,6 +35,7 @@
     ./programs/Desktop/default.nix
     ./programs/Desktop/fuzzel
     ./programs/Desktop/mango
+    ./programs/Desktop/rime.nix
     ./programs/Desktop/waybar
     ./programs/Develop/default.nix
     ./programs/Entertain/default.nix

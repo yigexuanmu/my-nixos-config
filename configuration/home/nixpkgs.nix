@@ -1,3 +1,12 @@
+# ────────────────────────────────────────────────────────────
+# 文件关联（仅 /etc/nixos 范围）
+#   上游（引用本文件）：configuration/mioha-main/home.nix
+#   下游（本文件引用）：无
+#   相关（语义关联）：
+#     - configuration/system/nix.nix（系统/Home 两侧 nixpkgs 配置分工）
+#     - configuration/system/overlays.nix（系统侧 overlay）
+# ────────────────────────────────────────────────────────────
+
 {
   inputs,
   ...

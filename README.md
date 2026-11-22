@@ -86,7 +86,7 @@
 | networking.nix | 主机名 `mioha-nix`，NetworkManager，防火墙**关闭**（nftables 也关闭），自装 dnsmasq；`programs.clash-verge`（serviceMode + tunMode + 自启动） |
 | user.nix | 用户 `mioha`，组：wheel、networkmanager、libvirtd、kvm、input、audio、uinput、podman |
 | i18n.nix | 时区 `Asia/Shanghai`，默认 locale `zh_CN.UTF-8`（支持 en_US + zh_CN） |
-| input-method.nix | Fcitx5：`fcitx5-rime`（override `rimeDataPkgs = [rime-data rime-wanxiang]`，万象拼音必须注入到 librime 数据目录否则无候选框）+ 中文插件 + GTK/Qt 支持 + Mellow 主题；万象语法模型需手动放入 `~/.local/share/fcitx5/rime/` |
+| input-method.nix | Fcitx5：`fcitx5-rime`（override `rimeDataPkgs = [rime-data rime-wanxiang rime-wanxiang-gram]`，万象拼音和语法模型必须注入到 librime 数据目录否则无候选框/语法联想）+ 中文插件 + GTK/Qt 支持 + Mellow 主题；`wanxiang-lts-zh-hans.gram` 由 `pkgs/data/rime-wanxiang-gram.nix` 打包，`default.custom.yaml` 由 Home Manager 声明式管理 |
 | environment.nix | 系统软件包（gcc、nh、git、distrobox、libxkbcommon） |
 | tmpfiles.nix | `/var/tmp`（1777）、`/var/build` 目录规则 |
 | fonts.nix | Noto 中日韩 + Color Emoji、JetBrains Mono / Fira Code Nerd Font、文泉驿微米黑、HarmonyOS Sans；fontconfig 默认 sans=HarmonyOS Sans SC、mono=JetBrainsMono NF |

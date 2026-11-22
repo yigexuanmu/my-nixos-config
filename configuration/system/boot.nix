@@ -1,3 +1,15 @@
+# ────────────────────────────────────────────────────────────
+# 文件关联（仅 /etc/nixos 范围）
+#   上游（引用本文件）：configuration/mioha-main/system.nix
+#   下游（本文件引用）：无
+#   相关（语义关联）：
+#     - configuration/device/disko.nix（/boot、/etc、/nix 挂载点与 neededForBoot 对应）
+#     - configuration/device/hardware/hardware-config.nix（内核模块）
+#     - configuration/device/hardware/nvidia.nix（config.boot.kernelPackages 提供 nvidia 驱动）
+#     - configuration/system/overlays.nix（cachyos 内核 overlay）
+#     - configuration/modules/services/guix.nix（自动：共享 fileSystems、neededForBoot）
+# ────────────────────────────────────────────────────────────
+
 {
   pkgs,
   config,

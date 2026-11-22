@@ -48,6 +48,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    droidloom-nix = {
+      url = "github:yigexuanmu/droidloom-nix";
+    };
+
     linuxqq-wayland-fix.url = "github:SHORIN-KIWATA/linuxqq-wayland-fix";
     #linuxqq-wayland-fix.url = "github:yigexuanmu/linuxqq-wayland-fix-nix";
   };
@@ -59,6 +63,7 @@
     home-manager,
     mangowm,
     lazyvim,
+    droidloom-nix,
     linuxqq-wayland-fix,
     ...
   } @ inputs: {
@@ -67,13 +72,15 @@
     nixosConfigurations.mioha-nix = nixpkgs.lib.nixosSystem {
       specialArgs = {inherit inputs;};
       modules = [
-        { nixpkgs.overlays = [ self.overlays.default ]; }
+        { nixpkgs.overlays = [ self.overlays.default droidloom-nix.overlays.default ]; }
 
         inputs.disko.nixosModules.disko
 
         inputs.mangowm.nixosModules.mango
 
       	inputs.nur.modules.nixos.default
+
+        inputs.droidloom-nix.nixosModules.default
 
         ./configuration/mioha-main/system.nix
         ./configuration/mioha-main/modules.nix

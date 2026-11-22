@@ -1,3 +1,10 @@
+# ────────────────────────────────────────────────────────────
+# 文件关联（仅 /etc/nixos 范围）
+#   上游（引用本文件）：configuration/pkgs/default.nix（callPackage）
+#   下游（本文件引用）：无
+#   相关（语义关联）：configuration/system/fonts.nix（harmonyos-sans 使用处）
+# ────────────────────────────────────────────────────────────
+
 {
   lib,
   stdenv,

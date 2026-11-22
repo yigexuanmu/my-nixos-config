@@ -1,3 +1,14 @@
+# ────────────────────────────────────────────────────────────
+# 文件关联（仅 /etc/nixos 范围）
+#   上游（引用本文件）：configuration/mioha-main/system.nix
+#   下游（本文件引用）：无
+#   相关（语义关联）：
+#     - configuration/system/boot.nix（/boot、/etc、/nix 的 neededForBoot 与挂载点对应）
+#     - configuration/system/tmpfiles.nix（/var/tmp、/var/build 目录）
+#     - configuration/modules/services/guix.nix（/gnu、/gnu/store 子卷）
+#     - configuration/home/session.nix（自动：共享 /var/lib）
+# ────────────────────────────────────────────────────────────
+
 # Disko 磁盘布局配置 - Btrfs (pc-mioha)
 # 使用 by-id 引用磁盘，确保磁盘更换后仍能正确识别
 #

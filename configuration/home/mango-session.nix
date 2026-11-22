@@ -1,3 +1,13 @@
+# ────────────────────────────────────────────────────────────
+# 文件关联（仅 /etc/nixos 范围）
+#   上游（引用本文件）：configuration/mioha-main/home.nix
+#   下游（本文件引用）：无
+#   相关（语义关联）：
+#     - configuration/modules/programs/desktop.nix（mango 会话与 xdg portal）
+#     - configuration/modules/services/polkit.nix（graphical-session.target）
+#     - configuration/home/programs/Desktop/mango/default.nix（mango 配置）
+# ────────────────────────────────────────────────────────────
+
 {
   lib,
   ...
