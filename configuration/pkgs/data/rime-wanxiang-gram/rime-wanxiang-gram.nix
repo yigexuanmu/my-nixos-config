@@ -27,6 +27,10 @@ stdenvNoCC.mkDerivation {
   dontConfigure = true;
   dontBuild = true;
 
+  # 滚动发布没有固定版本号，hash 靠 ./rime-wanxiang-gram-update.py 自动改
+  # （systemd timer rime-gram-update 每天跑一次，见 configuration/modules/services/）
+  passthru.updateScript = ./rime-wanxiang-gram-update.py;
+
   installPhase = ''
     runHook preInstall
     install -Dm644 "$src" "$out/share/rime-data/wanxiang-lts-zh-hans.gram"

@@ -29,8 +29,6 @@
 ├── flake.nix                          # Flake 入口（nixosConfigurations.mioha-nix + homeConfigurations.mioha）
 ├── flake.lock
 ├── reinstall.sh                       # LiveCD 一键重装脚本（UEFI + disko LVM/btrfs + swapfile）
-├── docs/
-│   └── mango-vs-niri.md               # niri → mango 配置对照表（概念模型 / 输出 / 布局 / 键位）
 ├── guix-configuration/                # Guix 独立配置（channels.scm + home-configuration.scm）
 │   ├── channels.scm                   # 锁定 commit 的 guix 通道
 │   └── home-configuration.scm         # 最小 Guix Home（glibc-locales/htop/ripgrep/fd）
@@ -47,22 +45,44 @@
     │   └── hardware/                  # 硬件配置（hardware-config/nvidia/bluetooth）
     ├── modules/                       # 所有 NixOS 模块
     │   ├── programs/                  # 系统级程序模块
-    │   ├── services/                  # 系统服务模块
+    │   ├── services/                  # 系统服务模块（含 rime-gram-update.nix：.gram hash 日常跟踪）
     │   ├── virtualisation/            # 虚拟化模块（vmware 已注释停用）
     │   ├── security/                  # 安全模块（sudo-rs、wrappers）
-    │   └── packages/                  # 系统级包模块
+    │   ├── packages/                  # 系统级包模块
+    │   └── tools/                     # 仓库自维护模块（file-map：头部注释重算）
     ├── pkgs/                          # 自定义包定义（以 overlay 形式注入）
     │   ├── data/cursors/              # Windows 光标方案 → XCursor 主题（转换器 + source.zip）
     │   ├── data/fonts/                # 字体打包
-    │   └── tools/networking/          # 网络工具打包
+    │   ├── data/rime-wanxiang-gram/  # 万象 LTS 语法模型（.gram 打包 + 自动跟 hash 的 update.py）
+    │   ├── tools/networking/          # 网络工具打包
+    │   └── tools/file-map/            # nixos-file-map 生成器（file-map.py 引擎 + default.nix）
     └── home/                          # Home Manager 配置
         ├── programs.nix               # 用户名/家目录 + 聚合所有 Home 模块
         ├── nixpkgs.nix                # Home 作用域 nixpkgs 覆盖
         ├── session.nix                # 会话变量、xdg 终端默认
         ├── mango-session.nix          # mango → systemd 用户会话 target
+        ├── file-map.nix               # Home Manager activation：rebuild 时重算头部注释
         └── programs/                  # 用户程序分类配置
             ├── Desktop/               # cursor / fuzzel / mango / waybar（含 dotfiles）
             ├── Develop/  Entertain/  Games/  Terminal/  Utility/
+```
+
+## 自维护脚本
+
+两处自动动作，都在 activation / 定时器里跑，失败只告警、不阻塞构建。
+
+| 脚本 | 作用 | 触发 |
+|------|------|------|
+| `pkgs/tools/file-map/`（配合 `modules/tools/file-map.nix`、`home/file-map.nix`） | 重算每个 `.nix` 头部注释里的上游 / 下游 / 相关（相关里的自动条目带「自动：共享 …」前缀，人工条目保留） | `nh os switch`、`nh home switch` 的 activation 阶段 |
+| `pkgs/data/rime-wanxiang-gram/`（配合 `modules/services/rime-gram-update.nix`） | 跟踪万象 `.gram` 的版本号与 sha256，改完下次 rebuild 生效 | systemd timer，每天一次 |
+
+手动执行：
+
+```bash
+nixos-file-map                     # 重算头部注释（rebuild 后已在 PATH）
+nixos-file-map --check             # 只校验；--strict 连断链引用一起算失败
+nixos-file-map --stale-files       # 找没人引用的资源文件 / 构建残留
+python3 configuration/pkgs/data/rime-wanxiang-gram/rime-wanxiang-gram-update.py --check
 ```
 
 ## 系统配置
@@ -86,7 +106,7 @@
 | networking.nix | 主机名 `mioha-nix`，NetworkManager，防火墙**关闭**（nftables 也关闭），自装 dnsmasq；`programs.clash-verge`（serviceMode + tunMode + 自启动） |
 | user.nix | 用户 `mioha`，组：wheel、networkmanager、libvirtd、kvm、input、audio、uinput、podman |
 | i18n.nix | 时区 `Asia/Shanghai`，默认 locale `zh_CN.UTF-8`（支持 en_US + zh_CN） |
-| input-method.nix | Fcitx5：`fcitx5-rime`（override `rimeDataPkgs = [rime-data rime-wanxiang rime-wanxiang-gram]`，万象拼音和语法模型必须注入到 librime 数据目录否则无候选框/语法联想）+ 中文插件 + GTK/Qt 支持 + Mellow 主题；`wanxiang-lts-zh-hans.gram` 由 `pkgs/data/rime-wanxiang-gram.nix` 打包，`default.custom.yaml` 由 Home Manager 声明式管理 |
+| input-method.nix | Fcitx5：`fcitx5-rime`（override `rimeDataPkgs = [rime-data rime-wanxiang rime-wanxiang-gram]`，万象拼音和语法模型必须注入到 librime 数据目录否则无候选框/语法联想）+ 中文插件 + GTK/Qt 支持 + Mellow 主题；`wanxiang-lts-zh-hans.gram` 由 `pkgs/data/rime-wanxiang-gram/` 打包（hash 由 timer `rime-gram-update` 每日自动跟），`default.custom.yaml` 由 Home Manager 声明式管理 |
 | environment.nix | 系统软件包（gcc、nh、git、distrobox、libxkbcommon） |
 | tmpfiles.nix | `/var/tmp`（1777）、`/var/build` 目录规则 |
 | fonts.nix | Noto 中日韩 + Color Emoji、JetBrains Mono / Fira Code Nerd Font、文泉驿微米黑、HarmonyOS Sans；fontconfig 默认 sans=HarmonyOS Sans SC、mono=JetBrainsMono NF |
@@ -127,8 +147,10 @@
 | clash-party.nix | Clash Party 2.0.0（解包 GitHub release 的 .deb，`autoPatchelfHook` 修补，安装于 modules/packages/clash-party.nix；并由 security/wrappers.nix 给 `mihomo-party` 加网络 capabilities） |
 | windows-cursor.nix | Windows 光标方案（.ani/.cur）转 XCursor 主题（`pkgs/data/cursors/`，含 Python 转换器 `tool/win2xcursor.py`；动画 + 多尺寸） |
 | harmonyos-sans.nix | HarmonyOS Sans 字体（自定义打包，pkgs/data/fonts/，GitHub huawei-fonts/HarmonyOS-Sans） |
+| data/rime-wanxiang-gram/ | 万象 LTS 语法模型（390 MB 滚动资产，hash 由同目录 `rime-wanxiang-gram-update.py` 每日自动跟踪） |
+| tools/file-map | `nixos-file-map`：重算各 `.nix` 文件的「文件关联」头部注释（见「自维护脚本」） |
 
-`pkgs/default.nix` 以 overlay 属性暴露：`harmonyos-sans`、`windows-cursor-theme`、`clash-party`。
+`pkgs/default.nix` 以 overlay 属性暴露：`harmonyos-sans`、`windows-cursor-theme`、`clash-party`、`file-map`。
 
 ### 安全
 

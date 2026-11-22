@@ -22,6 +22,11 @@
 行为约定
     幂等：条目顺序、人工批注、自动条目的呈现都稳定；无变化不写文件。
     只改写已存在的文件（不新建），所以以 root 运行也不会产生属主变化。
+    只改注释块，从不改代码：删掉某个 .nix 后，别的文件头部里指向它的行会被清掉
+    （上游/下游每次重算，相关做路径存在性检查），但代码里的 import 不动，
+    只在报告里给出「指向不存在文件的引用」，配合 --strict 可让 --check 失败。
+    写盘用临时文件 + os.replace，并复制原文件的属主/权限 —— 以 root 跑（activation）
+    也不会把 /etc/nixos 里的文件变成 root 所有，中途中断也不会留下半截文件。
 """
 
 import argparse
@@ -29,7 +34,9 @@ import difflib
 import json
 import os
 import re
+import stat
 import sys
+import tempfile
 
 SEP = "# " + "\u2500" * 60
 MARK = "# 文件关联（仅 /etc/nixos 范围）"
@@ -52,6 +59,31 @@ REF_RE = re.compile(r"(?<![A-Za-z0-9._+/-])(\.{1,2}/[A-Za-z0-9._+/-]*)")
 FIELD_RE = re.compile(r"^#   (\S+?)：(.*)$")
 ITEM_RE = re.compile(r"^#     - (.*)$")
 NOTE_RE = re.compile(r"^(.*?)（(.*)）$")
+
+def write_atomic(path, text):
+    """同目录临时文件 + os.replace，避免写到一半被中断把文件截断。
+
+    顺手保住属主与权限：root 跑（activation）时若直接 replace，新文件会变成
+    root 所有，所以先把 uid/gid/mode 复制到临时文件上。
+    """
+    st = os.stat(path)
+    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path), prefix=".file-map-", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(text)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.chmod(tmp, stat.S_IMODE(st.st_mode))
+        if (st.st_uid, st.st_gid) != (os.getuid(), os.getgid()):
+            os.chown(tmp, st.st_uid, st.st_gid)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
 
 # ── 语义特征 ─────────────────────────────────────────────────────
 UNIT_RE = re.compile(r"^[A-Za-z0-9@._-]+\.(service|target|socket|timer|mount|path|slice)$")
@@ -79,10 +111,33 @@ homepage license maintainers sha256 sha1 download github com pname dates weekly 
 dontBuild dontConfigure dontCheck dontFixup dontStrip dontPatchElf installCheck doCheck unpackPhase
 wrapProgram makeDesktopItem copyDesktopItems mkPackageOption getExe toString mapAttrs toJSON
 lowPrio hiPrio optionalAttrs optionalString concatMapStringsSep stringAfter replaceStrings
+Type ExecStart ExecStartPre ExecStop ExecReload Restart RestartSec WantedBy wantedBy serviceConfig
+ServiceConfig ProtectSystem StateDirectory ReadWritePaths AmbientCapabilities NoNewPrivileges
+PrivateTmp UserGroup TimeoutStartSec Persistent OnCalendar RandomizedDelaySec timers
+after wants before requires partOf conflicts startAt postStart preStop script serviceConfig
 """.split())
 
 
 # ── 词法：剥注释，可选屏蔽字符串内容 ─────────────────────────────
+def _interp_end(src, i):
+    """从 ${ 之后开始找配对的 }，返回其后的下标（用于保留 '' 块里的 nix 插值）。"""
+    depth, n = 1, len(src)
+    while i < n and depth:
+        c = src[i]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+        elif c == '"':
+            i += 1
+            while i < n and src[i] != '"':
+                if src[i] == "\\":
+                    i += 1
+                i += 1
+        i += 1
+    return i
+
+
 def sanitize(src, mask_strings):
     """返回与原文等长的文本：注释变空格；mask_strings 时普通字符串内容也变空格。
 
@@ -129,6 +184,10 @@ def sanitize(src, mask_strings):
                     out.append("''")
                     i += 2
                     break
+                elif src[i:i + 2] == "${":
+                    j = _interp_end(src, i + 2)
+                    out.append(src[i:j])
+                    i = j
                 else:
                     out.append(" ")
                     i += 1
@@ -221,20 +280,30 @@ def merge_edges(old, new_paths, ref_order=None):
     return [join_note(p, notes.get(p, "")) for p in kept]
 
 
-def merge_related(old, auto, mode, root, max_items):
-    """相关 = 人工条目（保留） + 自动证据条目（每次重算）。返回 (条目, 失效路径)。"""
+def merge_related(old, auto, mode, root, max_items, by_name=None):
+    """相关 = 人工条目（保留，改名的自动跟上） + 自动证据条目（每次重算）。
+
+    返回 (条目, 失效路径, 改名跟随列表)。
+    """
     if mode == "off":
-        return [join_note(p, n) for p, n in old], []
+        return [join_note(p, n) for p, n in old], [], []
 
     hand = [(p, n) for p, n in old if not n.startswith(AUTO_TAG)]
     if mode == "auto":  # 完全重算：人工条目一并丢弃
         hand = []
 
-    keep, missing = [], []
+    keep, missing, renamed = [], [], []
     for p, n in hand:
         if p and "/" in p and not os.path.exists(os.path.join(root, p)):
-            missing.append(p)
-            continue
+            # 文件名唯一时认为是改名/搬家，跟着改路径而不是丢掉这条关联
+            alt = (by_name or {}).get(os.path.basename(p), [])
+            alt = [a for a in alt if a != p]
+            if len(alt) == 1:
+                renamed.append((p, alt[0]))
+                p = alt[0]
+            else:
+                missing.append(p)
+                continue
         keep.append((p, n))
 
     items = [join_note(p, n) for p, n in keep]
@@ -248,7 +317,7 @@ def merge_related(old, auto, mode, root, max_items):
         items.append(join_note(other, AUTO_TAG + "共享 " + "、".join(toks[:2])))
         have.add(other)
         used += 1
-    return items, missing
+    return items, missing, renamed
 
 
 def render(upstream, downstream, related):
@@ -402,6 +471,75 @@ def build(root, files):
     return downstream, broken, resources, seq, sem
 
 
+# 目录被"整体搬进 store"的用法：src = ./.; source = ./dir; PYTHONPATH=${./dir}
+SRC_LIKE_RE = re.compile(r"(src|source|PYTHONPATH)\s*=\s*[^;]*$")
+# 构建残留：目录被整体引用时看不出"没人用"，但这些东西基本可以删
+JUNK_RE = re.compile(
+    r"(^|/)(__pycache__|\.direnv|\.venv|\.pytest_cache|result|result-[^/]+|build|dist|node_modules)(/|$)"
+    r"|[^/]+\.egg-info(/|$)"
+    r"|\.(pyc|pyo|orig|rej|bak|swp)$|~$"
+)
+
+
+def scan_references(root, files):
+    """返回 (被直接引用的文件, 被整体引用的目录)。"""
+    refd_files, refd_dirs = set(), set()
+    for src in files:
+        with open(src, encoding="utf-8") as fh:
+            code = sanitize(fh.read(), mask_strings=True)
+        for m in REF_RE.finditer(code):
+            ref = m.group(1).rstrip(".")
+            p = os.path.normpath(os.path.join(os.path.dirname(src), ref))
+            if os.path.isdir(p):
+                # import ./dir 只会拿 default.nix；src = ./dir 才是整棵树
+                pre = code[max(0, m.start() - 40):m.start()]
+                if SRC_LIKE_RE.search(pre) or not os.path.isfile(os.path.join(p, "default.nix")):
+                    refd_dirs.add(os.path.realpath(p))
+                else:
+                    refd_files.add(os.path.realpath(os.path.join(p, "default.nix")))
+            else:
+                t = resolve(ref, src)
+                if t:
+                    refd_files.add(os.path.realpath(t))
+    return refd_files, refd_dirs
+
+
+def unreferenced(root, files):
+    """configuration/ 下没人用的资源文件，分两档返回 (未被引用, 疑似构建残留)。"""
+    real_root = os.path.realpath(root)
+    refd_files, refd_dirs = scan_references(root, files)
+
+    def in_refd_dir(path):
+        d = os.path.dirname(path)
+        while len(d) > len(real_root):
+            if d in refd_dirs:
+                return True
+            d = os.path.dirname(d)
+        return False
+
+    unused, junk = [], []
+    base = os.path.join(real_root, "configuration")
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = sorted(d for d in dirnames if d not in EXCLUDE_DIRS)
+        for f in sorted(filenames):
+            if f.endswith(".nix"):
+                continue
+            p = os.path.realpath(os.path.join(dirpath, f))
+            rel = display(p, root)
+            size = os.path.getsize(p)
+            if p in refd_files:
+                continue
+            if in_refd_dir(p):
+                if JUNK_RE.search(rel):
+                    junk.append((size, rel))
+                continue
+            unused.append((size, rel))
+
+    unused.sort(reverse=True)
+    junk.sort(reverse=True)
+    return unused, junk
+
+
 def main():
     ap = argparse.ArgumentParser(
         prog="nixos-file-map",
@@ -409,9 +547,13 @@ def main():
     )
     ap.add_argument("--root", default="/etc/nixos", help="仓库根目录（默认 /etc/nixos）")
     ap.add_argument("--check", action="store_true", help="只校验不同步，有差异则退出码 1")
+    ap.add_argument("--strict", action="store_true",
+                    help="断链引用或失效的相关条目也算失败（配合 --check 做 pre-commit）")
     ap.add_argument("--dry-run", action="store_true", help="打印 diff，不写文件")
     ap.add_argument("--json", action="store_true", help="以 JSON 输出结果")
     ap.add_argument("--graph", action="store_true", help="从 flake.nix 打印引用树")
+    ap.add_argument("--stale-files", action="store_true",
+                    help="列出 configuration/ 下没被任何 .nix 引用的资源文件（只读）")
     ap.add_argument("--related", choices=("merge", "auto", "off"), default="merge",
                     help="相关：merge=保留人工+自动补充(默认) / auto=完全重算 / off=不动")
     ap.add_argument("--related-min", type=float, default=SEM_MIN_SCORE,
@@ -420,6 +562,9 @@ def main():
                     help="每个文件最多自动补几条（默认 %d）" % SEM_MAX_ITEMS)
     ap.add_argument("-v", "--verbose", action="store_true", help="输出孤立文件与外部资源")
     args = ap.parse_args()
+
+    # 只读模式：任何"看一眼"的开关都不写盘
+    readonly = args.check or args.dry_run or args.json or args.stale_files
 
     root = os.path.abspath(args.root)
     if not os.path.isdir(root):
@@ -435,9 +580,14 @@ def main():
 
     auto_rel = semantic_map(sem, args.related_min) if args.related != "off" else {}
 
+    # 文件名 → 路径，用于"相关"条目跟随改名（只认唯一匹配）
+    by_name = {}
+    for f in files:
+        by_name.setdefault(os.path.basename(f), []).append(display(f, root))
+
     targets = [p for p in files if display(p, root) not in EXCLUDE_FILES]
 
-    changed, stale = [], []
+    changed, stale, renamed = [], [], []
     for path in sorted(targets):
         rel = display(path, root)
         rp = os.path.realpath(path)
@@ -456,10 +606,12 @@ def main():
                 continue
             cands.append((score, d, toks))
 
-        related, missing = merge_related(
-            old.get("related", []), cands, args.related, root, args.related_max)
+        related, missing, moved = merge_related(
+            old.get("related", []), cands, args.related, root, args.related_max, by_name)
         for p in missing:
             stale.append((rel, p))
+        for old_p, new_p in moved:
+            renamed.append((rel, old_p, new_p))
 
         block = render(
             merge_edges(old.get("upstream", []), up),
@@ -476,13 +628,14 @@ def main():
                 sys.stdout.writelines(difflib.unified_diff(
                     text.splitlines(True), new_text.splitlines(True),
                     fromfile="a/" + rel, tofile="b/" + rel, n=2))
-        elif not args.check and not args.json:
-            with open(path, "w", encoding="utf-8") as fh:
-                fh.write(new_text)
+        elif not readonly and not args.json:
+            write_atomic(path, new_text)
 
     orphans = sorted(
         display(p, root) for p in targets if not upstream.get(os.path.realpath(p), [])
     )
+
+    unused_files, junk_files = unreferenced(root, files) if (args.stale_files or args.json) else ([], [])
 
     if args.json:
         print(json.dumps({
@@ -491,11 +644,16 @@ def main():
             "broken": broken,
             "orphans": orphans,
             "stale": stale,
+            "renamed": [{"file": f, "from": a, "to": b} for f, a, b in renamed],
+            "stale_files": {
+                "unused": [{"path": p, "size": sz} for sz, p in unused_files],
+                "junk": [{"path": p, "size": sz} for sz, p in junk_files],
+            },
         }, ensure_ascii=False, indent=2))
     else:
         if not args.dry_run:
             print("扫描 %d 个 .nix 文件，%s %d 个"
-                  % (len(targets), "待更新" if args.check else "已更新", len(changed)))
+                  % (len(targets), "待更新" if readonly else "已更新", len(changed)))
         if changed and args.check:
             print("需要更新:")
             for c in changed:
@@ -504,10 +662,28 @@ def main():
             print("⚠ 指向不存在文件的引用 %d 处:" % len(broken))
             for src, ref in broken[:20]:
                 print("  - %s → %s" % (src, ref))
+        if renamed:
+            print("ℹ 「相关」条目跟随改名 %d 处:" % len(renamed))
+            for src, old_p, new_p in renamed[:20]:
+                print("  - %s: %s → %s" % (src, old_p, new_p))
         if stale:
             print("⚠ 失效的「相关」条目 %d 处（路径已不存在，已移除）:" % len(stale))
             for src, p in stale[:20]:
                 print("  - %s → %s" % (src, p))
+        if args.stale_files:
+            unused, junk = unreferenced(root, files)
+            total = sum(sz for sz, _ in unused)
+            print("未被任何 .nix 引用（configuration/ 下，共 %d 个 / %.1f MB，删前确认）:"
+                  % (len(unused), total / 1048576))
+            for sz, p in unused:
+                print("  %9.1f KB  %s" % (sz / 1024, p))
+            if not unused:
+                print("  （无）")
+            if junk:
+                print("目录被整体引用、但看着像构建残留:")
+                for sz, p in junk:
+                    print("  %9.1f KB  %s" % (sz / 1024, p))
+
         if args.verbose:
             if orphans:
                 print("未被引用的文件（拓扑孤立，通常是注释停用）:")
@@ -534,7 +710,8 @@ def main():
 
         walk(flake, 0)
 
-    sys.exit(1 if (args.check and changed) else 0)
+    failed = (args.check and changed) or (args.strict and (broken or stale))
+    sys.exit(1 if failed else 0)
 
 
 if __name__ == "__main__":

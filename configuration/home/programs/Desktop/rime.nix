@@ -4,7 +4,7 @@
 #   下游（本文件引用）：无
 #   相关（语义关联）：
 #     - configuration/system/input-method.nix（fcitx5-rime 与 rimeDataPkgs）
-#     - configuration/pkgs/data/rime-wanxiang-gram.nix（万象语法模型）
+#     - configuration/pkgs/data/rime-wanxiang-gram/rime-wanxiang-gram.nix（万象语法模型）
 # ────────────────────────────────────────────────────────────
 
 {

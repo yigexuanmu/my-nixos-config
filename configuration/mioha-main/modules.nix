@@ -19,6 +19,7 @@
 #     - configuration/modules/virtualisation/podman.nix
 #     - configuration/modules/virtualisation/droidloom.nix
 #     - configuration/modules/tools/file-map.nix
+#     - configuration/modules/services/rime-gram-update.nix
 #   相关（语义关联）：
 #     - configuration/mioha-main/system.nix（与 system.nix 一起被 flake 引入）
 #     - configuration/modules/virtualisation/vmware-workstation.nix（当前在此注释，未启用）
@@ -43,6 +44,7 @@
     ../modules/virtualisation/podman.nix
     ../modules/virtualisation/droidloom.nix
     ../modules/tools/file-map.nix
+    ../modules/services/rime-gram-update.nix
 #    ../modules/virtualisation/vmware-workstation.nix
   ];
 }
