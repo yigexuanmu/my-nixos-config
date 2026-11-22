@@ -5,7 +5,6 @@
 #   相关（语义关联）：
 #     - configuration/modules/packages/clash-party.nix
 #     - configuration/modules/security/wrappers.nix
-#     - configuration/modules/programs/nix-ld.nix（自动：共享 alsa-lib、dbus）
 # ────────────────────────────────────────────────────────────
 
 { lib

@@ -6,6 +6,7 @@
 #     - configuration/modules/programs/desktop.nix（mango 会话与 xdg portal）
 #     - configuration/modules/services/polkit.nix（graphical-session.target）
 #     - configuration/home/programs/Desktop/mango/default.nix（mango 配置）
+#     - configuration/home/programs/Desktop/cursor.nix（自动：同设 systemd.user.sessionVariables）
 # ────────────────────────────────────────────────────────────
 
 {

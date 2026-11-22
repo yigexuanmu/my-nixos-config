@@ -19,7 +19,7 @@
 #   相关（语义关联）：
 #     - configuration/home/session.nix
 #     - configuration/home/mango-session.nix
-#     - configuration/system/user.nix（自动：共享 /home/mioha）
+#     - configuration/system/user.nix（自动：同用 /home/mioha）
 # ────────────────────────────────────────────────────────────
 
 {

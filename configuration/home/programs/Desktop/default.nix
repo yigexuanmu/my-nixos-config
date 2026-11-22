@@ -7,6 +7,7 @@
 #     - configuration/home/programs/Desktop/fuzzel/default.nix
 #     - configuration/home/programs/Desktop/mango/default.nix
 #     - configuration/home/programs/Entertain/cava/default.nix（cava 包）
+#     - configuration/modules/services/gnome-keyring.nix（自动：使用 gnome-keyring）
 # ────────────────────────────────────────────────────────────
 
 {

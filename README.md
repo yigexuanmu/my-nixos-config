@@ -15,7 +15,6 @@
 | lazyvim | [pfassina/lazyvim-nix](https://github.com/pfassina/lazyvim-nix) | LazyVim Neovim 配置 |
 | nix-cachyos-kernel | [xddxdd/nix-cachyos-kernel](https://github.com/xddxdd/nix-cachyos-kernel) | CachyOS BORE 内核（`overlays.pinned`） |
 | disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
-| miyu-agent-nix | [yigexuanmu/miyu-agent-nix](https://github.com/yigexuanmu/miyu-agent-nix) | 终端 AI 助手 Miyu |
 | nur | [nix-community/NUR](https://github.com/nix-community/NUR) | Nix 用户仓库（`nur.repos.MCSeekeri.workbuddy`） |
 | noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia |
 | mangowm | [mangowm/mango](https://github.com/mangowm/mango) | Mango 合成器 + NixOS 模块 |
@@ -73,7 +72,7 @@
 
 | 脚本 | 作用 | 触发 |
 |------|------|------|
-| `pkgs/tools/file-map/`（配合 `modules/tools/file-map.nix`、`home/file-map.nix`） | 重算每个 `.nix` 头部注释里的上游 / 下游 / 相关（相关里的自动条目带「自动：共享 …」前缀，人工条目保留） | `nh os switch`、`nh home switch` 的 activation 阶段 |
+| `pkgs/tools/file-map/`（配合 `modules/tools/file-map.nix`、`home/file-map.nix`） | 重算每个 `.nix` 头部注释里的上游 / 下游 / 相关。相关由证据推导：同一挂载点 / systemd 单元 / option 路径、用了本仓库的包（含「包在此安装、配置在彼」）；自动条目带「自动：」前缀，人工条目保留 | `nh os switch`、`nh home switch` 的 activation 阶段 |
 | `pkgs/data/rime-wanxiang-gram/`（配合 `modules/services/rime-gram-update.nix`） | 跟踪万象 `.gram` 的版本号与 sha256，改完下次 rebuild 生效 | 每次 `nh os switch` 的 activation 阶段 |
 
 手动执行：
@@ -101,7 +100,7 @@ python3 configuration/pkgs/data/rime-wanxiang-gram/rime-wanxiang-gram-update.py 
 
 | 模块 | 说明 |
 |------|------|
-| nix.nix | Lix (`lixPackageSets.lix_2_96`)，Flakes + nix-command，allowUnfree，本地 `nix-serve`（127.0.0.1:5000）+ 清华/中科大/官方/lantian/CUDA/flox/noctalia/miyu 缓存源，周度 GC（删 14 天前），系统作用域 `permittedInsecurePackages`（pnpm-9），stateVersion 26.05 |
+| nix.nix | Lix (`lixPackageSets.lix_2_96`)，Flakes + nix-command，allowUnfree，本地 `nix-serve`（127.0.0.1:5000）+ 清华/中科大/官方/lantian/CUDA/flox/noctalia 缓存源，周度 GC（删 14 天前），系统作用域 `permittedInsecurePackages`（pnpm-9），stateVersion 26.05 |
 | overlays.nix | nixpkgs overlays：`nix-cachyos-kernel.overlays.pinned` + 从 `lixPackageSets.latest` 取 nixpkgs-review / nix-direnv / nix-eval-jobs / nix-fast-build / colmena |
 | networking.nix | 主机名 `mioha-nix`，NetworkManager，防火墙**关闭**（nftables 也关闭），自装 dnsmasq；`programs.clash-verge`（serviceMode + tunMode + 自启动） |
 | user.nix | 用户 `mioha`，组：wheel、networkmanager、libvirtd、kvm、input、audio、uinput、podman |
@@ -232,7 +231,6 @@ Windows 光标方案由 `configuration/pkgs/data/cursors/windows-cursor.nix` 构
 | starship | Shell 提示符 |
 | eza / fzf / chafa | 增强 ls / 模糊搜索 / 终端图像 |
 | tty-clock | 终端时钟 |
-| miyu | [miyu-agent-nix](https://github.com/yigexuanmu/miyu-agent-nix) — 终端 AI 助手 |
 
 ### Entertain
 
@@ -294,7 +292,7 @@ sudo ./reinstall.sh [--yes]   # --yes 跳过目标盘二次确认
 ## 致谢
 
 - [mangowm](https://github.com/mangowm/mango) — Mango 合成器
-- [SHORiN-KiWATA](https://github.com/SHORiN-KiWATA) — 配置文件参考，waybar 及脚本参考修改，linuxqq-wayland-fix（Miyu 很好用）
+- [SHORiN-KiWATA](https://github.com/SHORiN-KiWATA) — 配置文件参考，waybar 及脚本参考修改，linuxqq-wayland-fix
 - [Zer05ky](https://github.com/sky1234762/ZEK-niri) — waybar 及脚本参考修改（提供 waybar 和 noctalia 结合的灵感）
 - [brokenshine/nixos-configs](https://gitee.com/brokenshine/nixos-configs) — NixOS 配置文件拆分参考
 - [NixOS-CN 安装教程](https://nixos-cn.org/tutorials/installation) — 安装教程参考

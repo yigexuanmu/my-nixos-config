@@ -7,7 +7,7 @@
 #     - configuration/device/hardware/hardware-config.nix（内核模块）
 #     - configuration/device/hardware/nvidia.nix（config.boot.kernelPackages 提供 nvidia 驱动）
 #     - configuration/system/overlays.nix（cachyos 内核 overlay）
-#     - configuration/modules/services/guix.nix（自动：共享 fileSystems、neededForBoot）
+#     - configuration/modules/services/guix.nix（自动：同设 fileSystems.*.neededForBoot）
 # ────────────────────────────────────────────────────────────
 
 {

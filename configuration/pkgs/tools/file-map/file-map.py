@@ -13,11 +13,20 @@
     上游 / 下游  从代码里的路径字面量反推（imports / import / callPackage /
                  readFile 处的 ./x、../y.nix）。注释掉的引用不算，
                  字符串里的路径不算；目录自动补 default.nix。
-    相关         「证据共现」：两个文件共享稀缺特征就相关，标注证据。
-                 特征 = 挂载路径 /boot、systemd 单元 x.target、pkgs.名字、
-                 配置目录（xdg.configFile "waybar/…"）、选项命名空间
-                 （services.pipewire.*）、罕见标识符。特征出现文件数 > 3 视为通用
-                 词丢弃。人工写的条目一律保留，人工把「自动：」前缀删掉即接管。
+    相关         证据推导，分两档：
+                 ① 结构化（硬）：同一个挂载点、同一个 systemd 单元、同一条完整
+                    option 路径（fileSystems.*.neededForBoot，引号段归一成 *）；
+                 ② 使用关系（硬，定向）：本文件用了仓库里定义的包，或把包 X 装进
+                    包清单而仓库里正好有 X/ 或 X.nix（包在此安装、配置在彼）。
+                 ③ 名字（中）：本仓库自己定义的名字（包名/文件名主干/目录名/mkOption
+                    声明的 option）才算数——来自 nixpkgs 的通用名字（alsa-lib、dbus）
+                    几乎不给分，因为「都依赖同一个库」不等于相关。名字要出现在代码
+                    或短字面量里（extraGroups = ["libvirtd"]），只在描述文案里出现的
+                    不算（description = "mango compositor session" 里的 session）。
+                 同一对关系，两个文件各拿一份措辞：装包的一侧「使用 X」，
+                 提供方那侧「X 的定义 / X 的配置」。
+                 特征出现在太多文件里视为通用词丢弃（df 上限随文件数放宽，封顶 12）。
+                 人工写的条目一律保留，把「自动：」前缀删掉即接管。
 
 行为约定
     幂等：条目顺序、人工批注、自动条目的呈现都稳定；无变化不写文件。
@@ -86,16 +95,44 @@ def write_atomic(path, text):
 
 
 # ── 语义特征 ─────────────────────────────────────────────────────
+# 特征分成两档，这是「更智能」的关键：
+#   结构化证据（同一个挂载点 / 同一个 systemd 单元 / 同一条完整 option 路径 /
+#               引用了本仓库自己定义的包）——两个文件撞上它就基本真的相关；
+#   词面证据（标识符）——只有本仓库自己定义的名字（包名、文件名、option 名）才给分，
+#               来自 nixpkgs 的通用名字（alsa-lib、dbus、mesa…）几乎不给分：
+#               "两个文件都依赖同一个库"不等于它们相关。
 UNIT_RE = re.compile(r"^[A-Za-z0-9@._-]+\.(service|target|socket|timer|mount|path|slice)$")
 IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_.+-]*")
 ABS_RE = re.compile(r'"(\/[A-Za-z0-9._+\/-]+)"')
 DIR_RE = re.compile(r'"([A-Za-z0-9._+-]+)\/[A-Za-z0-9._+-]')
-OPT_RE = re.compile(r"^\s*([a-zA-Z][A-Za-z0-9_-]*\.[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*)\s*=", re.M)
+# 完整 option 路径：foo.bar."带引号的段".baz = …（引号段归一成 *）
+OPT_RE = re.compile(
+    r"^\s*([A-Za-z][\w-]*(?:\s*\.\s*(?:[A-Za-z_][\w-]*|\"[^\"]*\"))+)\s*=", re.M)
+CALLPKG_RE = re.compile(r"([A-Za-z0-9._'-]+)\s*=\s*pkgs\.callPackage\s+(\S+)")
+# option 路径的头部：只排除真正的「表达式前缀」。
+# `nixpkgs.*`、`home.*`、`system.*` 是模块命名空间，必须保留 —— 它们在 STOP 表里
+# 只是为了过滤「裸标识符」，不能拿来砍 option 路径（否则 nixpkgs.config.* 会被当成
+# 普通标识符，权重从 2.0 掉到 0.2，nix 侧与 home 侧的配置分工就永远发现不了）。
+OPT_HEAD_STOP = {"lib", "builtins", "pkgs", "inputs", "config", "self", "super",
+                 "final", "prev", "args", "stdenv", "meta", "src"}
+LITERAL_RE = re.compile(r'"([^"\\\n]+)"')
+# 出现在点号后面时不算特征的名字（文件扩展名 / 模块后缀）
+EXT_STOP = {"nix", "py", "sh", "bash", "fish", "json", "jsonc", "yaml", "yml", "toml",
+            "conf", "ini", "css", "lua", "desktop", "lock", "md", "txt", "svg", "png", "jpg"}
+MKOPT_RE = re.compile(r"([A-Za-z][\w-]*(?:\.[\w-]+)*)\s*=\s*(?:lib\.)?mkOption\b")
 
-SEM_W = {"path": 3.0, "unit": 3.0, "pkg": 2.0, "dir": 2.0, "opt": 1.5, "id": 1.0}
-SEM_MAX_DF = 3          # 出现在超过 3 个文件里的特征算通用词，丢掉
+SEM_W = {"path": 3.0, "unit": 3.0, "opt": 2.0, "dir": 1.5, "id_l": 2.0, "id_x": 0.2}
+SEM_USES = 3.0                              # 「用了本仓库里的包」这条边
+# df>2 时的折扣：结构化证据不打折，通用 option 前缀、标识符打折。
+SEM_PENALTY = {"path": 1.0, "unit": 1.0, "uses": 1.0, "id_l": 0.6,
+               "opt": 0.8, "dir": 0.6, "id_x": 0.6}
+SEM_STRONG = {"path", "unit", "opt", "uses", "id_l"}  # 单条证据就能成立
+SEM_MAX_DF = 3          # df 上限的下界（实际随文件数放宽，见 df_cutoff）
 SEM_MIN_SCORE = 2.0     # 低于该分值不认为相关
 SEM_MAX_ITEMS = 3       # 每个文件最多自动补几条
+# 证据在批注里的说法（越靠前越"硬"）
+SEM_PHRASE = {"uses": "使用", "path": "同用", "unit": "同关",
+              "opt": "同设", "dir": "同配目录", "id_l": "同名"}
 
 STOP = set("""
 lib pkgs config inputs enable name source text type true false null path system with let in then
@@ -309,12 +346,12 @@ def merge_related(old, auto, mode, root, max_items, by_name=None):
     items = [join_note(p, n) for p, n in keep]
     have = {p for p, _ in keep}
     used = 0
-    for score, other, toks in auto:
+    for score, other, note in auto:
         if used >= max_items:
             break
         if other in have:
             continue
-        items.append(join_note(other, AUTO_TAG + "共享 " + "、".join(toks[:2])))
+        items.append(join_note(other, AUTO_TAG + note))
         have.add(other)
         used += 1
     return items, missing, renamed
@@ -349,69 +386,293 @@ def splice(text, span, block):
 
 
 # ── 语义特征 ─────────────────────────────────────────────────────
-def features(text):
+def df_cutoff(n_files):
+    """df 上限：仓库越大，越允许一个特征多出现几处，但设上界。
+
+    下界：写死 3 的话，加十几个文件之后，原本 df=4 的真关联会被判成"通用词"而消失。
+    上界：不设的话仓库长到 500 个文件时上限会到 40，"稀有"就失去意义了。
+    上界 12 的含义是"出现在十几个以上文件里的词，无论仓库多大都算通用词"。
+    """
+    return max(SEM_MAX_DF, min(12, -(-n_files // 12)))
+
+
+def package_defs(raws):
+    """本仓库自定义包：{包名: 定义文件 realpath}，以及 {包名: 在哪定义的}。
+
+    只认「名字和定义文件对得上」的绑定（等于文件名主干、目录名或该包的 pname），
+    否则 `let package = pkgs.callPackage …;` 这种局部变量会被当成一个叫 package 的包。
+    """
+    self_names = {}
+    for p, raw in raws.items():
+        real = os.path.realpath(p)
+        if p.endswith(".nix"):
+            stem = os.path.basename(p)[:-4]
+            names = {stem}
+            if stem == "default":
+                names.add(os.path.basename(os.path.dirname(p)))
+        else:
+            names = {os.path.basename(p)}
+        for m in re.finditer(r'^\s*pname\s*=\s*"([A-Za-z0-9._+-]+)"', raw, re.M):
+            names.add(m.group(1))
+        self_names[real] = names
+
+    defs, definer = {}, {}
+    for p, raw in raws.items():
+        for m in CALLPKG_RE.finditer(raw):
+            attr, ref = m.group(1), m.group(2)
+            tgt = os.path.normpath(os.path.join(os.path.dirname(p), ref))
+            if not tgt.endswith(".nix"):
+                tgt = os.path.join(tgt, "default.nix")
+            if not os.path.isfile(tgt):
+                continue
+            real = os.path.realpath(tgt)
+            if attr not in self_names.get(real, ()):
+                continue
+            defs[attr] = real
+            definer.setdefault(attr, set()).add(p)
+    return defs, definer
+
+
+def self_names(path):
+    """这个文件"代表"的名字：文件名主干；default.nix 则用所在目录名。
+
+    `waybar/default.nix` 里不会出现 "waybar" 这个词，但别处装包/写配置时会出现，
+    所以要把「我是谁」也算成一条特征，否则「包在此安装、配置在彼」这类关系永远发现不了。
+    """
+    stem = os.path.basename(path)[:-4] if path.endswith(".nix") else os.path.basename(path)
+    if stem == "default":
+        return {os.path.basename(os.path.dirname(path))}
+    return {stem} if len(stem) >= 4 else set()
+
+
+def local_vocabulary(defs, raws):
+    """本仓库"定义"过的名字：包名、文件名主干、pname、mkOption 声明的 option。"""
+    names = set(defs)
+    for p, raw in raws.items():
+        names |= self_names(p)
+        for m in re.finditer(r'\b(?:pname|name)\s*=\s*"([A-Za-z0-9._+-]+)"', raw):
+            names.add(m.group(1))
+        for m in MKOPT_RE.finditer(raw):
+            names.add(m.group(1))
+            names.add(m.group(1).split(".")[-1])
+    return names
+
+
+def package_refs(text, defs):
+    """文本里引用到的本仓库自定义包（`pkgs.X` 或裸名 X），排除路径片段和 .nix 文件名。"""
+    out = set()
+    for attr in defs:
+        pat = r"(?<![A-Za-z0-9_/@-])%s(?![A-Za-z0-9_-])" % re.escape(attr)
+        for m in re.finditer(pat, text):
+            if text[m.end():m.end() + 4] == ".nix":
+                continue
+            out.add(attr)
+            break
+    return out
+
+
+# 包清单上下文：home.packages / systemPackages / `packages = with pkgs; [ … ]`
+LIST_HEAD = re.compile(
+    r"(?:home\.packages|systemPackages|packages\s*=|with\s+pkgs\s*;)"
+    r"\s*(?:=\s*)?(?:with\s+pkgs\s*;)?\s*\[")
+
+
+def package_list_refs(text):
+    """包清单里出现的包名（裸标识符 / pkgs.X）。
+
+    「这个文件装了这个包」——如果仓库里正好有 `X/default.nix` 或 `X.nix`，
+    那多半就是那个包的配置，属于典型的「包在此安装、配置在彼」。
+    """
+    out = set()
+    for m in LIST_HEAD.finditer(text):
+        i, depth = m.end(), 1
+        while i < len(text) and depth:
+            if text[i] == "[":
+                depth += 1
+            elif text[i] == "]":
+                depth -= 1
+            i += 1
+        for t in IDENT_RE.findall(text[m.end():i - 1]):
+            if t.startswith("inputs.") or t.startswith("lib.") or t.startswith("builtins."):
+                continue
+            name = t[5:].split(".")[0] if t.startswith("pkgs.") else t
+            if len(name) >= 3 and name not in STOP and not name.isdigit():
+                out.add(name)
+    return out
+
+
+def option_paths(text):
+    """完整 option 路径（引号段归一成 *），比 `services.xserver` 这种两段前缀精确得多。"""
+    out = set()
+    for m in OPT_RE.finditer(text):
+        raw = re.sub(r"\s+", "", m.group(1))
+        raw = re.sub(r'"[^"]*"', "*", raw)
+        head = raw.split(".")[0]
+        if head in OPT_HEAD_STOP or len(head) < 3:
+            continue
+        out.add(raw)
+    return out
+
+
+def features(text, local=frozenset(), own=frozenset(), code=None):
     f = set()
+    ids_in_code = None
+    if code is not None:
+        # 代码里的标识符 + 短的无空格字面量（"libvirtd"、"waybar/config" 是引用；
+        # "mango compositor session" 这种长句是文案，不算证据）
+        ids_in_code = set(IDENT_RE.findall(code))
+        for lit in LITERAL_RE.findall(text):
+            if " " not in lit:
+                ids_in_code.update(IDENT_RE.findall(lit))
+    for n in own:  # 「我是谁」：文件名/目录名本身也是一条特征
+        f.add(("id_l", n))
     for m in ABS_RE.finditer(text):
         parts = [p for p in m.group(1).split("/") if p]
         if parts:
             f.add(("path", "/" + "/".join(parts[:2])))
     for m in DIR_RE.finditer(text):
         f.add(("dir", m.group(1)))
-    for m in OPT_RE.finditer(text):
-        parts = m.group(1).split(".")
-        if parts[0] in STOP or len(parts[0]) < 3:
-            continue
-        f.add(("opt", ".".join(parts[:2])))
+    opts = option_paths(text)
+    for o in opts:
+        f.add(("opt", o))
     for m in IDENT_RE.finditer(text):
         t = m.group(0).strip(".")
         if (m.start() and text[m.start() - 1] == "/") or text[m.end():m.end() + 1] == "/":
             continue  # 路径碎片（/var/lib 里的 var）
+        if m.start() and text[m.start() - 1] == "." and t.lower() in EXT_STOP:
+            continue  # 文件扩展名（"各 .nix 文件" 里的 nix）
+        if any(o == t or o.endswith("." + t) or t.endswith("." + o) for o in opts):
+            continue  # 已经作为完整 option 路径记过，别重复计分
         if UNIT_RE.match(t):
             f.add(("unit", t))
             continue
         if t.startswith("pkgs.") and len(t) > 5:
             name = t[5:].split(".")[0]
             if name not in STOP and len(name) >= 2:
-                f.add(("pkg", name))
+                f.add(("id_l" if name in local else "id_x", name))
             continue
         if len(t) < 3 or t in STOP or t.isdigit():
             continue
         if t.startswith(("lib.", "builtins.", "config.", "inputs.")):
             continue
-        f.add(("id", t))
+        if ids_in_code is not None and t not in ids_in_code:
+            continue  # 只在字符串文案里出现过（description = "… session"），不算证据
+        f.add(("id_l" if t in local else "id_x", t))
     return f
 
 
-def semantic_map(texts, min_score):
-    """texts: {abs_path: 语义文本}，返回 {abs_path: [(score, other, tokens), ...]}。"""
-    per = {p: features(t) for p, t in texts.items()}
+def render_evidence(items, side=None, deps=()):
+    """把证据渲染成人话，最多两组。
+
+    deps 是定向的「用了对方的包」：(包名, def|cfg, 谁在用)。同一对关系两个文件
+    各拿一份措辞——装包的一侧说「使用 X」，提供方那侧说「X 的定义 / X 的配置」。
+    """
+    parts = []
+    for name, kind, src in deps:
+        if len(parts) == 2:
+            break
+        if src == side:
+            parts.append("使用 " + name)
+        else:
+            parts.append(name + (" 的定义" if kind == "def" else " 的配置"))
+    by = {}
+    for _, kind, tok in items:
+        if kind in ("id_x", "uses"):
+            continue
+        by.setdefault(kind, []).append(tok)
+    for kind in ("path", "unit", "opt", "dir", "id_l"):
+        if len(parts) == 2:
+            break
+        toks = by.get(kind)
+        if not toks:
+            continue
+        parts.append("%s %s" % (SEM_PHRASE[kind], "、".join(sorted(set(toks))[:2])))
+    if not parts:  # 只剩通用词，也给个交代
+        weak = sorted({t for _, k, t in items if k == "id_x"})[:2]
+        if weak:
+            parts.append("同提 " + "、".join(weak))
+    return "；".join(parts)
+
+
+def self_index(raws):
+    """名字 → 文件，只保留唯一匹配（`default`、重名文件不参与）。"""
+    idx = {}
+    for p in raws:
+        for n in self_names(p):
+            idx.setdefault(n, []).append(p)
+    return {n: v[0] for n, v in idx.items() if len(v) == 1}
+
+
+def reference_edges(sem, defs, definer, index):
+    """文件 → 它用到的「本仓库里有定义或配置文件」的包 → 那些文件。
+
+    两条来源：① 直接引用本仓库自定义的包（`pkgs.X`/裸名 X）；
+    ② 把 X 装进包清单，而仓库里正好有 `X/` 或 `X.nix`（包在此安装，配置在彼）。
+    """
+    out = {}
+    for p, text in sem.items():
+        targets = {}
+        for attr in package_refs(text, defs):
+            if p in definer.get(attr, ()):
+                continue  # 定义处不算使用
+            t = defs[attr]
+            if t != p:
+                targets.setdefault(t, {}).setdefault(attr, "def")
+        for name in package_list_refs(text):
+            t = index.get(name)
+            if t and t != p:
+                targets.setdefault(t, {}).setdefault(name, "cfg")
+        out[p] = targets
+    return out
+
+
+def semantic_map(texts, min_score, local, uses, codes=None):
+    """texts: {abs_path: 语义文本}，返回 {abs_path: [(score, other, 批注), ...]}。
+
+    uses: {abs_path: {对方路径: {包名}}}，即「这个文件用了对方定义的包」，
+    按定向关系加满权重，并且在词面证据里不重复计分。
+    """
+    per = {p: features(t, local, self_names(p), (codes or {}).get(p))
+           for p, t in texts.items()}
     df = {}
     for feats in per.values():
         for ft in feats:
             df[ft] = df.get(ft, 0) + 1
+    cut = df_cutoff(len(per))
 
     paths = sorted(per)
     scored = {}
     for i, p in enumerate(paths):
         for q in paths[i + 1:]:
-            shared = per[p] & per[q]
-            if not shared:
-                continue
-            score, toks = 0.0, []
-            for kind, tok in shared:
+            items, deps, uses_hit = [], [], set()
+            for src, dst in ((p, q), (q, p)):
+                for name, dep_kind in sorted(uses.get(src, {}).get(dst, {}).items()):
+                    deps.append((name, dep_kind, src))
+                    items.append((SEM_USES, "uses", name))
+                    uses_hit.add(name)
+            for kind, tok in per[p] & per[q]:
+                if kind == "id_l" and tok in uses_hit:
+                    continue  # 已被「引用包」这条边计过分
                 d = df[(kind, tok)]
-                if d > SEM_MAX_DF:
+                if d > cut:
                     continue
-                score += SEM_W[kind] * (1.0 if d == 2 else 0.6)
-                toks.append((SEM_W[kind], tok))
-            if score >= min_score:
-                toks.sort(key=lambda x: (-x[0], x[1]))
-                scored[(p, q)] = (score, [t for _, t in toks])
+                w = SEM_W[kind] * (SEM_PENALTY.get(kind, 0.6) if d > 2 else 1.0)
+                items.append((w, kind, tok))
+            if not items:
+                continue
+            score = sum(w for w, _, _ in items)
+            if score < min_score:
+                continue
+            # 单条弱证据（一条孤零零的 option 路径之外的东西）不算相关
+            if len(items) < 2 and not any(k in SEM_STRONG for _, k, _ in items):
+                continue
+            items.sort(key=lambda x: (-x[0], x[2]))
+            scored[(p, q)] = (score, items, deps)
 
     out = {p: [] for p in paths}
-    for (p, q), (score, toks) in scored.items():
-        out[p].append((score, q, toks))
-        out[q].append((score, p, toks))
+    for (p, q), (score, items, deps) in scored.items():
+        out[p].append((score, q, render_evidence(items, p, deps)))
+        out[q].append((score, p, render_evidence(items, q, deps)))
     for p in out:
         out[p].sort(key=lambda x: (-x[0], x[1]))
     return out
@@ -438,7 +699,7 @@ def display(path, root):
 
 def build(root, files):
     real_root = os.path.realpath(root)
-    downstream, broken, resources, seq, sem = {}, [], {}, {}, {}
+    downstream, broken, resources, seq, sem, raws, codes = {}, [], {}, {}, {}, {}, {}
     for src in files:
         with open(src, encoding="utf-8") as fh:
             raw = fh.read()
@@ -468,7 +729,9 @@ def build(root, files):
         seq[key] = order
         resources[key] = sorted(res)
         sem[key] = sanitize(raw, mask_strings=False)
-    return downstream, broken, resources, seq, sem
+        codes[key] = code
+        raws[key] = raw
+    return downstream, broken, resources, seq, sem, raws, codes
 
 
 # 目录被"整体搬进 store"的用法：src = ./.; source = ./dir; PYTHONPATH=${./dir}
@@ -558,27 +821,35 @@ def main():
                     help="相关：merge=保留人工+自动补充(默认) / auto=完全重算 / off=不动")
     ap.add_argument("--related-min", type=float, default=SEM_MIN_SCORE,
                     help="语义相关的最低分值（默认 %.1f）" % SEM_MIN_SCORE)
+    ap.add_argument("--explain-related", action="store_true",
+                    help="打印「相关」候选与证据分值（只读，用于调 --related-min）")
     ap.add_argument("--related-max", type=int, default=SEM_MAX_ITEMS,
                     help="每个文件最多自动补几条（默认 %d）" % SEM_MAX_ITEMS)
     ap.add_argument("-v", "--verbose", action="store_true", help="输出孤立文件与外部资源")
     args = ap.parse_args()
 
     # 只读模式：任何"看一眼"的开关都不写盘
-    readonly = args.check or args.dry_run or args.json or args.stale_files
+    readonly = (args.check or args.dry_run or args.json or args.stale_files
+                or args.explain_related)
 
     root = os.path.abspath(args.root)
     if not os.path.isdir(root):
         sys.exit("根目录不存在: %s" % root)
 
     files = collect(root)
-    downstream, broken, resources, seq, sem = build(root, files)
+    downstream, broken, resources, seq, sem, raws, codes = build(root, files)
 
     upstream = {p: [] for p in downstream}
     for src, tgts in downstream.items():
         for t in tgts:
             upstream[t].append(src)
 
-    auto_rel = semantic_map(sem, args.related_min) if args.related != "off" else {}
+    # 语义相关：结构化证据 + 本仓库里「包 ↔ 配置文件」的使用关系
+    defs, definer = package_defs(raws)
+    local = local_vocabulary(defs, raws)
+    uses = reference_edges(sem, defs, definer, self_index(raws))
+    auto_rel = (semantic_map(sem, args.related_min, local, uses, codes)
+                if args.related != "off" else {})
 
     # 文件名 → 路径，用于"相关"条目跟随改名（只认唯一匹配）
     by_name = {}
@@ -600,11 +871,11 @@ def main():
         neighbours = set(up) | set(down)
 
         cands = []
-        for score, other, toks in auto_rel.get(rp, []):
+        for score, other, note in auto_rel.get(rp, []):
             d = display(other, root)
-            if d in neighbours or d == rel:
+            if d in neighbours or d == rel or d in EXCLUDE_FILES:
                 continue
-            cands.append((score, d, toks))
+            cands.append((score, d, note))
 
         related, missing, moved = merge_related(
             old.get("related", []), cands, args.related, root, args.related_max, by_name)
@@ -683,6 +954,24 @@ def main():
                 print("目录被整体引用、但看着像构建残留:")
                 for sz, p in junk:
                     print("  %9.1f KB  %s" % (sz / 1024, p))
+
+        if args.explain_related:
+            rows, seen = [], {}
+            for p, lst in auto_rel.items():
+                for score, other, note in lst:
+                    key = tuple(sorted((p, other)))
+                    pair = seen.setdefault(key, {})
+                    pair[p] = note
+                    if len(pair) == 2:
+                        rows.append((score, key[0], key[1], pair))
+            rows.sort(key=lambda r: -r[0])
+            print("「相关」候选 %d 对（阈值 %.1f；两文件措辞不同时用 ／ 分隔）:"
+                  % (len(rows), args.related_min))
+            for score, a, b, notes in rows:
+                na, nb = notes.get(a, ""), notes.get(b, "")
+                ev = na if na == nb else "%s ／ %s" % (na, nb)
+                print("  %5.1f  %-44s ↔ %-44s %s" % (
+                    score, display(a, root), display(b, root), ev))
 
         if args.verbose:
             if orphans:

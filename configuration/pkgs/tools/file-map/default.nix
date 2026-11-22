@@ -4,7 +4,7 @@
 #     - configuration/pkgs/default.nix
 #     - configuration/home/file-map.nix
 #   下游（本文件引用）：无
-#   相关（语义关联）：无
+#   相关（语义关联）：configuration/modules/tools/file-map.nix（自动：file-map 的定义）
 # ────────────────────────────────────────────────────────────
 
 {

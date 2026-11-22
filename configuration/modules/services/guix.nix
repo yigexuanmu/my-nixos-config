@@ -4,7 +4,7 @@
 #   下游（本文件引用）：无
 #   相关（语义关联）：
 #     - configuration/device/disko.nix（/gnu、/gnu/store 子卷）
-#     - configuration/system/boot.nix（自动：共享 fileSystems、neededForBoot）
+#     - configuration/system/boot.nix（自动：同设 fileSystems.*.neededForBoot）
 # ────────────────────────────────────────────────────────────
 
 {
