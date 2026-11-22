@@ -69,12 +69,12 @@
 
 ## 自维护脚本
 
-两处自动动作，都在 activation / 定时器里跑，失败只告警、不阻塞构建。
+两处自动动作，都在 rebuild 的 activation 阶段跑，失败只告警、不阻塞构建。
 
 | 脚本 | 作用 | 触发 |
 |------|------|------|
 | `pkgs/tools/file-map/`（配合 `modules/tools/file-map.nix`、`home/file-map.nix`） | 重算每个 `.nix` 头部注释里的上游 / 下游 / 相关（相关里的自动条目带「自动：共享 …」前缀，人工条目保留） | `nh os switch`、`nh home switch` 的 activation 阶段 |
-| `pkgs/data/rime-wanxiang-gram/`（配合 `modules/services/rime-gram-update.nix`） | 跟踪万象 `.gram` 的版本号与 sha256，改完下次 rebuild 生效 | systemd timer，每天一次 |
+| `pkgs/data/rime-wanxiang-gram/`（配合 `modules/services/rime-gram-update.nix`） | 跟踪万象 `.gram` 的版本号与 sha256，改完下次 rebuild 生效 | 每次 `nh os switch` 的 activation 阶段 |
 
 手动执行：
 

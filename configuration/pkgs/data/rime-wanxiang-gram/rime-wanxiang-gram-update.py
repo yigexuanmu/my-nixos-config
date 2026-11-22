@@ -31,7 +31,9 @@ import hashlib
 import json
 import os
 import re
+import stat
 import sys
+import tempfile
 import urllib.error
 import urllib.request
 
@@ -94,6 +96,27 @@ def download_sha256(url):
     return h.hexdigest()
 
 
+def write_atomic(path, text):
+    """临时文件 + os.replace，并沿用原文件的权限/属主（activation 里是 root 跑）。"""
+    st = os.stat(path)
+    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path), prefix=".rime-gram-", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(text)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.chmod(tmp, stat.S_IMODE(st.st_mode))
+        if (st.st_uid, st.st_gid) != (os.getuid(), os.getgid()):
+            os.chown(tmp, st.st_uid, st.st_gid)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
 def main():
     ap = argparse.ArgumentParser(description="跟踪万象 LTS .gram 的滚动更新")
     ap.add_argument("--file", default=DEFAULT_FILE, help="要改的 nix 文件")
@@ -149,8 +172,7 @@ def main():
 
     text = SHA_RE.sub(lambda mm: mm.group(1) + digest + mm.group(2), text, count=1)
     text = VERSION_RE.sub(lambda mm: mm.group(1) + new_ver + mm.group(2), text, count=1)
-    with open(args.file, "w", encoding="utf-8") as fh:
-        fh.write(text)
+    write_atomic(args.file, text)
     log("已写入 %s；下次 rebuild 生效（可先 nix build 验证）" % args.file)
     return 0
 
