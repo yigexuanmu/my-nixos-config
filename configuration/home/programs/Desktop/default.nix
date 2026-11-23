@@ -30,6 +30,7 @@
     # 默认文件管理器 + 缩略图支持（session.nix 的 inode/directory 指向 nautilus）
     nautilus
     ffmpegthumbnailer
+    file-roller
     nautilus-open-any-terminal
     gst_all_1.gst-plugins-base
     gst_all_1.gst-plugins-good
