@@ -13,6 +13,7 @@
 }: {
   services.droidloom = {
     enable = true;
+    autoStart = true;
     user = "mioha";
     renderNode = "/dev/dri/renderD128";
     graphicsBackend = "forwarding";
