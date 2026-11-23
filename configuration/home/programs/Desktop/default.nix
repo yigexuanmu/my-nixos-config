@@ -5,9 +5,9 @@
 #     - configuration/home/programs/Desktop/cursor.nix
 #     - configuration/pkgs/tools/desktop/waywallen-layer-shell/default.nix
 #   相关（语义关联）：
+#     - configuration/modules/programs/desktop.nix（自动：使用 desktop；同名 fuzzel）
 #     - configuration/home/programs/Desktop/fuzzel/default.nix（自动：使用 fuzzel）
 #     - configuration/home/programs/Desktop/waybar/default.nix（自动：使用 waybar）
-#     - configuration/modules/programs/desktop.nix（自动：使用 desktop）
 # ────────────────────────────────────────────────────────────
 
 {
@@ -27,6 +27,15 @@
     wl-clipboard
     pywalfox-native
     libnotify
+    # 默认文件管理器 + 缩略图支持（session.nix 的 inode/directory 指向 nautilus）
+    nautilus
+    ffmpegthumbnailer
+    nautilus-open-any-terminal
+    gst_all_1.gst-plugins-base
+    gst_all_1.gst-plugins-good
+    gst_all_1.gst-libav
+    python3Packages.pillow
+    python3Packages.icoextract
     # 主题相关
     papirus-icon-theme
     papirus-folders
@@ -44,6 +53,7 @@
     swappy
     hyprpicker
     ddcutil
+    brightnessctl
     cliphist
     matugen
     wlsunset
