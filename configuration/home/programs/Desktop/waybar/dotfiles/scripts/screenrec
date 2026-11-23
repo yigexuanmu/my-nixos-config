@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Script Name: shorin-screenrec
+# Script Name: mioha-screenrec
 # Description: 终极双引擎 Wayland 录屏管理脚本 (支持 Waybar 与纯 CLI 调用)。
 #
 # Architecture (双引擎架构):
@@ -14,16 +14,16 @@
 #   4. 智能音频捕获: 剥离PulseAudio乱码，优雅选择系统声音或麦克风。
 #   5. Waybar 同步: 实时显示时长、引擎状态、JSON 极简输出。
 #
-# Usage: shorin-screenrec -h
+# Usage: mioha-screenrec -h
 # ==============================================================================
 
 set -Eeuo pipefail
 
 # ================== Runtime state & Persistent Config ==================
-APP_NAME="shorin-screenrec"
+APP_NAME="mioha-screenrec"
 
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$UID}"
-STATE_DIR="$RUNTIME_DIR/shorin_screenrec"
+STATE_DIR="$RUNTIME_DIR/mioha_screenrec"
 
 PIDFILE="$STATE_DIR/pid"
 STARTFILE="$STATE_DIR/start"
@@ -35,7 +35,7 @@ WAYBAR_PIDS_CACHE="$STATE_DIR/waybar.pids"
 CURRENT_ENGINE_FILE="$STATE_DIR/active_engine"
 
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
-CONFIG_DIR="$XDG_CACHE_HOME/shorin-screenrec"
+CONFIG_DIR="$XDG_CACHE_HOME/mioha-screenrec"
 
 CFG_ENGINE="$CONFIG_DIR/engine"
 CFG_CODEC_WL="$CONFIG_DIR/codec_wl"

@@ -49,7 +49,7 @@ stdenv.mkDerivation {
   '';
 
   meta = with lib; {
-    description = "Windows cursor scheme converted to an animated Xcursor theme";
+    description = "Windows cursor scheme converted to an animated Xcursor + scalable SVG theme";
     platforms = platforms.linux;
   };
 }

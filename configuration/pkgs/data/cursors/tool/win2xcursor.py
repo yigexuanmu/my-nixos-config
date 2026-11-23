@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""Convert a Windows cursor scheme (.ani/.cur) into an Xcursor theme.
+"""Convert a Windows cursor scheme (.ani/.cur) into an Xcursor + SVG theme.
 
-The theme is written in the native Xcursor format via xcursorgen, so it is
-usable by X11, Xwayland and Wayland clients (libwayland-cursor reads
-Xcursor files). Multiple nominal sizes keep the cursor sharp under
-fractional / integer output scaling.
+Two outputs are produced from the same frames:
+
+* the native Xcursor format via xcursorgen, usable by X11, Xwayland and
+  libwayland-cursor clients;
+* KDE-style `cursors_scalable/<name>/metadata.json` + SVG frames, which
+  niri (this fork's `CursorManager`) renders with resvg at any output scale.
+
+The SVG frames are true vectors: each pixel-art run becomes a filled rect,
+not an embedded bitmap, so the cursors stay crisp when scaled.
 
 Sources are auto-discovered: the Windows .inf scheme is parsed when present
 (Windows role -> X11 cursor name), otherwise file names are matched against
@@ -13,6 +18,7 @@ common scheme names. Replacing source.zip is enough to switch schemes.
 
 import argparse
 import io
+import json
 import os
 import re
 import struct
@@ -386,7 +392,71 @@ def find_sources(root):
     return sources
 
 
-def build_theme(src, out, sizes, name):
+def frame_to_svg(img):
+    """Vectorize one RGBA frame as run-length `<rect>` rows (pixel-art crisp)."""
+    width, height = img.size
+    pixels = img.load()
+    parts = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+        f'viewBox="0 0 {width} {height}" shape-rendering="crispEdges">',
+    ]
+    for y in range(height):
+        x = 0
+        while x < width:
+            r, g, b, a = pixels[x, y]
+            if a == 0:
+                x += 1
+                continue
+            start = x
+            x += 1
+            while x < width and pixels[x, y] == (r, g, b, a):
+                x += 1
+            opacity = "" if a == 255 else f' fill-opacity="{a / 255:.3f}"'
+            parts.append(
+                f'<rect x="{start}" y="{y}" width="{x - start}" height="1" '
+                f'fill="#{r:02x}{g:02x}{b:02x}"{opacity}/>'
+            )
+    parts.append("</svg>\n")
+    return "".join(parts)
+
+
+def write_svg_cursor(out, target, aliases, frames):
+    """Write KDE-style cursors_scalable/<target> and alias links for niri."""
+    root = os.path.join(out, "cursors_scalable")
+    target_dir = os.path.join(root, target)
+    os.makedirs(target_dir, exist_ok=True)
+
+    metadata = []
+    for index, (img, hot_x, hot_y, delay) in enumerate(frames):
+        filename = f"frame-{index:03d}.svg"
+        with open(os.path.join(target_dir, filename), "w", encoding="utf-8") as f:
+            f.write(frame_to_svg(img))
+        metadata.append(
+            {
+                "filename": filename,
+                "delay": int(delay),
+                "hotspot_x": float(hot_x),
+                "hotspot_y": float(hot_y),
+                "nominal_size": float(img.width),
+            }
+        )
+
+    with open(os.path.join(target_dir, "metadata.json"), "w", encoding="utf-8") as f:
+        json.dump(metadata, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+
+    for alias in aliases:
+        link = os.path.join(root, alias)
+        if not os.path.lexists(link):
+            os.symlink(target, link)
+    print(
+        f"{target}: {len(frames)} SVG frame(s) -> cursors_scalable",
+        file=sys.stderr,
+    )
+
+
+def build_theme(src, out, sizes, name, svg=True):
     sources = find_sources(src)
     if not sources:
         raise SystemExit(f"no .ani/.cur cursors found under {src}")
@@ -420,6 +490,8 @@ def build_theme(src, out, sizes, name):
             )
             for alias in aliases:
                 os.symlink(target, os.path.join(cursors_dir, alias))
+            if svg:
+                write_svg_cursor(out, target, aliases, frames)
             print(
                 f"{target}: {os.path.basename(path)} ({len(frames)} frames, sizes {sizes})",
                 file=sys.stderr,
@@ -436,7 +508,7 @@ def build_theme(src, out, sizes, name):
         f.write(
             "[Icon Theme]\n"
             f"Name={name}\n"
-            "Comment=Windows cursor scheme converted to Xcursor\n"
+            "Comment=Windows cursor scheme converted to Xcursor + scalable SVG\n"
             "Inherits=Adwaita\n"
         )
 
@@ -447,9 +519,14 @@ def main(argv=None):
     parser.add_argument("--out", required=True, help="theme directory to create")
     parser.add_argument("--name", default=THEME_NAME)
     parser.add_argument("--sizes", default="24,30,32,36,42,48,60,64,72,96")
+    parser.add_argument(
+        "--no-svg",
+        action="store_true",
+        help="skip cursors_scalable SVG output (Xcursor only)",
+    )
     args = parser.parse_args(argv)
     sizes = [int(s) for s in args.sizes.split(",") if s.strip()]
-    build_theme(args.src, args.out, sizes, args.name)
+    build_theme(args.src, args.out, sizes, args.name, svg=not args.no_svg)
 
 
 if __name__ == "__main__":
