@@ -1,3 +1,10 @@
+# ────────────────────────────────────────────────────────────
+# 文件关联（仅 /etc/nixos 范围）
+#   上游（引用本文件）：configuration/mioha-main/system.nix
+#   下游（本文件引用）：无
+#   相关（语义关联）：configuration/pkgs/data/fonts/harmonyos-sans.nix（harmonyos-sans 由 overlay 提供）
+# ────────────────────────────────────────────────────────────
+
 { pkgs, ... }: {
   fonts = {
     packages = with pkgs; [

@@ -1,3 +1,12 @@
+# ────────────────────────────────────────────────────────────
+# 文件关联（仅 /etc/nixos 范围）
+#   上游（引用本文件）：configuration/mioha-main/system.nix
+#   下游（本文件引用）：无
+#   相关（语义关联）：
+#     - configuration/pkgs/data/rime-wanxiang-gram/rime-wanxiang-gram.nix（万象语法模型 rimeDataPkgs）
+#     - configuration/home/programs/Desktop/rime.nix（Rime 用户配置）
+# ────────────────────────────────────────────────────────────
+
 {
   pkgs,
   ...
@@ -6,13 +15,13 @@
     enable = true;
     type = "fcitx5";
     fcitx5.addons = with pkgs; [
-      # 万象拼音（rime-wanxiang）的数据必须通过 rimeDataPkgs 注入 fcitx5-rime 自己的
+      # 万象拼音的数据和语法模型都通过 rimeDataPkgs 注入 fcitx5-rime 自己的
       # share/rime-data（librime 实际读取的数据目录）。
-      # 若只把 rime-wanxiang 单独列为 addon，它只会进 wrapper 的 share/ 目录，
-      # librime 找不到 wanxiang 方案 → 输入时没有候选框。
-      # 语法模型 wanxiang-lts-zh-hans.gram 由用户自行放入
-      # ~/.local/share/fcitx5/rime/（上游覆盖式发版，无法固定 hash 进 nixpkgs）。
-      (fcitx5-rime.override {rimeDataPkgs = [rime-data rime-wanxiang];})
+      # rime-wanxiang-gram 是本地打包的 wanxiang-lts-zh-hans.gram，
+      # 不再需要手动往 ~/.local/share/fcitx5/rime/ 里放。
+      (fcitx5-rime.override {
+        rimeDataPkgs = [rime-data rime-wanxiang rime-wanxiang-gram];
+      })
       qt6Packages.fcitx5-chinese-addons
       fcitx5-gtk
       qt6Packages.fcitx5-qt
