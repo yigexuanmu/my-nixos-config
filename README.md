@@ -147,7 +147,7 @@ python3 configuration/pkgs/data/rime-wanxiang-gram/rime-wanxiang-gram-update.py 
 | 包 | 说明 |
 |----|------|
 | clash-party.nix | Clash Party 2.0.0（解包 GitHub release 的 .deb，`autoPatchelfHook` 修补，安装于 modules/packages/clash-party.nix；并由 security/wrappers.nix 给 `mihomo-party` 加网络 capabilities） |
-| windows-cursor.nix | Windows 光标方案（.ani/.cur）转 XCursor 主题（`pkgs/data/cursors/`，含 Python 转换器 `tool/win2xcursor.py`；动画 + 多尺寸） |
+| windows-cursor.nix | Windows 光标方案（.ani/.cur）转 XCursor 主题，推荐使用像素风格鼠标主题（`pkgs/data/cursors/`，含 Python 转换器 `tool/win2xcursor.py`，以及 SVG 转换；动画 + 多尺寸） |
 | harmonyos-sans.nix | HarmonyOS Sans 字体（自定义打包，pkgs/data/fonts/，GitHub huawei-fonts/HarmonyOS-Sans） |
 | data/rime-wanxiang-gram/ | 万象 LTS 语法模型（390 MB 滚动资产，hash 由同目录 `rime-wanxiang-gram-update.py` 每日自动跟踪） |
 | tools/desktop/waywallen-layer-shell | Wayland layer-shell 辅助程序（预编译二进制，patchelf 修 interpreter/RPATH，`LD_LIBRARY_PATH` 补 libvulkan） |
