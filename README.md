@@ -17,9 +17,10 @@
 | disko | [nix-community/disko](https://github.com/nix-community/disko) | 声明式磁盘分区与挂载管理 |
 | nur | [nix-community/NUR](https://github.com/nix-community/NUR) | Nix 用户仓库（`nur.repos.MCSeekeri.workbuddy`） |
 | noctalia | [noctalia-dev/noctalia](https://github.com/noctalia-dev/noctalia) | Noctalia |
-| mangowm | [mangowm/mango](https://github.com/mangowm/mango) | Mango 合成器 + NixOS 模块 |
-| waybar | [Alexays/Waybar](https://github.com/Alexays/Waybar) | Waybar 上游 master |
+| niri-mioha | [yigexuanmu/niri-mioha](https://github.com/yigexuanmu/niri-mioha) | Niri 平铺窗口管理器定制构建 |
 | folia-major | [yigexuanmu/folia-major](https://github.com/yigexuanmu/folia-major) | Folia 相关包 |
+| folia-rust | [yigexuanmu/Folia-rust-nix](https://github.com/yigexuanmu/Folia-rust-nix) | Folia (Rust 版) 相关包 |
+| droidloom-nix | [yigexuanmu/droidloom-nix](https://github.com/yigexuanmu/droidloom-nix) | DroidLoom（Android 子系统）NixOS 模块 + overlay |
 | linuxqq-wayland-fix | [SHORIN-KIWATA/linuxqq-wayland-fix](https://github.com/SHORIN-KIWATA/linuxqq-wayland-fix) | QQ Wayland 修复 |
 
 ## 目录结构
@@ -58,11 +59,10 @@
     └── home/                          # Home Manager 配置
         ├── programs.nix               # 用户名/家目录 + 聚合所有 Home 模块
         ├── nixpkgs.nix                # Home 作用域 nixpkgs 覆盖
-        ├── session.nix                # 会话变量、xdg 终端默认
-        ├── mango-session.nix          # mango → systemd 用户会话 target
+        ├── session.nix                # 会话变量、xdg 终端默认、MIME 关联（含 osu 自定义类型）
         ├── file-map.nix               # Home Manager activation：rebuild 时重算头部注释
         └── programs/                  # 用户程序分类配置
-            ├── Desktop/               # cursor / fuzzel / mango / waybar（含 dotfiles）
+            ├── Desktop/               # cursor / fuzzel / niri / rime / waybar（含 dotfiles）
             ├── Develop/  Entertain/  Games/  Terminal/  Utility/
 ```
 
@@ -118,7 +118,7 @@ python3 configuration/pkgs/data/rime-wanxiang-gram/rime-wanxiang-gram-update.py 
 
 | 模块 | 说明 |
 |------|------|
-| programs/desktop.nix | `services.xserver.enable`，gvfs，**登录管理器 ly**，`programs.mango.enable`（Mango 合成器），Noctalia（flake 包），XDG portal（`config.common.default = "*"` + portal-gtk + `wlr` 截屏，chooser 用 fuzzel），Firefox，OBS Studio（CUDA 版 + backgroundremoval/pipewire/vaapi/gstreamer/vkcapture 插件 + 虚拟摄像头） |
+| programs/desktop.nix | `services.xserver.enable`（仅为 ly/niri/XWayland 提供 XKB 键盘配置，不启图形 X 会话），gvfs，**登录管理器 ly**，Niri 合成器（`programs.niri`，包来自 `niri-mioha` flake），xwayland-satellite、`xdg-desktop-portal-wlr`，Noctalia（flake 包），Firefox，OBS Studio（CUDA 版 + wlrobs/backgroundremoval/pipewire/vaapi/gstreamer/vkcapture 插件 + 虚拟摄像头） |
 | programs/neovim.nix | Neovim（默认编辑器，Python3 支持，vi/vim 别名） |
 | programs/nix-ld.nix | nix-ld 动态库补全（GL/Vulkan/X11/Wayland/SDL2/alsa 等，服务 Phira 等预编译程序），另装 zenity 供运行时对话框 |
 | programs/virt-manager.nix | Virtual Machine Manager 图形化管理前端 |
@@ -130,7 +130,7 @@ python3 configuration/pkgs/data/rime-wanxiang-gram/rime-wanxiang-gram-update.py 
 |------|------|
 | services/pipewire.nix | 音频服务 + PulseAudio 兼容 |
 | services/openssh.nix | SSH 服务，允许密码登录，`PermitRootLogin = "prohibit-password"` |
-| services/flatpak.nix | Flatpak（XDG portal 配置已迁移到 programs/desktop.nix） |
+| services/flatpak.nix | Flatpak（XDG portal 由 `programs/desktop.nix` 的 `xdg-desktop-portal-wlr` 提供） |
 | services/guix.nix | Guix 包管理服务（20 个 build user），SJTU/CERNET 镜像 + 官方回退，周度 GC（保留 1 个月、≥10G 空闲、`--optimize` 去重）；`/gnu`、`/gnu/store` neededForBoot |
 | services/polkit.nix | Polkit + GNOME 认证代理（`polkit_gnome`，作为 systemd 用户服务随 graphical-session 拉起） |
 
@@ -150,9 +150,12 @@ python3 configuration/pkgs/data/rime-wanxiang-gram/rime-wanxiang-gram-update.py 
 | windows-cursor.nix | Windows 光标方案（.ani/.cur）转 XCursor 主题（`pkgs/data/cursors/`，含 Python 转换器 `tool/win2xcursor.py`；动画 + 多尺寸） |
 | harmonyos-sans.nix | HarmonyOS Sans 字体（自定义打包，pkgs/data/fonts/，GitHub huawei-fonts/HarmonyOS-Sans） |
 | data/rime-wanxiang-gram/ | 万象 LTS 语法模型（390 MB 滚动资产，hash 由同目录 `rime-wanxiang-gram-update.py` 每日自动跟踪） |
+| tools/desktop/waywallen-layer-shell | Wayland layer-shell 辅助程序（预编译二进制，patchelf 修 interpreter/RPATH，`LD_LIBRARY_PATH` 补 libvulkan） |
+| tools/codearts-agent | 华为 CodeArts Agent（Electron 应用，deb 由华为 CDN `fetchurl` 在线拉取 + 校验，dpkg 解包 + autoPatchelf；`license = unfree`） |
 | tools/file-map | `nixos-file-map`：重算各 `.nix` 文件的「文件关联」头部注释（见「自维护脚本」） |
 
-`pkgs/default.nix` 以 overlay 属性暴露：`harmonyos-sans`、`windows-cursor-theme`、`clash-party`、`file-map`。
+`pkgs/default.nix` 以 overlay 属性暴露：`harmonyos-sans`、`windows-cursor-theme`、`rime-wanxiang-gram`、`clash-party`、`codearts-agent`、`file-map`。
+（Home Manager 侧的 `pkgs` 未加载该 overlay，相关包用 `callPackage` 直接引包定义。）
 
 ### 安全
 
@@ -171,21 +174,21 @@ python3 configuration/pkgs/data/rime-wanxiang-gram/rime-wanxiang-gram-update.py 
 |------|------|
 | programs.nix | 用户 `mioha`（`/home/mioha`），聚合所有 Home 模块，启用 LazyVim + Git + home-manager（`programs.home-manager.enable`）+ `services.mpris-proxy` |
 | nixpkgs.nix | allowUnfree，`pipx` 关闭检查的 overlay，Home 作用域 `permittedInsecurePackages`（electron / pnpm-10） |
-| session.nix | Flatpak 数据目录（xdg.systemDirs.data），`xdg.terminal-exec` 默认 kitty，`EDITOR="kitty -e nvim"`、`TERMINAL=kitty`、`BROWSER=google-chrome` |
-| mango-session.nix | 提供 `mango-session.target`（BindsTo/Wants `graphical-session.target`），解决 ly 直接 fork mango 导致 `graphical-session.target` 永不为 active、xdg-desktop-portal 激活失败（OBS 屏幕捕获 / 截图 / polkit 不可用）的问题；并固定 `XDG_CURRENT_DESKTOP=mango` |
+| session.nix | Flatpak 数据目录（xdg.systemDirs.data），`xdg.terminal-exec` 默认 kitty，`EDITOR="kitty -e nvim"`、`TERMINAL=kitty`、`BROWSER=google-chrome`；声明式接管 `mimeapps.list`（目录默认 nautilus、图片 imv、文本 nvim 等），并定义 osu! 的 `.osz/.osk/.osr/.osb` MIME 类型后指向 osu! |
 
 ### Desktop
 
 | 工具/配置 | 说明 |
 |------|------|
-| mango | `~/.config/mango/config.conf`（tag_num=9，monitor_rule DP-1 2560x1600@165，`scroller` 类布局；`source_optional=~/.config/mango/noctalia.conf`） |
-| waybar | 上游 master 编译（`-Dmango=true`），config/modules/modules-dividers/style + 一组脚本（cava、更新检查、命令中心、截图/录屏、蓝牙/网络切换、重载等） |
+| niri | 平铺合成器（包来自 `niri-mioha`），配置 `~/.config/niri/*.kdl`：`config.kdl`、`binds.kdl`、`blur.kdl`（blurred 效果）、`pop-drop.kdl`，由 Home Manager 声明式管理 |
+| waybar | 状态栏（nixpkgs 版），config/modules/style + 一组脚本（cava、更新检查、命令中心、截图/录屏、蓝牙/网络切换、重载等），使用 `niri/workspaces`、`niri/window` 模块 |
 | fuzzel | 应用启动器 + `fuzzel-web-search` 脚本（兼作 wlr 截屏选择器） |
 | noctalia | 配色模板（`templates.toml` + `waybar-colors.css`），终端配色由 noctalia 快照固化（base `#121316`） |
-| 文件/通知 | nautilus（+ ffmpegthumbnailer、open-any-terminal）、swaynotificationcenter、mako 替代方案的 swayosd、wlsunset、cliphist |
+| rime.nix | `~/.local/share/fcitx5/rime/default.custom.yaml` 由 Home Manager 声明式管理（`__include: wanxiang_suggested_default`，保留 F4 呼出方案菜单） |
+| 文件/通知 | swaynotificationcenter、swayosd、wlsunset、cliphist |
 | 截图/录屏 | grim、slurp、satty、swappy、wl-screenrec、wf-recorder、hyprpicker、brightnessctl、wlr-randr、ddcutil |
-| 主题套件 | papirus-icon-theme、papirus-folders、adw-gtk3、afterglow-cursors-recolored、qt5ct/qt6ct、gnome-keyring、nwg-look |
-| 其他 | imv、wl-clipboard、libnotify、GNOME 时钟/日历、xdg-user-dirs、adwaita-fonts、lxgw-wenkai-screen、font-awesome_7、matugen |
+| 主题套件 | papirus-icon-theme、papirus-folders、adw-gtk3、afterglow-cursors-recolored、qt5ct/qt6ct、gnome-keyring、nwg-look、waywallen-layer-shell |
+| 其他 | imv、wl-clipboard、libnotify、GNOME 时钟/日历、xdg-user-dirs、adwaita-fonts、lxgw-wenkai-screen、font-awesome_7、matugen、pywalfox-native |
 | cursor.nix | 光标主题 `Windows-Cursor`：48px，XCursor，XCURSOR / GTK settings.ini / dconf / systemd 用户环境同步 |
 
 ### 光标主题
@@ -218,8 +221,13 @@ Windows 光标方案由 `configuration/pkgs/data/cursors/windows-cursor.nix` 构
 | nix-output-monitor / nh | Nix 构建输出监控 / NixOS 系统管理 |
 | strace / lsof | 调试工具 |
 | vscode / git | 编辑器与版本控制 |
-| pi-coding-agent | AI 编程助手 |
+| pi-coding-agent / zcode | AI 编程助手（`pi-coding-agent` + NUR 的 `zcode`） |
 | workbuddy | 来自 NUR（`nur.repos.MCSeekeri.workbuddy`） |
+| codearts-agent | 华为 CodeArts Agent（在线拉取 deb 打包，`callPackage` 直引） |
+| pandoc / typst | 文档转换 / 排版 |
+| duckdb / mediainfo | 分析型 SQL 引擎 / 媒体信息 |
+| ouch / zoxide | 通用压缩包工具 / 智能目录跳转 |
+| glib / gvfs | 基础库 / 虚拟文件系统（预编译程序依赖补全） |
 
 ### Terminal
 
@@ -267,7 +275,7 @@ Windows 光标方案由 `configuration/pkgs/data/cursors/windows-cursor.nix` 构
 | scrcpy | Android 投屏 |
 | tesseract | OCR |
 | showmethekey / evtest | 按键显示 / 输入设备测试 |
-| 归档工具 | zip、xz、unzip、p7zip、file-roller、zstd |
+| 归档工具 | zip、xz、unzip、7zip（`_7zz` 的 symlinkJoin，含 7z/7za/7zr 别名）、file-roller、zstd、ouch |
 | 常用工具 | file、which、tree、gnused、gnutar、gawk、gnupg、wget、dmg2img |
 | 网络工具 | aria2、nmap、iperf3、dnsutils、mtr、ldns、ipcalc、ethtool、socat |
 | 硬件监控 | pciutils、usbutils、lm_sensors、iotop、iftop、sysstat |
@@ -294,7 +302,6 @@ sudo ./reinstall.sh [--yes]   # --yes 跳过目标盘二次确认
 
 ## 致谢
 
-- [mangowm](https://github.com/mangowm/mango) — Mango 合成器
 - [SHORiN-KiWATA](https://github.com/SHORiN-KiWATA) — 配置文件参考，waybar 及脚本参考修改，linuxqq-wayland-fix
 - [Zer05ky](https://github.com/sky1234762/ZEK-niri) — waybar 及脚本参考修改（提供 waybar 和 noctalia 结合的灵感）
 - [brokenshine/nixos-configs](https://gitee.com/brokenshine/nixos-configs) — NixOS 配置文件拆分参考
