@@ -118,7 +118,7 @@ python3 configuration/pkgs/data/rime-wanxiang-gram/rime-wanxiang-gram-update.py 
 
 | 模块 | 说明 |
 |------|------|
-| programs/desktop.nix | `services.xserver.enable`（仅为 ly/niri/XWayland 提供 XKB 键盘配置，不启图形 X 会话），gvfs，**登录管理器 ly**，Niri 合成器（`programs.niri`，包来自 `niri-mioha` flake），xwayland-satellite，`xdg.portal`（`config.common.default = "*"` + gtk/wlr 后端，screencast chooser 用 fuzzel），Noctalia（flake 包），Firefox，OBS Studio（CUDA 版 + wlrobs/backgroundremoval/pipewire/vaapi/gstreamer/vkcapture 插件 + 虚拟摄像头） |
+| programs/desktop.nix | `services.xserver.enable`（仅为 ly/niri/XWayland 提供 XKB 键盘配置，不启图形 X 会话），gvfs，**登录管理器 ly**，Niri 合成器（`programs.niri`，包来自 `niri-mioha` flake），xwayland-satellite、`xdg-desktop-portal-wlr`，Noctalia（flake 包），Firefox，OBS Studio（CUDA 版 + wlrobs/backgroundremoval/pipewire/vaapi/gstreamer/vkcapture 插件 + 虚拟摄像头） |
 | programs/neovim.nix | Neovim（默认编辑器，Python3 支持，vi/vim 别名） |
 | programs/nix-ld.nix | nix-ld 动态库补全（GL/Vulkan/X11/Wayland/SDL2/alsa 等，服务 Phira 等预编译程序），另装 zenity 供运行时对话框 |
 | programs/virt-manager.nix | Virtual Machine Manager 图形化管理前端 |
@@ -130,7 +130,7 @@ python3 configuration/pkgs/data/rime-wanxiang-gram/rime-wanxiang-gram-update.py 
 |------|------|
 | services/pipewire.nix | 音频服务 + PulseAudio 兼容 |
 | services/openssh.nix | SSH 服务，允许密码登录，`PermitRootLogin = "prohibit-password"` |
-| services/flatpak.nix | Flatpak（XDG portal 由 `programs/desktop.nix` 的 `xdg.portal` 模块提供） |
+| services/flatpak.nix | Flatpak（XDG portal 由 `programs/desktop.nix` 的 `xdg-desktop-portal-wlr` 提供） |
 | services/guix.nix | Guix 包管理服务（20 个 build user），SJTU/CERNET 镜像 + 官方回退，周度 GC（保留 1 个月、≥10G 空闲、`--optimize` 去重）；`/gnu`、`/gnu/store` neededForBoot |
 | services/polkit.nix | Polkit + GNOME 认证代理（`polkit_gnome`，作为 systemd 用户服务随 graphical-session 拉起） |
 

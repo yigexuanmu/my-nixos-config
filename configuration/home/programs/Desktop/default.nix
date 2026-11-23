@@ -5,9 +5,9 @@
 #     - configuration/home/programs/Desktop/cursor.nix
 #     - configuration/pkgs/tools/desktop/waywallen-layer-shell/default.nix
 #   相关（语义关联）：
-#     - configuration/modules/programs/desktop.nix（自动：使用 desktop；同名 fuzzel）
 #     - configuration/home/programs/Desktop/fuzzel/default.nix（自动：使用 fuzzel）
 #     - configuration/home/programs/Desktop/waybar/default.nix（自动：使用 waybar）
+#     - configuration/modules/programs/desktop.nix（自动：使用 desktop）
 # ────────────────────────────────────────────────────────────
 
 {
