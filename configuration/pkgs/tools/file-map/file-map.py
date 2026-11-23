@@ -20,9 +20,10 @@
                     包清单而仓库里正好有 X/ 或 X.nix（包在此安装、配置在彼）。
                  ③ 名字（中）：本仓库自己定义的名字（包名/文件名主干/目录名/mkOption
                     声明的 option）才算数——来自 nixpkgs 的通用名字（alsa-lib、dbus）
-                    几乎不给分，因为「都依赖同一个库」不等于相关。名字要出现在代码
-                    或短字面量里（extraGroups = ["libvirtd"]），只在描述文案里出现的
-                    不算（description = "mango compositor session" 里的 session）。
+                    不参与分数，只用于批注兜底，因为「都依赖同一个库」不等于相关。
+                    名字要出现在代码或短字面量里（extraGroups = ["libvirtd"]），
+                    只在描述文案里出现的不算（description = "mango compositor session"
+                    里的 session）。
                  同一对关系，两个文件各拿一份措辞：装包的一侧「使用 X」，
                  提供方那侧「X 的定义 / X 的配置」。
                  特征出现在太多文件里视为通用词丢弃（df 上限随文件数放宽，封顶 12）。
@@ -31,9 +32,14 @@
 行为约定
     幂等：条目顺序、人工批注、自动条目的呈现都稳定；无变化不写文件。
     只改写已存在的文件（不新建），所以以 root 运行也不会产生属主变化。
-    只改注释块，从不改代码：删掉某个 .nix 后，别的文件头部里指向它的行会被清掉
-    （上游/下游每次重算，相关做路径存在性检查），但代码里的 import 不动，
-    只在报告里给出「指向不存在文件的引用」，配合 --strict 可让 --check 失败。
+    只改注释块，从不改代码；头部之前的内容（shebang、版权注释）原样保留。
+    删掉某个 .nix 后，别的文件头部里指向它的行会被清掉（上游/下游每次重算，
+    相关做路径存在性检查），但代码里的 import 不动，只在报告里给出
+    「指向不存在文件的引用」，配合 --strict 可让 --check 失败。
+    只读开关（--check/--dry-run/--json/--stale-files/--explain-related/--graph/
+    --strict）一律不写盘；--graph 可以单独安全使用。
+    符号链接不替换（跳过并报告）；单个文件读/写失败只记录，不阻断其它文件。
+    pathExists 这种允许目标不存在的探测不算断链。
     写盘用临时文件 + os.replace，并复制原文件的属主/权限 —— 以 root 跑（activation）
     也不会把 /etc/nixos 里的文件变成 root 所有，中途中断也不会留下半截文件。
 """
@@ -65,6 +71,8 @@ EXCLUDE_TOP_DIRS = {"guix-configuration"}
 EXCLUDE_DIRS = {".git"}
 
 REF_RE = re.compile(r"(?<![A-Za-z0-9._+/-])(\.{1,2}/[A-Za-z0-9._+/-]*)")
+PATH_EXISTS_RE = re.compile(r"\bpathExists\s*\(?\s*$")
+IMPORT_RE = re.compile(r"\b(?:import|callPackage)\s*\(?\s*$")
 FIELD_RE = re.compile(r"^#   (\S+?)：(.*)$")
 ITEM_RE = re.compile(r"^#     - (.*)$")
 NOTE_RE = re.compile(r"^(.*?)（(.*)）$")
@@ -74,7 +82,10 @@ def write_atomic(path, text):
 
     顺手保住属主与权限：root 跑（activation）时若直接 replace，新文件会变成
     root 所有，所以先把 uid/gid/mode 复制到临时文件上。
+    拒绝写入符号链接：os.replace 会替换链接本身，而不是它指向的文件。
     """
+    if os.path.islink(path):
+        raise OSError("拒绝改写符号链接: %s" % path)
     st = os.stat(path)
     fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path), prefix=".file-map-", suffix=".tmp")
     try:
@@ -163,15 +174,49 @@ def _interp_end(src, i):
         c = src[i]
         if c == "{":
             depth += 1
+            i += 1
         elif c == "}":
             depth -= 1
+            i += 1
         elif c == '"':
             i += 1
             while i < n and src[i] != '"':
-                if src[i] == "\\":
+                if src[i] == "\\" and i + 1 < n:
+                    i += 2
+                else:
                     i += 1
+            if i < n:
                 i += 1
-        i += 1
+        elif src[i:i + 3] == "''\\":
+            i += 4 if i + 3 < n else 3
+        elif src[i:i + 3] == "'''":
+            i += 3
+        elif src[i:i + 3] == "''$":
+            i += 3
+        elif src[i:i + 2] == "''":
+            i += 2
+            while i < n:
+                if src[i:i + 3] == "'''":
+                    i += 3
+                elif src[i:i + 3] == "''\\":
+                    i += 4 if i + 3 < n else 3
+                elif src[i:i + 3] == "''$":
+                    i += 3
+                elif src[i:i + 2] == "''":
+                    i += 2
+                    break
+                elif src[i:i + 2] == "${":
+                    i = _interp_end(src, i + 2)
+                else:
+                    i += 1
+        elif src[i:i + 2] == "/*":
+            j = src.find("*/", i + 2)
+            i = n if j < 0 else j + 2
+        elif c == "#":
+            j = src.find("\n", i + 1)
+            i = n if j < 0 else j
+        else:
+            i += 1
     return i
 
 
@@ -206,6 +251,14 @@ def sanitize(src, mask_strings):
                     out.append('"')
                     i += 1
                     break
+                elif src[i:i + 2] == "${":
+                    j = _interp_end(src, i + 2)
+                    if mask_strings and j > i + 2 and src[j - 1] == "}":
+                        # 插值里是代码，保留；其中的字符串仍要屏蔽，避免把文案路径当 import
+                        out.append("${" + sanitize(src[i + 2:j - 1], True) + "}")
+                    else:
+                        out.append(src[i:j])
+                    i = j
                 else:
                     out.append(" " if mask_strings else src[i])
                     i += 1
@@ -217,13 +270,24 @@ def sanitize(src, mask_strings):
                 if src[i:i + 3] == "'''":
                     out.append("   ")
                     i += 3
+                elif src[i:i + 3] == "''\\":
+                    take = 4 if i + 3 < n else 3
+                    out.append(" " * take)
+                    i += take
+                elif src[i:i + 3] == "''$":
+                    # ''$ 是缩进字符串里对 $ 的转义（例如 ''${ 是字面量 ${）
+                    out.append("   ")
+                    i += 3
                 elif src[i:i + 2] == "''":
                     out.append("''")
                     i += 2
                     break
                 elif src[i:i + 2] == "${":
                     j = _interp_end(src, i + 2)
-                    out.append(src[i:j])
+                    if mask_strings and j > i + 2 and src[j - 1] == "}":
+                        out.append("${" + sanitize(src[i + 2:j - 1], True) + "}")
+                    else:
+                        out.append(src[i:j])
                     i = j
                 else:
                     out.append(" ")
@@ -235,17 +299,48 @@ def sanitize(src, mask_strings):
 
 
 def resolve(ref, src_path):
-    """路径字面量 → 真实文件：支持 ../、无扩展名、目录→default.nix。"""
+    """路径字面量 → 真实文件：支持 ../、无扩展名、目录→default.nix。
+
+    目录优先按 Nix 语义处理：./foo 指向目录时只看 foo/default.nix，
+    不会为了「猜」目标而落到同级的 foo.nix。
+    """
     base = os.path.dirname(src_path)
     p = os.path.normpath(os.path.join(base, ref))
+    if os.path.isdir(p):
+        cand = os.path.join(p, "default.nix")
+        return cand if os.path.isfile(cand) else None
     cands = [p]
     if not p.endswith(".nix"):
         cands.append(p + ".nix")
-    cands.append(os.path.join(p, "default.nix"))
     for c in cands:
         if os.path.isfile(c):
             return c
     return None
+
+
+def within_root(path, root):
+    """realpath 后判断 path 是否仍在 root 内（root 本身也算）。"""
+    real_root = os.path.realpath(root)
+    real = os.path.realpath(path)
+    if real_root == os.sep:
+        return real.startswith(os.sep)
+    return real == real_root or real.startswith(real_root + os.sep)
+
+
+def in_imports_list(code, pos):
+    """path 是否位于 imports = [ … ] 的括号里（支持跨行、嵌套列表）。"""
+    depth = 0
+    for j in range(pos - 1, -1, -1):
+        c = code[j]
+        if c == "]":
+            depth += 1
+        elif c == "[":
+            if depth:
+                depth -= 1
+            else:
+                head = code[max(0, j - 40):j]
+                return bool(re.search(r"\bimports\s*=\s*$", head))
+    return False
 
 
 # ── 头部注释：解析 / 渲染 ─────────────────────────────────────────
@@ -264,26 +359,37 @@ def parse_header(text):
     """返回 ((start, end), {key: [(path, note), ...]})，没有头部则 (None, {})。"""
     lines = text.split("\n")
     idx = None
-    for i, line in enumerate(lines[:80]):
+    for i, line in enumerate(lines):
         if line.rstrip() == MARK:
             idx = i
             break
     if idx is None:
         return None, {}
 
+    label_to_key = {v: k for k, v in FIELDS}
     start = idx - 1 if idx and lines[idx - 1].rstrip() == SEP else idx
     end = None
     for j in range(idx + 1, len(lines)):
         if lines[j].rstrip() == SEP:
             end = j
             break
-    if end is None:  # 头部破损：退到连续注释块的末尾
+    if end is None:
+        # 头部破损：只吞头部认得的内容，遇到普通注释就停，避免把正文注释删掉
         end = idx
-        while end + 1 < len(lines) and (lines[end + 1].startswith("#") or not lines[end + 1].strip()):
-            end += 1
+        while end + 1 < len(lines):
+            nxt = lines[end + 1]
+            if not nxt.strip():
+                break
+            m = FIELD_RE.match(nxt)
+            if m and m.group(1) in label_to_key:
+                end += 1
+                continue
+            if ITEM_RE.match(nxt):
+                end += 1
+                continue
+            break
 
     fields = {k: [] for k, _ in FIELDS}
-    label_to_key = {v: k for k, v in FIELDS}
     cur = None
     for line in lines[start:end + 1]:
         m = FIELD_RE.match(line)
@@ -331,7 +437,7 @@ def merge_related(old, auto, mode, root, max_items, by_name=None):
 
     keep, missing, renamed = [], [], []
     for p, n in hand:
-        if p and "/" in p and not os.path.exists(os.path.join(root, p)):
+        if p and p != EMPTY and not os.path.exists(os.path.join(root, p)):
             # 文件名唯一时认为是改名/搬家，跟着改路径而不是丢掉这条关联
             alt = (by_name or {}).get(os.path.basename(p), [])
             alt = [a for a in alt if a != p]
@@ -374,12 +480,20 @@ def render(upstream, downstream, related):
 
 
 def splice(text, span, block):
-    """用新头部替换旧头部；头部与正文之间恰好一个空行。"""
+    """用新头部替换旧头部；头部与正文之间恰好一个空行。
+
+    头部之前的内容（shebang、版权注释等）必须原样保留：不能把新头部
+    直接拼到全文最前面。无头部时也把 shebang 留在第一行。
+    """
     lines = text.split("\n")
+    prefix = lines[:span[0]] if span else []
     rest = lines[span[1] + 1:] if span else lines
+    if span is None:
+        while rest and rest[0].startswith("#!"):
+            prefix.append(rest.pop(0))
     while rest and not rest[0].strip():
         rest.pop(0)
-    new = block + [""] + rest
+    new = prefix + block + [""] + rest
     if text.endswith("\n") and new[-1] != "":
         new.append("")
     return "\n".join(new)
@@ -396,14 +510,16 @@ def df_cutoff(n_files):
     return max(SEM_MAX_DF, min(12, -(-n_files // 12)))
 
 
-def package_defs(raws):
+def package_defs(texts, root):
     """本仓库自定义包：{包名: 定义文件 realpath}，以及 {包名: 在哪定义的}。
 
+    texts 必须已剥掉注释（sem），否则注释掉的 callPackage 会被当成定义。
     只认「名字和定义文件对得上」的绑定（等于文件名主干、目录名或该包的 pname），
     否则 `let package = pkgs.callPackage …;` 这种局部变量会被当成一个叫 package 的包。
     """
+    real_root = os.path.realpath(root)
     self_names = {}
-    for p, raw in raws.items():
+    for p, raw in texts.items():
         real = os.path.realpath(p)
         if p.endswith(".nix"):
             stem = os.path.basename(p)[:-4]
@@ -417,7 +533,7 @@ def package_defs(raws):
         self_names[real] = names
 
     defs, definer = {}, {}
-    for p, raw in raws.items():
+    for p, raw in texts.items():
         for m in CALLPKG_RE.finditer(raw):
             attr, ref = m.group(1), m.group(2)
             tgt = os.path.normpath(os.path.join(os.path.dirname(p), ref))
@@ -426,6 +542,8 @@ def package_defs(raws):
             if not os.path.isfile(tgt):
                 continue
             real = os.path.realpath(tgt)
+            if not within_root(real, real_root):
+                continue
             if attr not in self_names.get(real, ()):
                 continue
             defs[attr] = real
@@ -445,10 +563,13 @@ def self_names(path):
     return {stem} if len(stem) >= 4 else set()
 
 
-def local_vocabulary(defs, raws):
-    """本仓库"定义"过的名字：包名、文件名主干、pname、mkOption 声明的 option。"""
+def local_vocabulary(defs, texts):
+    """本仓库"定义"过的名字：包名、文件名主干、pname、mkOption 声明的 option。
+
+    texts 用剥掉注释的 sem，避免注释里的 pname/mkOption 进入词表。
+    """
     names = set(defs)
-    for p, raw in raws.items():
+    for p, raw in texts.items():
         names |= self_names(p)
         for m in re.finditer(r'\b(?:pname|name)\s*=\s*"([A-Za-z0-9._+-]+)"', raw):
             names.add(m.group(1))
@@ -462,7 +583,7 @@ def package_refs(text, defs):
     """文本里引用到的本仓库自定义包（`pkgs.X` 或裸名 X），排除路径片段和 .nix 文件名。"""
     out = set()
     for attr in defs:
-        pat = r"(?<![A-Za-z0-9_/@-])%s(?![A-Za-z0-9_-])" % re.escape(attr)
+        pat = r"(?<![A-Za-z0-9_/@-])%s(?![A-Za-z0-9_/-])" % re.escape(attr)
         for m in re.finditer(pat, text):
             if text[m.end():m.end() + 4] == ".nix":
                 continue
@@ -603,22 +724,24 @@ def self_index(raws):
     return {n: v[0] for n, v in idx.items() if len(v) == 1}
 
 
-def reference_edges(sem, defs, definer, index):
+def reference_edges(sem, defs, definer, index, codes=None):
     """文件 → 它用到的「本仓库里有定义或配置文件」的包 → 那些文件。
 
     两条来源：① 直接引用本仓库自定义的包（`pkgs.X`/裸名 X）；
     ② 把 X 装进包清单，而仓库里正好有 `X/` 或 `X.nix`（包在此安装，配置在彼）。
+    在 mask 过字符串的代码上匹配，避免 description 里的包名被当成真实依赖。
     """
     out = {}
     for p, text in sem.items():
+        code = (codes or {}).get(p, text)
         targets = {}
-        for attr in package_refs(text, defs):
+        for attr in package_refs(code, defs):
             if p in definer.get(attr, ()):
                 continue  # 定义处不算使用
             t = defs[attr]
             if t != p:
                 targets.setdefault(t, {}).setdefault(attr, "def")
-        for name in package_list_refs(text):
+        for name in package_list_refs(code):
             t = index.get(name)
             if t and t != p:
                 targets.setdefault(t, {}).setdefault(name, "cfg")
@@ -660,7 +783,9 @@ def semantic_map(texts, min_score, local, uses, codes=None):
                 items.append((w, kind, tok))
             if not items:
                 continue
-            score = sum(w for w, _, _ in items)
+            # 通用库名（id_x）只用于批注渲染，不参与分数：
+            # 否则「都依赖同一批库」会靠数量堆过阈值（典型：两个 Electron deb 包）。
+            score = sum(w for w, kind, _ in items if kind != "id_x")
             if score < min_score:
                 continue
             # 单条弱证据（一条孤零零的 option 路径之外的东西）不算相关
@@ -709,11 +834,21 @@ def build(root, files):
             ref = m.group(1).rstrip(".")
             tgt = resolve(ref, src)
             if tgt is None:
-                if ref.endswith(".nix"):
+                p = os.path.normpath(os.path.join(os.path.dirname(src), ref))
+                pre = code[max(0, m.start() - 40):m.start()]
+                # pathExists 是「允许不存在」的探测，不算断链。
+                if PATH_EXISTS_RE.search(pre):
+                    continue
+                # 无扩展名的路径也可能是资源/目录，只在确实不存在，
+                # 或 import/callPackage 指向一个没有 default.nix 的目录时报断链。
+                missing = not os.path.exists(p)
+                dir_without_default = (os.path.isdir(p) and
+                                       (IMPORT_RE.search(pre) or in_imports_list(code, m.start())))
+                if ref.endswith(".nix") or missing or dir_without_default:
                     broken.append((display(src, root), ref))
                 continue
             real = os.path.realpath(tgt)
-            if not real.startswith(real_root + os.sep):
+            if not within_root(real, real_root):
                 continue
             if real == os.path.realpath(src):
                 continue  # src = ./.; 这种自引用
@@ -735,7 +870,7 @@ def build(root, files):
 
 
 # 目录被"整体搬进 store"的用法：src = ./.; source = ./dir; PYTHONPATH=${./dir}
-SRC_LIKE_RE = re.compile(r"(src|source|PYTHONPATH)\s*=\s*[^;]*$")
+SRC_LIKE_RE = re.compile(r"\b(?:src|source|PYTHONPATH)\s*=\s*[^;]*$")
 # 构建残留：目录被整体引用时看不出"没人用"，但这些东西基本可以删
 JUNK_RE = re.compile(
     r"(^|/)(__pycache__|\.direnv|\.venv|\.pytest_cache|result|result-[^/]+|build|dist|node_modules)(/|$)"
@@ -746,6 +881,7 @@ JUNK_RE = re.compile(
 
 def scan_references(root, files):
     """返回 (被直接引用的文件, 被整体引用的目录)。"""
+    real_root = os.path.realpath(root)
     refd_files, refd_dirs = set(), set()
     for src in files:
         with open(src, encoding="utf-8") as fh:
@@ -754,15 +890,19 @@ def scan_references(root, files):
             ref = m.group(1).rstrip(".")
             p = os.path.normpath(os.path.join(os.path.dirname(src), ref))
             if os.path.isdir(p):
+                if not within_root(p, real_root):
+                    continue
                 # import ./dir 只会拿 default.nix；src = ./dir 才是整棵树
                 pre = code[max(0, m.start() - 40):m.start()]
                 if SRC_LIKE_RE.search(pre) or not os.path.isfile(os.path.join(p, "default.nix")):
                     refd_dirs.add(os.path.realpath(p))
                 else:
-                    refd_files.add(os.path.realpath(os.path.join(p, "default.nix")))
+                    default = os.path.realpath(os.path.join(p, "default.nix"))
+                    if within_root(default, real_root):
+                        refd_files.add(default)
             else:
                 t = resolve(ref, src)
-                if t:
+                if t and within_root(t, real_root):
                     refd_files.add(os.path.realpath(t))
     return refd_files, refd_dirs
 
@@ -788,6 +928,8 @@ def unreferenced(root, files):
             if f.endswith(".nix"):
                 continue
             p = os.path.realpath(os.path.join(dirpath, f))
+            if not within_root(p, real_root):
+                continue
             rel = display(p, root)
             size = os.path.getsize(p)
             if p in refd_files:
@@ -811,7 +953,7 @@ def main():
     ap.add_argument("--root", default="/etc/nixos", help="仓库根目录（默认 /etc/nixos）")
     ap.add_argument("--check", action="store_true", help="只校验不同步，有差异则退出码 1")
     ap.add_argument("--strict", action="store_true",
-                    help="断链引用或失效的相关条目也算失败（配合 --check 做 pre-commit）")
+                    help="断链/失效相关条目/符号链接也算失败（只读，配合 --check 做 pre-commit）")
     ap.add_argument("--dry-run", action="store_true", help="打印 diff，不写文件")
     ap.add_argument("--json", action="store_true", help="以 JSON 输出结果")
     ap.add_argument("--graph", action="store_true", help="从 flake.nix 打印引用树")
@@ -828,9 +970,9 @@ def main():
     ap.add_argument("-v", "--verbose", action="store_true", help="输出孤立文件与外部资源")
     args = ap.parse_args()
 
-    # 只读模式：任何"看一眼"的开关都不写盘
+    # 只读模式：任何"看一眼"的开关都不写盘（--strict 也只是校验，不隐式写入）
     readonly = (args.check or args.dry_run or args.json or args.stale_files
-                or args.explain_related)
+                or args.explain_related or args.graph or args.strict)
 
     root = os.path.abspath(args.root)
     if not os.path.isdir(root):
@@ -845,9 +987,9 @@ def main():
             upstream[t].append(src)
 
     # 语义相关：结构化证据 + 本仓库里「包 ↔ 配置文件」的使用关系
-    defs, definer = package_defs(raws)
-    local = local_vocabulary(defs, raws)
-    uses = reference_edges(sem, defs, definer, self_index(raws))
+    defs, definer = package_defs(sem, root)
+    local = local_vocabulary(defs, sem)
+    uses = reference_edges(sem, defs, definer, self_index(raws), codes)
     auto_rel = (semantic_map(sem, args.related_min, local, uses, codes)
                 if args.related != "off" else {})
 
@@ -858,69 +1000,108 @@ def main():
 
     targets = [p for p in files if display(p, root) not in EXCLUDE_FILES]
 
-    changed, stale, renamed = [], [], []
+    changed, stale, renamed, errors, skipped_links = [], [], [], [], []
     for path in sorted(targets):
         rel = display(path, root)
         rp = os.path.realpath(path)
-        with open(path, encoding="utf-8") as fh:
-            text = fh.read()
-        span, old = parse_header(text)
-
-        up = sorted({display(s, root) for s in upstream.get(rp, [])})
-        down = sorted({display(t, root) for t in downstream.get(rp, [])})
-        neighbours = set(up) | set(down)
-
-        cands = []
-        for score, other, note in auto_rel.get(rp, []):
-            d = display(other, root)
-            if d in neighbours or d == rel or d in EXCLUDE_FILES:
-                continue
-            cands.append((score, d, note))
-
-        related, missing, moved = merge_related(
-            old.get("related", []), cands, args.related, root, args.related_max, by_name)
-        for p in missing:
-            stale.append((rel, p))
-        for old_p, new_p in moved:
-            renamed.append((rel, old_p, new_p))
-
-        block = render(
-            merge_edges(old.get("upstream", []), up),
-            merge_edges(old.get("downstream", []), down, seq.get(rp, [])),
-            related,
-        )
-        new_text = splice(text, span, block)
-        if new_text == text:
+        if os.path.islink(path):
+            skipped_links.append(rel)
             continue
-        changed.append(rel)
+        try:
+            with open(path, encoding="utf-8") as fh:
+                text = fh.read()
+            span, old = parse_header(text)
 
-        if args.dry_run:
-            if not args.json:
-                sys.stdout.writelines(difflib.unified_diff(
-                    text.splitlines(True), new_text.splitlines(True),
-                    fromfile="a/" + rel, tofile="b/" + rel, n=2))
-        elif not readonly and not args.json:
-            write_atomic(path, new_text)
+            up = sorted({display(s, root) for s in upstream.get(rp, [])})
+            down = sorted({display(t, root) for t in downstream.get(rp, [])})
+            neighbours = set(up) | set(down)
+
+            cands = []
+            for score, other, note in auto_rel.get(rp, []):
+                d = display(other, root)
+                if d in neighbours or d == rel or d in EXCLUDE_FILES:
+                    continue
+                cands.append((score, d, note))
+
+            related, missing, moved = merge_related(
+                old.get("related", []), cands, args.related, root, args.related_max, by_name)
+            for p in missing:
+                stale.append((rel, p))
+            for old_p, new_p in moved:
+                renamed.append((rel, old_p, new_p))
+
+            block = render(
+                merge_edges(old.get("upstream", []), up),
+                merge_edges(old.get("downstream", []), down, seq.get(rp, [])),
+                related,
+            )
+            new_text = splice(text, span, block)
+            if new_text == text:
+                continue
+
+            if args.dry_run:
+                if not args.json:
+                    sys.stdout.writelines(difflib.unified_diff(
+                        text.splitlines(True), new_text.splitlines(True),
+                        fromfile="a/" + rel, tofile="b/" + rel, n=2))
+                changed.append(rel)
+            elif not readonly and not args.json:
+                try:
+                    write_atomic(path, new_text)
+                except OSError as exc:
+                    errors.append((rel, str(exc)))
+                    continue
+                changed.append(rel)
+            else:
+                changed.append(rel)
+        except (OSError, UnicodeError) as exc:
+            # 单个文件读不了/编码坏了，不拖垮其它文件；最后统一报错并非零退出
+            errors.append((rel, str(exc)))
 
     orphans = sorted(
         display(p, root) for p in targets if not upstream.get(os.path.realpath(p), [])
     )
 
-    unused_files, junk_files = unreferenced(root, files) if (args.stale_files or args.json) else ([], [])
+    if args.stale_files or args.json:
+        unused_files, junk_files = unreferenced(root, files)
+    else:
+        unused_files, junk_files = [], []
+
+    graph_lines = []
+    if args.graph:
+        flake = os.path.realpath(os.path.join(root, "flake.nix"))
+        seen = set()
+
+        def walk(p, depth):
+            graph_lines.append("  " * depth + ("└─ " if depth else "") +
+                               ("flake.nix" if p == flake else display(p, root)))
+            if p in seen or depth > 12:
+                return
+            seen.add(p)
+            for k in downstream.get(p, []):
+                if display(k, root) not in EXCLUDE_FILES:
+                    walk(k, depth + 1)
+
+        walk(flake, 0)
 
     if args.json:
-        print(json.dumps({
+        payload = {
             "scanned": len(targets),
             "changed": changed,
             "broken": broken,
             "orphans": orphans,
             "stale": stale,
             "renamed": [{"file": f, "from": a, "to": b} for f, a, b in renamed],
+            "skipped_symlinks": skipped_links,
+            "errors": [{"file": f, "error": e} for f, e in errors],
             "stale_files": {
                 "unused": [{"path": p, "size": sz} for sz, p in unused_files],
                 "junk": [{"path": p, "size": sz} for sz, p in junk_files],
             },
-        }, ensure_ascii=False, indent=2))
+        }
+        if args.graph:
+            payload["graph"] = graph_lines
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
         if not args.dry_run:
             print("扫描 %d 个 .nix 文件，%s %d 个"
@@ -941,8 +1122,16 @@ def main():
             print("⚠ 失效的「相关」条目 %d 处（路径已不存在，已移除）:" % len(stale))
             for src, p in stale[:20]:
                 print("  - %s → %s" % (src, p))
+        if errors:
+            print("⚠ 处理失败 %d 个:" % len(errors))
+            for f, e in errors[:20]:
+                print("  - %s: %s" % (f, e))
+        if skipped_links:
+            print("⚠ 跳过符号链接 %d 个（拒绝替换链接）:" % len(skipped_links))
+            for f in skipped_links[:20]:
+                print("  - " + f)
         if args.stale_files:
-            unused, junk = unreferenced(root, files)
+            unused, junk = unused_files, junk_files
             total = sum(sz for sz, _ in unused)
             print("未被任何 .nix 引用（configuration/ 下，共 %d 个 / %.1f MB，删前确认）:"
                   % (len(unused), total / 1048576))
@@ -983,23 +1172,12 @@ def main():
                 for r in resources[src]:
                     print("  - %s → %s" % (display(src, root), r))
 
-    if args.graph:
-        flake = os.path.realpath(os.path.join(root, "flake.nix"))
-        seen = set()
+        if args.graph:
+            print("\n".join(graph_lines))
 
-        def walk(p, depth):
-            print("  " * depth + ("└─ " if depth else "") +
-                  ("flake.nix" if p == flake else display(p, root)))
-            if p in seen or depth > 12:
-                return
-            seen.add(p)
-            for k in downstream.get(p, []):
-                if display(k, root) not in EXCLUDE_FILES:
-                    walk(k, depth + 1)
-
-        walk(flake, 0)
-
-    failed = (args.check and changed) or (args.strict and (broken or stale))
+    failed = ((args.check and changed)
+              or (args.strict and (broken or stale or skipped_links))
+              or bool(errors))
     sys.exit(1 if failed else 0)
 
 

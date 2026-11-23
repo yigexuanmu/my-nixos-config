@@ -6,7 +6,7 @@
 #     - configuration/home/programs/Terminal/default.nix（kitty/fish 包）
 #     - configuration/home/programs/Terminal/kitty/default.nix（EDITOR/TERMINAL 指向 kitty）
 #     - configuration/modules/services/flatpak.nix（flatpak 的 XDG_DATA_DIRS）
-#     - configuration/device/disko.nix（自动：同用 /var/lib）
+#     - configuration/device/disko.nix（自动：共享 /var/lib）
 # ────────────────────────────────────────────────────────────
 
 {

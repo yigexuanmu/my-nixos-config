@@ -2,9 +2,7 @@
 # 文件关联（仅 /etc/nixos 范围）
 #   上游（引用本文件）：configuration/home/programs.nix
 #   下游（本文件引用）：无
-#   相关（语义关联）：
-#     - configuration/modules/programs/desktop.nix（xdg portal 的 chooser 使用 fuzzel）
-#     - configuration/home/programs/Desktop/default.nix（自动：fuzzel 的配置）
+#   相关（语义关联）：configuration/modules/programs/desktop.nix（xdg portal 的 chooser 使用 fuzzel）
 # ────────────────────────────────────────────────────────────
 
 {

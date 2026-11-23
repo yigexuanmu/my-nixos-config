@@ -79,9 +79,12 @@
 
 ```bash
 nixos-file-map                     # 重算头部注释（rebuild 后已在 PATH）
-nixos-file-map --check             # 只校验；--strict 连断链引用一起算失败
+nixos-file-map --check             # 只校验；--strict 连断链/失效条目一起算失败
+nixos-file-map --graph             # 打印 flake 引用树（只读）
+nixos-file-map --json --graph      # 机器可读结果 + 引用树（只读）
 nixos-file-map --stale-files       # 找没人引用的资源文件 / 构建残留
 python3 configuration/pkgs/data/rime-wanxiang-gram/rime-wanxiang-gram-update.py --check
+
 ```
 
 ## 系统配置

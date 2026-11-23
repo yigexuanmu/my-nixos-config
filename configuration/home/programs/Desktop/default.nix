@@ -7,7 +7,6 @@
 #     - configuration/home/programs/Desktop/fuzzel/default.nix
 #     - configuration/home/programs/Desktop/mango/default.nix
 #     - configuration/home/programs/Entertain/cava/default.nix（cava 包）
-#     - configuration/modules/services/gnome-keyring.nix（自动：使用 gnome-keyring）
 # ────────────────────────────────────────────────────────────
 
 {
@@ -25,6 +24,48 @@ in {
   imports = [
     ./cursor.nix
   ];
+
+  # 声明式接管 ~/.config/mimeapps.list（原先是手写文件，未被 HM 管理）。
+  # 下面把原有的一切关联完整迁移过来，再把目录默认应用改成 nautilus；
+  # 注意：接管后 GUI 里“设为默认”的改动不会持久，要改这里再 switch。
+  xdg.mimeApps = {
+    enable = true;
+
+    associations.added = {
+      "application/json" = "nvim.desktop";
+      "application/x-docbook+xml" = "nvim.desktop";
+      "application/x-yaml" = "nvim.desktop";
+      "text/markdown" = "nvim.desktop";
+      "text/plain" = "nvim.desktop";
+      "text/x-cmake" = "nvim.desktop";
+      "x-scheme-handler/clash" = ["clash-verge.desktop" "mihomo-party.desktop"];
+      "x-scheme-handler/discord-1216669957799018608" = "discord-1216669957799018608.desktop";
+      "x-scheme-handler/clash-verge" = "clash-verge.desktop";
+      "image/png" = "imv.desktop";
+    };
+
+    defaultApplications = {
+      "application/json" = "nvim.desktop";
+      "application/x-docbook+xml" = "nvim.desktop";
+      "application/x-yaml" = "nvim.desktop";
+      "text/markdown" = "nvim.desktop";
+      "text/plain" = "nvim.desktop";
+      "text/x-cmake" = "nvim.desktop";
+      "x-scheme-handler/clash" = "mihomo-party.desktop";
+      "x-scheme-handler/mihomo" = "mihomo-party.desktop";
+      "x-scheme-handler/discord-1216669957799018608" = "discord-1216669957799018608.desktop";
+      "x-scheme-handler/clash-verge" = "clash-verge.desktop";
+      "text/html" = "google-chrome.desktop";
+      "x-scheme-handler/http" = "google-chrome.desktop";
+      "x-scheme-handler/https" = "google-chrome.desktop";
+      "x-scheme-handler/about" = "google-chrome.desktop";
+      "x-scheme-handler/unknown" = "google-chrome.desktop";
+      "image/png" = "imv.desktop";
+      "x-scheme-handler/zcode" = "zcode.desktop";
+      # 默认文件管理器：文件夹 entries 走 inode/directory
+      "inode/directory" = "org.gnome.Nautilus.desktop";
+    };
+  };
 
   home.packages = with pkgs; [
     nwg-look

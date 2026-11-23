@@ -7,7 +7,7 @@
 #     - configuration/modules/virtualisation/libvirtd.nix（libvirtd 用户组）
 #     - configuration/modules/virtualisation/podman.nix（podman 用户组）
 #     - configuration/device/hardware/nvidia.nix（video 用户组）
-#     - configuration/home/programs.nix（自动：同用 /home/mioha）
+#     - configuration/home/programs.nix（自动：共享 /home/mioha）
 # ────────────────────────────────────────────────────────────
 
 {

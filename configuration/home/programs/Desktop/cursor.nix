@@ -2,7 +2,7 @@
 # 文件关联（仅 /etc/nixos 范围）
 #   上游（引用本文件）：configuration/home/programs/Desktop/default.nix
 #   下游（本文件引用）：configuration/pkgs/data/cursors/windows-cursor.nix（callPackage 直接引用）
-#   相关（语义关联）：configuration/home/mango-session.nix（自动：同设 systemd.user.sessionVariables）
+#   相关（语义关联）：无
 # ────────────────────────────────────────────────────────────
 
 {

@@ -6,8 +6,7 @@
 #     - configuration/system/boot.nix（/boot、/etc、/nix 的 neededForBoot 与挂载点对应）
 #     - configuration/system/tmpfiles.nix（/var/tmp、/var/build 目录）
 #     - configuration/modules/services/guix.nix（/gnu、/gnu/store 子卷）
-#     - configuration/home/session.nix（自动：同用 /var/lib）
-#     - configuration/mioha-main/device.nix（自动：同名 device）
+#     - configuration/home/session.nix（自动：共享 /var/lib）
 # ────────────────────────────────────────────────────────────
 
 # Disko 磁盘布局配置 - Btrfs (pc-mioha)
