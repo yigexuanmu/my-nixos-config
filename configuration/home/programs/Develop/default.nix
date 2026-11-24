@@ -25,7 +25,6 @@
     glow
     strace
     lsof
-    vscode
     git
     nh
     pi-coding-agent
