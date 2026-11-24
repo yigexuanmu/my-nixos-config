@@ -138,11 +138,11 @@
         "nixpkgs-js": "nixpkgs-js"
       },
       "locked": {
-        "lastModified": 1795244969,
-        "narHash": "sha256-VHhRpDBWVLtnY/jyvKwcXfNRtzbT5aZb9ZTm6WmjQ2M=",
+        "lastModified": 1795439014,
+        "narHash": "sha256-IcV19h2I90NPPucUMkVB9+ZEBLHsXWi/hNgHFftp2hA=",
         "owner": "yigexuanmu",
         "repo": "folia-major",
-        "rev": "2ae1c42b100fe6122d940e0ad426f77bb5387d43",
+        "rev": "ba3be5fb165cec68540a59eeb64aa3df771c7c51",
         "type": "github"
       },
       "original": {

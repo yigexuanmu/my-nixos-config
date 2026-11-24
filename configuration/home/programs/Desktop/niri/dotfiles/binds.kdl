@@ -25,7 +25,7 @@ binds {
     // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+T hotkey-overlay-title="打开终端 Terminal" { spawn "kitty"; }
     // 打开文件管理器
-    Mod+X hotkey-overlay-title="打开文件管理器" {spawn "thunar";}
+    Mod+X hotkey-overlay-title="打开文件管理器" {spawn "nautilus";}
     Mod+E hotkey-overlay-title="noctalia应用程序启动台" { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
     // 锁屏
     //Mod+Alt+V  hotkey-overlay-title="剪贴板 Clipboard" {spawn-sh "copyq toggle || ~/.local/bin/clipse-gui || kitty --class clipse --single-instance -e clipse";}

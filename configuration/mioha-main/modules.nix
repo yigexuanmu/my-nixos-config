@@ -11,6 +11,7 @@
 #     - configuration/modules/services/gnome-keyring.nix
 #     - configuration/modules/services/polkit.nix
 #     - configuration/modules/services/openssh.nix
+#     - configuration/modules/services/sunshine.nix
 #     - configuration/modules/services/pipewire.nix
 #     - configuration/modules/services/guix.nix
 #     - configuration/modules/security/sudo-rs.nix
@@ -36,6 +37,7 @@
     ../modules/services/gnome-keyring.nix
     ../modules/services/polkit.nix
     ../modules/services/openssh.nix
+    ../modules/services/sunshine.nix
     ../modules/services/pipewire.nix
     ../modules/services/guix.nix
     ../modules/security/sudo-rs.nix
